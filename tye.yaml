@@ -1,0 +1,99 @@
+# tye application configuration file
+# read all about it at https://github.com/dotnet/tye
+#
+# when you've given us a try, we'd love to know what you think:
+#    https://aka.ms/AA7q20u
+#
+name: todos
+services:
+- name: web
+  project: src/Web/Web.csproj
+  bindings:
+  - name: http
+    protocol: http
+    port: 5000
+  - name: https
+    protocol: https
+    port: 5001
+
+- name: clientapp
+  project: src/ClientApp/ClientApp.csproj
+  bindings:
+  - name: http
+    protocol: http
+    port: 5020
+  - name: https
+    protocol: https
+    port: 5021
+
+- name: mssql
+  image: mcr.microsoft.com/azure-sql-edge:latest
+  env:
+  - name: MSSQL_SA_PASSWORD
+    value: P@ssw0rd
+  - name: MSSQL_PID
+    value: Developer
+  - name: ACCEPT_EULA
+    value: "Y"
+  bindings:
+  - port: 1433
+    connectionString: Server=${host},${port};User Id=sa;Password=${env:MSSQL_SA_PASSWORD};Encrypt=false
+  volumes:
+  - source: .data/sql-edge
+    target: /var/opt/mssql/data
+
+- name: rabbitmq
+  image: rabbitmq:3-management
+  bindings:
+    - name: rabbit
+      port: 5672
+      protocol: rabbitmq
+    - name: management
+      port: 15672
+  
+- name: redis
+  image: redis
+  bindings:
+    - port: 6379
+      connectionString: "${host}:${port}"
+
+- name: redis-cli
+  image: redis
+  args: "redis-cli -h redis MONITOR"
+
+- name: zipkin
+  image: openzipkin/zipkin
+  bindings:
+    - port: 9411
+
+- name: healthchecks
+  project: other/HealthChecks/HealthChecks.csproj
+  bindings:
+  - name: http
+    protocol: http
+    port: 5030
+  - name: https
+    protocol: https
+    port: 5031
+
+- name: identityservice
+  project: other/IdentityService/IdentityService.csproj
+  bindings:
+  - name: http
+    protocol: http
+    port: 5040
+  - name: https
+    protocol: https
+    port: 5041
+
+- name: smtp4dev
+  image: rnwood/smtp4dev:prerelease
+  bindings:
+  - name: ui
+    port: 3000
+    containerPort: 80
+    protocol: http
+  - name: smtp
+    port: 25
+    containerPort: 25
+    protocol: smtp

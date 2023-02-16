@@ -1,0 +1,203 @@
+@page "/channels"
+@page "/channels/{Id}"
+@inject ThemeManager ThemeManager
+@inject NavigationManager NavigationManager
+@implements IDisposable
+@using System.ComponentModel.DataAnnotations
+
+<div class="@(isDarkMode ? "dark" : null)">
+
+@foreach (var post in posts)
+{
+    bool first = IsFirst(post);
+    bool last = IsLast(post);
+
+    <Message @key="post.GetHashCode()" Direction="@(post.IsCurrentUser ? MessageDirection.Right : MessageDirection.Left)"
+        First=@first Last=@last IsFooterVisible=@last IsSideAreaVisible=@(post.Sender != MyUserId)>
+        <SideAreaTemplate>
+            @if(first) 
+            {
+                <MudAvatar Class="mt-2" Size="Size.Small">@post.Sender</MudAvatar>
+            }
+        </SideAreaTemplate>
+        <ChildContent>
+             <Bubble>
+                @(new MarkupString(post.Content.Replace(Environment.NewLine, "<br />")))
+            </Bubble>
+        </ChildContent>
+        
+        <FooterTemplate>
+            @if(last) 
+            {
+                <TimeView>
+                @{
+                    var published = post.Published;
+                    var timeSince = context - published;
+                 }
+                @if (timeSince.TotalMinutes < 30)
+                {
+                    <small class="time">
+                        @if (timeSince.TotalMinutes >= 1)
+                        {
+                            <text>@timeSince.Humanize(minUnit: Humanizer.Localisation.TimeUnit.Minute) ago</text>
+                        }
+                        else
+                        {
+                            <text>Now</text>
+                        }
+                    </small>
+                }
+                else 
+                {
+                    <small>@published.ToString("HH:mm")</small>
+                }
+                </TimeView>
+            }
+        </FooterTemplate>
+    </Message>   
+}
+
+<MudPaper Elevation="35" Class="mt-8 pa-4">
+    <EditForm OnValidSubmit="Save" Model="@this">
+        <DataAnnotationsValidator />
+
+        <MudTextField @bind-Value="Text" Label="Message" Lines="3" For="() => Text"></MudTextField>
+        <MudCheckBox @bind-Checked="Me" Label="Me" />
+        <MudButton ButtonType="ButtonType.Submit">Save</MudButton>
+    </EditForm>
+</MudPaper>
+
+</div>
+
+    @code 
+    {
+        bool isDarkMode = false;
+
+        string MyUserId = "BS";
+
+        List<Post> posts = new List<Post>() {
+            new Post {
+                Sender = "BS",
+                Published = DateTime.UtcNow,
+                Content = "Lorem ipsum dolor sit amet",
+                IsCurrentUser = true
+            },
+            new Post {
+                Sender = "BS",
+                Published = DateTime.UtcNow,
+                Content = "dsfsdf",
+                IsCurrentUser = true
+            },
+            new Post {
+                Sender = "FA",
+                Published = DateTime.UtcNow,
+                Content = "Why did you say that?"
+            }
+        };
+
+        [Parameter]
+        public string? Id { get; set; }
+
+        private bool IsFirst(Post post) 
+        {
+            var index = posts.IndexOf(post);
+            if(index == 0) 
+            {
+                return true;
+            }
+
+            var previousPost = posts[index - 1];
+
+            if(!(post.Published.Year == previousPost.Published.Year
+                && post.Published.Month == previousPost.Published.Month
+                && post.Published.Day == previousPost.Published.Day
+                && post.Published.Hour == previousPost.Published.Hour
+                && post.Published.Minute == previousPost.Published.Minute))
+            {
+                return true;
+            }
+            
+            return previousPost.Sender != post.Sender;
+        }
+
+        private bool IsLast(Post post) 
+        {
+            var index = posts.IndexOf(post);
+            if(index == posts.Count - 1) 
+            {
+                return true;
+            }
+
+            var nextPost = posts[index + 1];
+
+            if(!(post.Published.Year == nextPost.Published.Year
+                && post.Published.Month == nextPost.Published.Month
+                && post.Published.Day == nextPost.Published.Day
+                && post.Published.Hour == nextPost.Published.Hour
+                && post.Published.Minute == nextPost.Published.Minute))
+            {
+                return true;
+            }
+            
+            return nextPost.Sender != post.Sender;
+        }
+
+        protected override Task OnInitializedAsync() 
+        {
+            NavigationManager.LocationChanged += OnLocationChanged;
+
+            ThemeManager.ColorSchemeChanged += ColorSchemeChanged;
+            isDarkMode = ThemeManager.CurrentColorScheme == ColorScheme.Dark;
+           
+            StateHasChanged();
+
+            return Task.CompletedTask;
+        }
+
+        void OnLocationChanged(object? sender, LocationChangedEventArgs eventArgs) 
+        {
+            
+        }
+
+        void ColorSchemeChanged(object? sender, ColorSchemeChangedEventArgs arg) 
+        {
+            isDarkMode = arg.ColorScheme == ColorScheme.Dark;
+           
+            StateHasChanged();
+        }
+
+        public void Dispose() 
+        {
+            NavigationManager.LocationChanged -= OnLocationChanged;
+            ThemeManager.ColorSchemeChanged -= ColorSchemeChanged;
+        }
+
+        class Post 
+        {
+            public string Sender { get; set; } = default!;
+
+            public DateTime Published { get; set; }
+
+            public string Content { get; set; } = default!;
+
+            public bool IsCurrentUser { get; set; } = default!;
+        }
+
+        public bool Me { get; set; } = false;
+
+        [Required]
+        public string Text { get; set; } = default!;
+
+        void Save() 
+        {
+            posts.Add(new Post {
+                Sender = Me ? "BS" : "FA",
+                Published = DateTime.UtcNow,
+                Content = Text,
+                IsCurrentUser = Me
+            });
+
+            Text = string.Empty;
+            Me = false;
+        }
+    }

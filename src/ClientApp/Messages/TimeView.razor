@@ -1,0 +1,28 @@
+@implements IDisposable
+@inject TimeViewService TimeViewService
+
+@ChildContent(dateTime)
+
+@code {
+    DateTime dateTime;
+
+    [Parameter]
+    [EditorRequired]
+    public RenderFragment<DateTime> ChildContent { get; set; } = null!;
+
+    protected override void OnInitialized()
+    {
+        TimeViewService.Tick += OnTick;
+    }
+
+    private void OnTick(object? sender, EventArgs eventArgs) 
+    {
+        dateTime = DateTime.UtcNow;
+        StateHasChanged();    
+    }
+
+    public void Dispose()
+    {
+        TimeViewService.Tick -= OnTick;
+    }
+}

@@ -1,0 +1,21 @@
+﻿@using Microsoft.FeatureManagement;
+
+@inject IStringLocalizer<NavMenu> T
+@inject IFeatureManager FeatureManager
+
+<MudNavMenu>
+    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.List">@T["Todos"]</MudNavLink>
+
+    @if (isBoardEnabled)
+    {
+        <MudNavLink Href="/channels" Icon="@Icons.Material.Filled.Task">@T["Board"]</MudNavLink>
+    }
+</MudNavMenu>
+
+@code {
+    bool isBoardEnabled = false;
+    protected override async Task OnInitializedAsync()
+    {
+        isBoardEnabled = await FeatureManager.IsEnabledAsync("FeatureA");
+    }
+}

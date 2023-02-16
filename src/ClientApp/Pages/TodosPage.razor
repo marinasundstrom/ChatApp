@@ -1,0 +1,16 @@
+﻿@page "/"
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.SignalR.Client
+@using ChatApp
+@* @implements IAsyncDisposable *@
+@inject ISnackbar Snackbar
+@inject ITodosClient TodosClient
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
+@inject Services.IAccessTokenProvider AccessTokenProvider
+@inject IStringLocalizer<TodosPage> T
+
+<AppPageTitle>@T["Todos"]</AppPageTitle>
+
+<MudText Typo="Typo.h4" GutterBottom="true">@T["Todos"]</MudText>
