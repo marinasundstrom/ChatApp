@@ -11,7 +11,7 @@ public sealed class Message : AggregateRoot<MessageId>, IAuditable
     public Message(ChannelId channelId, string text)
         : base(new MessageId())
     {
-        ChannelId = ChannelId;
+        ChannelId = channelId;
         Content = text;
 
         // Todo: Emit Domain Event
@@ -31,10 +31,11 @@ public sealed class Message : AggregateRoot<MessageId>, IAuditable
         return true;
     }
 
-    public DateTime Published{ get; private set; }
+    public DateTimeOffset Published => Created;
+
     public ChannelId ChannelId { get; private set; }
 
-    public UserId CreatedById { get; set; } = null!;
+    public UserId? CreatedById { get; set; } = null!;
     public DateTimeOffset Created { get; set; }
 
     public UserId? LastModifiedById { get; set; }

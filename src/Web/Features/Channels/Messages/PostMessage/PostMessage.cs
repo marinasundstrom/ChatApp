@@ -18,7 +18,7 @@ public sealed record PostMessage(Guid ChannelId, string Content) : IRequest<Resu
         }
     }
 
-    public sealed class Handler : IRequestHandler<PostMessage, Result>
+    public sealed class Handler : IRequestHandler<PostMessage, Result<MessageDto>>
     {
         private readonly IChannelRepository channelRepository;
         private readonly IMessageRepository messageRepository;
@@ -31,15 +31,15 @@ public sealed record PostMessage(Guid ChannelId, string Content) : IRequest<Resu
             this.unitOfWork = unitOfWork;
         }
 
-        public async Task<Result> Handle(PostMessage request, CancellationToken cancellationToken)
+        public async Task<Result<MessageDto>> Handle(PostMessage request, CancellationToken cancellationToken)
         {
             var hasChannel = await channelRepository
                 .GetAll(new ChannelWithId(request.ChannelId))
                 .AnyAsync(cancellationToken);
 
-            if (hasChannel)
+            if (!hasChannel)
             {
-                return Result.Failure(Errors.Channels.ChannelNotFound);
+                return Result.Failure<MessageDto>(Errors.Channels.ChannelNotFound);
             }
 
             messageRepository.Add(
@@ -47,7 +47,7 @@ public sealed record PostMessage(Guid ChannelId, string Content) : IRequest<Resu
 
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Result.Success();
+            return Result.Success((MessageDto)null!);
         }
     }
 }

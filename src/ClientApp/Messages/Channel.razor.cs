@@ -36,9 +36,20 @@ namespace ChatApp.Messages
             var authenticationState = await AuthenticationStateTask;
             MyUserId = authenticationState.User?.FindFirst("sub")?.Value!;
 
+            var result = await MessagesClient.GetMessagesAsync(1, 10, null, null);
+            foreach(var item in result.Items) 
+            {
+                posts.Add(new Post{
+                    Sender = item.CreatedBy.Id, 
+                    Published = item.Created, 
+                    Content = item.Content, 
+                    IsCurrentUser = item.CreatedBy.Id == MyUserId
+                });
+            }
+
             try
             {
-                Id = Id ?? "test";
+                Id = Id ?? "73b202c5-3ef1-4cd8-b1ed-04c05f47e981";
 
                 hubConnection = new HubConnectionBuilder().WithUrl($"https://localhost:5001/hubs/chat?channelId={Id}", options =>
                 {
@@ -85,9 +96,7 @@ namespace ChatApp.Messages
         }
 
         private void OnMessagePosted(string channelId, string senderId, string content)
-        {
-            Console.WriteLine(senderId);
-            
+        {            
             posts.Add(new Post{
                 Sender = senderId, 
                 Published = DateTime.UtcNow, 
@@ -118,7 +127,7 @@ namespace ChatApp.Messages
         class Post
         {
             public string Sender { get; set; } = default !;
-            public DateTime Published { get; set; }
+            public DateTimeOffset Published { get; set; }
 
             public string Content { get; set; } = default !;
             public bool IsCurrentUser { get; set; } = default !;

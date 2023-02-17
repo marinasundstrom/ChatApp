@@ -4,7 +4,9 @@ public readonly struct ChannelId
 {
     public ChannelId(Guid value) => Value = value;
 
-    public Guid Value { get; } = Guid.NewGuid();
+    public ChannelId() => Value = Guid.NewGuid();
+
+    public Guid Value { get; }
 
     public override string ToString()
     {

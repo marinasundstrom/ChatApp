@@ -24,11 +24,11 @@ builder.Services.AddHttpClient("WebAPI",
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
     .CreateClient("WebAPI"));
 
-builder.Services.AddHttpClient<ITodosClient>(nameof(TodosClient), (sp, http) =>
+builder.Services.AddHttpClient<IMessagesClient>(nameof(MessagesClient), (sp, http) =>
 {
     http.BaseAddress = new Uri("https://localhost:5001/");
 })
-.AddTypedClient<ITodosClient>((http, sp) => new TodosClient(http))
+.AddTypedClient<IMessagesClient>((http, sp) => new MessagesClient(http))
 .AddHttpMessageHandler<CustomAuthorizationMessageHandler>()
 .SetHandlerLifetime(TimeSpan.FromMinutes(5))  //Set lifetime to five minutes
 .AddPolicyHandler(GetRetryPolicy());

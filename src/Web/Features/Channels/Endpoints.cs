@@ -11,9 +11,9 @@ namespace ChatApp.Features.Channels;
 
 public static class Endpoints
 {
-    public static WebApplication MapTodoEndpoints(this WebApplication app)
+    public static WebApplication MapMessageEndpoints(this WebApplication app)
     {
-        var channels = app.NewVersionedApi("Channels");
+        var channels = app.NewVersionedApi("Messages");
 
         MapVersion1(channels);
 
@@ -22,29 +22,30 @@ public static class Endpoints
 
     private static void MapVersion1(IVersionedEndpointRouteBuilder channels)
     {
-        var group = channels.MapGroup("/v{version:apiVersion}/Todos")
-            .WithTags("Todos")
+        var group = channels.MapGroup("/v{version:apiVersion}/Messages")
+            //.WithTags("Messages")
             .HasApiVersion(1, 0)
             .RequireAuthorization()
             .WithOpenApi();
 
-            /*
-
-        group.MapGet("/", GetTodos)
-            .Produces<ItemsResult<TodoDto>>(StatusCodes.Status200OK)
+          
+        group.MapGet("/", GetMessages)
+            .WithName($"Messages_{nameof(GetMessages)}")
+            .Produces<ItemsResult<MessageDto>>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status429TooManyRequests)
             .RequireRateLimiting("fixed");
 
-        group.MapGet("/{id}", GetTodoById)
-            .Produces<TodoDto>(StatusCodes.Status200OK)
+  /*
+        group.MapGet("/{id}", GetMessageById)
+            .Produces<MessageDto>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .WithName(nameof(GetTodoById));
+            .WithName(nameof(GetMessageById));
 
-        group.MapPost("/", CreateTodo)
-            .Produces<TodoDto>(StatusCodes.Status200OK)
+        group.MapPost("/", CreateMessage)
+            .Produces<MessageDto>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound);
 
-        group.MapDelete("/{id}", DeleteTodo)
+        group.MapDelete("/{id}", DeleteMessage)
             .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound);
 
@@ -75,28 +76,29 @@ public static class Endpoints
         */
     }
 
-    /*
+ 
 
-    public static async Task<ItemsResult<TodoDto>> GetTodos(TodoStatusDto? status, string? assignedTo, int page = 1, int pageSize = 10, string? sortBy = null, SortDirection? sortDirection = null, CancellationToken cancellationToken = default, IMediator mediator = default!)
-        => await mediator.Send(new GetTodos(status, assignedTo, page, pageSize, sortBy, sortDirection), cancellationToken);
+    public static async Task<ItemsResult<MessageDto>> GetMessages(int page = 1, int pageSize = 10, string? sortBy = null, SortDirection? sortDirection = null, CancellationToken cancellationToken = default, IMediator mediator = default!)
+        => await mediator.Send(new GetMessages(page, pageSize, sortBy, sortDirection), cancellationToken);
 
-    public static async Task<IResult> GetTodoById(int id, CancellationToken cancellationToken, IMediator mediator)
+   /*
+    public static async Task<IResult> GetMessageById(int id, CancellationToken cancellationToken, IMediator mediator)
     {
-        var result = await mediator.Send(new GetTodoById(id), cancellationToken);
+        var result = await mediator.Send(new GetMessageById(id), cancellationToken);
         return HandleResult(result);
     }
 
-    public static async Task<IResult> CreateTodo(CreateTodoRequest request, CancellationToken cancellationToken, IMediator mediator)
+    public static async Task<IResult> CreateMessage(CreateMessageRequest request, CancellationToken cancellationToken, IMediator mediator)
     {
-        var result = await mediator.Send(new CreateTodo(request.Title, request.Description, request.Status, request.AssignedTo, request.EstimatedHours, request.RemainingHours), cancellationToken);
+        var result = await mediator.Send(new CreateMessage(request.Title, request.Description, request.Status, request.AssignedTo, request.EstimatedHours, request.RemainingHours), cancellationToken);
         return result.Handle(
-            onSuccess: data => Results.CreatedAtRoute(nameof(GetTodoById), new { id = data.Id }, data),
+            onSuccess: data => Results.CreatedAtRoute(nameof(GetMessageById), new { id = data.Id }, data),
             onError: error => Results.Problem(detail: error.Detail, title: error.Title, type: error.Id));
     }
 
-    public static async Task<IResult> DeleteTodo(int id, CancellationToken cancellationToken, IMediator mediator)
+    public static async Task<IResult> DeleteMessage(int id, CancellationToken cancellationToken, IMediator mediator)
     {
-        var result = await mediator.Send(new DeleteTodo(id), cancellationToken);
+        var result = await mediator.Send(new DeleteMessage(id), cancellationToken);
         return HandleResult(result);
     }
 
@@ -112,7 +114,7 @@ public static class Endpoints
         return HandleResult(result);
     }
 
-    public static async Task<IResult> UpdateStatus(int id, [FromBody] TodoStatusDto status, CancellationToken cancellationToken, IMediator mediator)
+    public static async Task<IResult> UpdateStatus(int id, [FromBody] MessageStatusDto status, CancellationToken cancellationToken, IMediator mediator)
     {
         var result = await mediator.Send(new UpdateStatus(id, status), cancellationToken);
         return HandleResult(result);
@@ -160,5 +162,3 @@ public static class Endpoints
             
             */
 }
-
-public sealed record CreateTodoRequest(string Title, string? Description, TodoStatusDto Status, string? AssignedTo, double? EstimatedHours, double? RemainingHours);

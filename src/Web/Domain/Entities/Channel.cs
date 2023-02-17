@@ -16,6 +16,12 @@ public sealed class Channel : AggregateRoot<ChannelId>, IAuditable
         // Todo: Emit Domain Event
     }
 
+    internal Channel(ChannelId id, string title)
+        : base(id)
+    {
+        Title = title;
+    }
+
     public string Title { get; private set; } = null!;
 
     public bool Rename(string newTitle) 
@@ -61,7 +67,7 @@ public sealed class Channel : AggregateRoot<ChannelId>, IAuditable
         return true;
     }
 
-    public UserId CreatedById { get; set; } = null!;
+    public UserId? CreatedById { get; set; } = null!;
     public DateTimeOffset Created { get; set; }
 
     public UserId? LastModifiedById { get; set; }

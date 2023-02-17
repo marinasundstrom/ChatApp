@@ -7,7 +7,7 @@ public static class WebApplicationExtensions
 {
     public static WebApplication MapApplicationEndpoints(this WebApplication app)
     {
-        app.MapTodoEndpoints();
+        app.MapMessageEndpoints();
         app.MapUsersEndpoints();
 
         return app;

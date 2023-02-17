@@ -5,7 +5,7 @@ public sealed class TimeViewService : IDisposable
     Task task = default!;
     PeriodicTimer? timer;
     CancellationTokenSource? cts;
-    DateTime dateTime;
+    DateTimeOffset dateTime;
 
     public TimeViewService() 
     {

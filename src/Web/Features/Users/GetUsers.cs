@@ -38,8 +38,6 @@ public record GetUsers(int Page = 1, int PageSize = 10, string? SearchTerm = nul
 
             var users = await query
                 .OrderBy(i => i.Id)
-                .Include(i => i.CreatedBy)
-                .Include(i => i.LastModifiedBy)
                 .AsSplitQuery()
                 .Skip((request.Page - 1) * request.PageSize)
                 .Take(request.PageSize).AsQueryable()

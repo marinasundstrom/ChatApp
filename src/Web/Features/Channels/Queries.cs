@@ -30,19 +30,16 @@ public record GetMessages(int Page = 1, int PageSize = 10, string? SortBy = null
             }
             else
             {
-                query = query.OrderByDescending(x => x.Created);
+                query = query.OrderBy(x => x.Created);
             }
 
-            var todos = await query
-               /* .Include(i => i.AssignedTo)
-                .Include(i => i.CreatedBy)
-                .Include(i => i.LastModifiedBy) */
+            var messages = await query
                 .AsSplitQuery()
                 .Skip((request.Page - 1) * request.PageSize)
                 .Take(request.PageSize).AsQueryable()
                 .ToArrayAsync(cancellationToken);
 
-            return new ItemsResult<MessageDto>(todos.Select(x => x.ToDto()), totalCount);
+            return new ItemsResult<MessageDto>(messages.Select(x => x.ToDto()), totalCount);
         }
     }
 }

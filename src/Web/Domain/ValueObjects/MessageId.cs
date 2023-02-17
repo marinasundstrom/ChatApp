@@ -4,7 +4,9 @@ public readonly struct MessageId
 {
     public MessageId(Guid value) => Value = value;
 
-    public Guid Value { get; } = Guid.NewGuid();
+    public MessageId() => Value = Guid.NewGuid();
+
+    public Guid Value { get; } 
 
     public override string ToString()
     {

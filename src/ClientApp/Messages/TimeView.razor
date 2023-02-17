@@ -4,11 +4,11 @@
 @ChildContent(dateTime)
 
 @code {
-    DateTime dateTime;
+    DateTimeOffset dateTime;
 
     [Parameter]
     [EditorRequired]
-    public RenderFragment<DateTime> ChildContent { get; set; } = null!;
+    public RenderFragment<DateTimeOffset> ChildContent { get; set; } = null!;
 
     protected override void OnInitialized()
     {
@@ -17,7 +17,7 @@
 
     private void OnTick(object? sender, EventArgs eventArgs) 
     {
-        dateTime = DateTime.UtcNow;
+        dateTime = DateTimeOffset.UtcNow;
         StateHasChanged();    
     }
 
