@@ -113,6 +113,11 @@ namespace ChatApp.Chat.Channels
 
         private void AddMessage(ChatApp.Message message)
         {
+            if(posts.Any(x => x.Id == message.Id)) 
+            {
+                return;
+            }
+
             posts.Add(new Post
             {
                 Id = message.Id,
@@ -128,6 +133,8 @@ namespace ChatApp.Chat.Channels
         private void OnMessagePosted(ChatApp.Message message)
         {            
             AddMessage(message);
+
+            StateHasChanged();
         }
 
         async void OnLocationChanged(object? sender, LocationChangedEventArgs eventArgs)

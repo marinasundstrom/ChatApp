@@ -1,13 +1,21 @@
 ﻿using ChatApp.Domain.Specifications;
 using ChatApp.Domain.ValueObjects;
 
-namespace ChatApp.Features.Chat.Messages;
+namespace ChatApp.Features.Chat;
 
 public class ChannelWithId : BaseSpecification<Channel>
 {
     public ChannelWithId(ChannelId channelId)
     {
         Criteria = channel => channel.Id == channelId;
+    }
+}
+
+public class ChannelWithName : BaseSpecification<Channel>
+{
+    public ChannelWithName(string name)
+    {
+        Criteria = channel => channel.Title == name;
     }
 }
 

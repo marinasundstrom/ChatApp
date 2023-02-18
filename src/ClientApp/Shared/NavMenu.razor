@@ -1,8 +1,11 @@
 ﻿@using Microsoft.FeatureManagement;
+@using ChatApp.Chat.Channels;
 
 @inject IStringLocalizer<NavMenu> T
 @inject IFeatureManager FeatureManager
 @inject IChannelsClient ChannelsClient
+@inject IDialogService DialogService
+@inject NavigationManager NavigationManager
 
 <MudNavMenu>
     <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.List">@T["Home"]</MudNavLink>
@@ -15,13 +18,13 @@
                 <MudNavLink Href="@($"/channels/{channel.Id}")" Icon="@Icons.Material.Filled.Chat">@T[@channel.Name]</MudNavLink>        
             }
         }
-        <MudNavLink OnClick="() => {}" Icon="@Icons.Material.Filled.Add">@T["NewChannel"]</MudNavLink>
+        <MudNavLink OnClick="CreateChannel" Icon="@Icons.Material.Filled.Add">@T["NewChannel"]</MudNavLink>
     </MudNavGroup>
 
 </MudNavMenu>
 
 @code {
-    List<ChatApp.Channel> channels = new  List<ChatApp.Channel>();
+    List<ChatApp.Channel> channels = new List<ChatApp.Channel>();
     bool isBoardEnabled = false;
 
     protected override async Task OnInitializedAsync()
@@ -29,5 +32,19 @@
         isBoardEnabled = await FeatureManager.IsEnabledAsync("FeatureA");
 
         channels = (await ChannelsClient.GetChannelsAsync(1, 100, null, null)).Items.ToList();
+    }
+
+    async Task CreateChannel() 
+    {
+        var dialogRef = await DialogService.ShowAsync<NewChannelDialog>("New channel");
+        var result = await dialogRef.Result;
+
+        if(result.Canceled) return;
+
+        var channel = (ChatApp.Channel)result.Data;
+
+        channels.Add(channel);
+
+        NavigationManager.NavigateTo($"/channels/{channel.Id}");
     }
 }
