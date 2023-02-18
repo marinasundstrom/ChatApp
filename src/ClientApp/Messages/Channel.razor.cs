@@ -60,6 +60,7 @@ namespace ChatApp.Messages
                 }).WithAutomaticReconnect().Build();
 
                 hubConnection.On<ChatApp.Message>("MessagePosted", OnMessagePosted);
+                hubConnection.On<string>("MessagePostedConfirmed", OnMessagePostedConfirmed);
 
                 hubConnection.Closed += (error) =>
                 {
@@ -90,6 +91,14 @@ namespace ChatApp.Messages
             }
         }
 
+        private void OnMessagePostedConfirmed(string messageId)
+        {
+            var post = posts.First(x => x.Id == Guid.Parse(messageId));
+            post.Confirmed = true;
+
+            StateHasChanged();
+        }
+
         private void AddMessage(ChatApp.Message message)
         {
             posts.Add(new Post
@@ -99,7 +108,8 @@ namespace ChatApp.Messages
                 SenderInitials = GetInitials(message.CreatedBy.Name),
                 Published = message.Created,
                 Content = message.Content,
-                IsCurrentUser = message.CreatedBy.Id == MyUserId
+                IsCurrentUser = message.CreatedBy.Id == MyUserId,
+                Confirmed = true
             });
         }
 
@@ -136,6 +146,7 @@ namespace ChatApp.Messages
 
             public string Content { get; set; } = default !;
             public bool IsCurrentUser { get; set; } = default !;
+            public bool Confirmed { get; set; }
         }
 
         [Required]

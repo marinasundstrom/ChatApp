@@ -57,20 +57,19 @@ public sealed record PostMessage(Guid ChannelId, string Content) : IRequest<Resu
             messageRepository.Add(message);
 
             var messageId = message.Id;
+            var userId = currentUserService.UserId;
             var connectionId = currentUserService.ConnectionId;
 
-            await StoreSenderConnectionId(messageId, connectionId, cancellationToken);
+            await StoreSenderConnectionId(messageId, userId!, connectionId!, cancellationToken);
 
             await unitOfWork.SaveChangesAsync(cancellationToken);
-
-            // TODO: Notify sender message been posted
 
             return Result.Success(messageId);
         }
 
-        private async Task StoreSenderConnectionId(MessageId messageId, string? connectionId, CancellationToken cancellationToken)
+        private async Task StoreSenderConnectionId(MessageId messageId, string userId, string connectionId, CancellationToken cancellationToken)
         {
-            await distributedCache.SetAsync(messageId.ToString(), connectionId!, new DistributedCacheEntryOptions(), cancellationToken);
+            await distributedCache.SetAsync(messageId.ToString(), new CachedMessageSender(userId, connectionId!), new DistributedCacheEntryOptions(), cancellationToken);
         }
     }
 }

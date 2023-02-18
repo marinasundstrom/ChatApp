@@ -69,6 +69,8 @@ public interface IChatHubClient
 {
     Task MessagePosted(MessageDto message);
 
+    Task MessagePostedConfirmed(string messageId);
+
     Task MessageEdited(string channelId, string senderId, string content);
 
     Task MessageDeleted(string channelId, string messageId);

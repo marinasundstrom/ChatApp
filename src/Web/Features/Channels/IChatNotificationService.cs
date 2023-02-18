@@ -5,9 +5,10 @@ namespace ChatApp.Features.Channels;
 
 public interface IChatNotificationService
 {
-    Task MessagePosted(MessageDto message, CancellationToken cancellationToken = default);
-    Task MessageEdited(string channelId, string messageId, string content, CancellationToken cancellationToken = default);
-    Task MessageDeleted(string channelId, string messageId, CancellationToken cancellationToken = default);
+    Task NotifyMessagePosted(MessageDto message, CancellationToken cancellationToken = default);
+    Task SendConfirmationToSender(string channelId, string messageId, CancellationToken cancellationToken = default);
+    Task NotifyMessageEdited(string channelId, string messageId, string content, CancellationToken cancellationToken = default);
+    Task NotifyMessageDeleted(string channelId, string messageId, CancellationToken cancellationToken = default);
 }
 
 public class ChatNotificationService : IChatNotificationService
@@ -23,35 +24,40 @@ public class ChatNotificationService : IChatNotificationService
         this.distributedCache = distributedCache;
     }
 
-    public async Task MessagePosted(MessageDto message, CancellationToken cancellationToken = default)
+    public async Task NotifyMessagePosted(MessageDto message, CancellationToken cancellationToken = default)
     {
-        string senderConnectionId = await GetSenderConnectionId(message, cancellationToken);
+        var (UserId, ConnectionId) = await GetSenderConnectionId(message.Id.ToString(), cancellationToken);
 
         await hubsContext.Clients
-            .GroupExcept($"channel-{message.ChannelId}", senderConnectionId)
+            .GroupExcept($"channel-{message.ChannelId}", ConnectionId)
             .MessagePosted(message);
-
-        await distributedCache.RemoveAsync(message.Id.ToString());
     }
 
-    private async Task<string> GetSenderConnectionId(MessageDto message, CancellationToken cancellationToken)
+    public async Task SendConfirmationToSender(string channelId, string messageId, CancellationToken cancellationToken = default)
     {
-        return await distributedCache.GetAsync<string>(message.Id.ToString(), cancellationToken);
+        var (UserId, ConnectionId) = await GetSenderConnectionId(messageId, cancellationToken);
+
+        await hubsContext.Clients
+            .User(UserId)
+            .MessagePostedConfirmed(messageId);
     }
 
-    public async Task MessageEdited(string channelId, string messageId, string content, CancellationToken cancellationToken = default) 
+    private async Task<CachedMessageSender> GetSenderConnectionId(string messageId, CancellationToken cancellationToken)
+    {
+        return await distributedCache.GetAsync<CachedMessageSender>(messageId, cancellationToken);
+    }
+
+    public async Task NotifyMessageEdited(string channelId, string messageId, string content, CancellationToken cancellationToken = default) 
     {
         await hubsContext.Clients
             .Group($"channel-{channelId}")
-            //.GroupExcept($"channel-{channelId}", Context.ConnectionId)
             .MessageEdited(channelId, messageId, content);
     }
 
-    public async Task MessageDeleted(string channelId, string messageId, CancellationToken cancellationToken = default) 
+    public async Task NotifyMessageDeleted(string channelId, string messageId, CancellationToken cancellationToken = default) 
     {
         await hubsContext.Clients
             .Group($"channel-{channelId}")
-            //.GroupExcept($"channel-{channelId}", Context.ConnectionId)
             .MessageDeleted(channelId, messageId);
     }
 }

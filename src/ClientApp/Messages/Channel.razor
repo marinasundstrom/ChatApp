@@ -29,6 +29,14 @@
         <ChildContent>
              <Bubble>
                 @(new MarkupString(post.Content.Replace(Environment.NewLine, "<br />")))
+
+                @if(post.Sender == MyUserId) 
+                {
+                    if(post.Confirmed) 
+                    {
+                        <MudIcon Icon="@Icons.Filled.CheckCircle" Size="Size.Small" Class="ms-1" Style="height: 0.8em;" />
+                    }
+                }
             </Bubble>
         </ChildContent>
         
