@@ -11,9 +11,9 @@ public static class Endpoints
 {
     public static WebApplication MapMessageEndpoints(this WebApplication app)
     {
-        var channels = app.NewVersionedApi("Messages");
+        var messages = app.NewVersionedApi("Messages");
 
-        MapVersion1(channels);
+        MapVersion1(messages);
 
         return app;
     }
@@ -76,8 +76,8 @@ public static class Endpoints
 
  
 
-    public static async Task<ItemsResult<MessageDto>> GetMessages(int page = 1, int pageSize = 10, string? sortBy = null, SortDirection? sortDirection = null, CancellationToken cancellationToken = default, IMediator mediator = default!)
-        => await mediator.Send(new GetMessages(page, pageSize, sortBy, sortDirection), cancellationToken);
+    public static async Task<ItemsResult<MessageDto>> GetMessages(Guid channelId, int page = 1, int pageSize = 10, string? sortBy = null, SortDirection? sortDirection = null, CancellationToken cancellationToken = default, IMediator mediator = default!)
+        => await mediator.Send(new GetMessages(channelId, page, pageSize, sortBy, sortDirection), cancellationToken);
 
    /*
     public static async Task<IResult> GetMessageById(int id, CancellationToken cancellationToken, IMediator mediator)

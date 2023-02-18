@@ -38,7 +38,9 @@ namespace ChatApp.Chat.Channels
 
         private async Task LoadChannel()
         {
-            var result = await MessagesClient.GetMessagesAsync(1, 10, null, null);
+            Id = Id ?? "73b202c5-3ef1-4cd8-b1ed-04c05f47e981";
+
+            var result = await MessagesClient.GetMessagesAsync(Guid.Parse(Id!), 1, 10, null, null);
 
             posts.Clear();
 
@@ -47,9 +49,14 @@ namespace ChatApp.Chat.Channels
                 AddMessage(item);
             }
 
+            StateHasChanged();
+
             try
             {
-                Id = Id ?? "73b202c5-3ef1-4cd8-b1ed-04c05f47e981";
+                if(hubConnection is not null && hubConnection.State != HubConnectionState.Disconnected) 
+                {
+                    await hubConnection.DisposeAsync();
+                }
 
                 hubConnection = new HubConnectionBuilder().WithUrl($"https://localhost:5001/hubs/chat?channelId={Id}", options =>
                 {
@@ -121,8 +128,6 @@ namespace ChatApp.Chat.Channels
         private void OnMessagePosted(ChatApp.Message message)
         {            
             AddMessage(message);
-
-            StateHasChanged();
         }
 
         async void OnLocationChanged(object? sender, LocationChangedEventArgs eventArgs)

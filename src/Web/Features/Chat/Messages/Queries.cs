@@ -9,7 +9,7 @@ using ChatApp.Features.Users;
 
 namespace ChatApp.Features.Chat.Messages;
 
-public record GetMessages(int Page = 1, int PageSize = 10, string? SortBy = null, SortDirection? SortDirection = null) : IRequest<ItemsResult<MessageDto>>
+public record GetMessages(Guid? ChannelId, int Page = 1, int PageSize = 10, string? SortBy = null, SortDirection? SortDirection = null) : IRequest<ItemsResult<MessageDto>>
 {
     public class Handler : IRequestHandler<GetMessages, ItemsResult<MessageDto>>
     {
@@ -27,6 +27,11 @@ public record GetMessages(int Page = 1, int PageSize = 10, string? SortBy = null
             var query = context.Messages.AsQueryable();
 
             var totalCount = await query.CountAsync(cancellationToken);
+
+            if(request.ChannelId is not null) 
+            {
+                query = query.Where(x => x.ChannelId == request.ChannelId);
+            }
 
             if (request.SortBy is not null)
             {
