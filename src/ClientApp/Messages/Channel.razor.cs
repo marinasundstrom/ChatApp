@@ -12,10 +12,7 @@ namespace ChatApp.Messages
     {
         bool isDarkMode = false;
         string MyUserId = "BS";
-        List<Post> posts = new List<Post>()
-        {
-            new Post{Sender = "FB", Published = DateTime.UtcNow, Content = "Welcome!"}
-        };
+        List<Post> posts = new List<Post>();
        
         [Parameter]
         public string? Id { get; set; }

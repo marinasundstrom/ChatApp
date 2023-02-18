@@ -23,7 +23,7 @@ public sealed class TimeViewService : IDisposable
         {
             while(await timer.WaitForNextTickAsync(token))
             {
-                dateTime = DateTime.UtcNow;
+                dateTime = DateTimeOffset.UtcNow;
                 Tick?.Invoke(this, EventArgs.Empty);
             }
         }

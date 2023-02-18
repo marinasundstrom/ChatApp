@@ -46,7 +46,7 @@ public sealed class Channel : AggregateRoot<ChannelId>, IAuditable
 
         if(participant is not null) return false;
 
-        _participants.Add(new ChannelParticipant(userId, DateTime.UtcNow));
+        _participants.Add(new ChannelParticipant(userId, DateTimeOffset.UtcNow));
 
         // Todo: Emit Domain Event
 
@@ -59,7 +59,7 @@ public sealed class Channel : AggregateRoot<ChannelId>, IAuditable
 
         if(participant is null) return false;
 
-        participant.Left = DateTime.UtcNow;
+        participant.Left = DateTimeOffset.UtcNow;
         //_participants.Remove(participant);
 
         // Todo: Emit Domain Event
@@ -80,7 +80,7 @@ public class ChannelParticipant
     {
     }
 
-    public ChannelParticipant(UserId userId, DateTime joined)
+    public ChannelParticipant(UserId userId, DateTimeOffset joined)
     {
         UserId = userId;
         Joined = joined;
@@ -88,7 +88,7 @@ public class ChannelParticipant
 
     public UserId UserId { get; set; }
 
-    public DateTime Joined { get; set; }
+    public DateTimeOffset Joined { get; set; }
 
-    public DateTime? Left { get; set; }
+    public DateTimeOffset? Left { get; set; }
 }
