@@ -25,20 +25,20 @@ public sealed record PostMessage(Guid ChannelId, string Content) : IRequest<Resu
         private readonly IMessageRepository messageRepository;
         private readonly IUnitOfWork unitOfWork;
         private readonly ICurrentUserService currentUserService;
-        private readonly IDistributedCache distributedCache;
+        private readonly IMessageSenderCache messageSenderCache;
 
         public Handler(
             IChannelRepository channelRepository, 
             IMessageRepository messageRepository, 
             IUnitOfWork unitOfWork,
             ICurrentUserService currentUserService,
-            IDistributedCache distributedCache)
+            IMessageSenderCache messageSenderCache)
         {
             this.channelRepository = channelRepository;
             this.messageRepository = messageRepository;
             this.unitOfWork = unitOfWork;
             this.currentUserService = currentUserService;
-            this.distributedCache = distributedCache;
+            this.messageSenderCache = messageSenderCache;
         }
 
         public async Task<Result<MessageId>> Handle(PostMessage request, CancellationToken cancellationToken)
@@ -60,16 +60,12 @@ public sealed record PostMessage(Guid ChannelId, string Content) : IRequest<Resu
             var userId = currentUserService.UserId;
             var connectionId = currentUserService.ConnectionId;
 
-            await StoreSenderConnectionId(messageId, userId!, connectionId!, cancellationToken);
+            await messageSenderCache.StoreSenderConnectionId(
+                messageId.ToString(), userId!, connectionId!, cancellationToken);
 
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result.Success(messageId);
-        }
-
-        private async Task StoreSenderConnectionId(MessageId messageId, string userId, string connectionId, CancellationToken cancellationToken)
-        {
-            await distributedCache.SetAsync(messageId.ToString(), new CachedMessageSender(userId, connectionId!), new DistributedCacheEntryOptions(), cancellationToken);
         }
     }
 }

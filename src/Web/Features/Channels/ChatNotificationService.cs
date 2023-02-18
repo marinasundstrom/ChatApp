@@ -14,19 +14,19 @@ public interface IChatNotificationService
 public class ChatNotificationService : IChatNotificationService
 {
     private readonly IHubContext<ChatHub, IChatHubClient> hubsContext;
-    private readonly IDistributedCache distributedCache;
+    private readonly IMessageSenderCache messageSenderCache;
 
     public ChatNotificationService(
         IHubContext<ChatHub, IChatHubClient> hubsContext, 
-        IDistributedCache distributedCache)
+        IMessageSenderCache messageSenderCache)
     {
         this.hubsContext = hubsContext;
-        this.distributedCache = distributedCache;
+        this.messageSenderCache = messageSenderCache;
     }
 
     public async Task NotifyMessagePosted(MessageDto message, CancellationToken cancellationToken = default)
     {
-        var (UserId, ConnectionId) = await GetSenderConnectionId(message.Id.ToString(), cancellationToken);
+        var (UserId, ConnectionId) = await messageSenderCache.GetSenderConnectionId(message.Id.ToString(), cancellationToken);
 
         await hubsContext.Clients
             .GroupExcept($"channel-{message.ChannelId}", ConnectionId)
@@ -35,16 +35,11 @@ public class ChatNotificationService : IChatNotificationService
 
     public async Task SendConfirmationToSender(string channelId, string messageId, CancellationToken cancellationToken = default)
     {
-        var (UserId, ConnectionId) = await GetSenderConnectionId(messageId, cancellationToken);
+        var (UserId, ConnectionId) = await messageSenderCache.GetSenderConnectionId(messageId, cancellationToken);
 
         await hubsContext.Clients
             .User(UserId)
             .MessagePostedConfirmed(messageId);
-    }
-
-    private async Task<CachedMessageSender> GetSenderConnectionId(string messageId, CancellationToken cancellationToken)
-    {
-        return await distributedCache.GetAsync<CachedMessageSender>(messageId, cancellationToken);
     }
 
     public async Task NotifyMessageEdited(string channelId, string messageId, string content, CancellationToken cancellationToken = default) 
