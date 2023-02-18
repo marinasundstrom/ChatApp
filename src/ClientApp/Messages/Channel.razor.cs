@@ -34,7 +34,7 @@ namespace ChatApp.Messages
             MyUserId = authenticationState.User?.FindFirst("sub")?.Value!;
 
             var result = await MessagesClient.GetMessagesAsync(1, 10, null, null);
-            foreach(var item in result.Items)
+            foreach(var item in result.Items.Reverse())
             {
                 AddMessage(item);
             }

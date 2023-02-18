@@ -34,7 +34,7 @@ public record GetMessages(int Page = 1, int PageSize = 10, string? SortBy = null
             }
             else
             {
-                query = query.OrderBy(x => x.Created);
+                query = query.OrderByDescending(x => x.Created);
             }
 
             var messages = await query
