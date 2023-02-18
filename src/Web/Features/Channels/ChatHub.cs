@@ -1,3 +1,4 @@
+using ChatApp.Domain.ValueObjects;
 using ChatApp.Features.Channels.Messages.PostMessage;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -31,11 +32,12 @@ public sealed class ChatHub : Hub<IChatHubClient>
         return base.OnConnectedAsync();
     }
 
-    public async Task PostMessage(string channelId, string content) 
+    public async Task<Guid> PostMessage(string channelId, string content) 
     {
         currentUserService.SetUser(Context.User!);
+        currentUserService.SetConnectionId(Context.ConnectionId);
 
-        await mediator.Send(new PostMessage(Guid.Parse(channelId), content));   
+        return (MessageId)await mediator.Send(new PostMessage(Guid.Parse(channelId), content));   
     }
 
     public async Task EditMessage(string channelId, string messageId, string content) 

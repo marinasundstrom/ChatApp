@@ -94,6 +94,7 @@ namespace ChatApp.Messages
         {
             posts.Add(new Post
             {
+                Id = message.Id,
                 Sender = message.CreatedBy.Id,
                 SenderInitials = GetInitials(message.CreatedBy.Name),
                 Published = message.Created,
@@ -128,6 +129,7 @@ namespace ChatApp.Messages
 
         class Post
         {
+            public Guid Id { get; set; } 
             public string Sender { get; set; } = default !;
             public string SenderInitials { get; set; } = default!;
             public DateTimeOffset Published { get; set; }
@@ -141,7 +143,20 @@ namespace ChatApp.Messages
 
         async Task Send()
         {
-            await hubConnection.SendAsync("PostMessage", Id, Text);
+            var message = new Post() 
+            {
+                Id = Guid.Empty,
+                Published = DateTimeOffset.UtcNow,
+                Sender = MyUserId,
+                SenderInitials = GetInitials("Foo"), // TODO: Fix with my name,
+                IsCurrentUser = true,
+                Content = Text
+            };
+
+            posts.Add(message);
+
+            message.Id = await hubConnection.InvokeAsync<Guid>("PostMessage", Id, Text);
+
             Text = string.Empty;
         }
 

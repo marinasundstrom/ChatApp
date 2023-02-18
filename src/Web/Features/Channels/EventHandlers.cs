@@ -31,6 +31,6 @@ public sealed class MessagePostedEventHandler : IDomainEventHandler<MessagePoste
             new Users.UserDto(user.Id, user.Name),
             null, null);
 
-        await chatNotificationService.MessagePosted(messageDto);
+        await chatNotificationService.MessagePosted(messageDto, cancellationToken);
     }
 }

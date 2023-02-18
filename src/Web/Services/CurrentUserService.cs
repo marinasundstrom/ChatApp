@@ -15,6 +15,8 @@ public sealed class CurrentUserService : ICurrentUserService
 
     public string? UserId => _currentUserId ??= GetUser()?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
+    public string? ConnectionId { get; private set; }
+
     private ClaimsPrincipal GetUser()
     {
         return _user ??= _httpContextAccessor.HttpContext?.User!;
@@ -23,5 +25,10 @@ public sealed class CurrentUserService : ICurrentUserService
     public void SetUser(ClaimsPrincipal user)
     {
         _user = user;
+    }
+
+    public void SetConnectionId(string connectionId)
+    {
+        ConnectionId = connectionId;
     }
 }

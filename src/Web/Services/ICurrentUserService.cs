@@ -7,4 +7,8 @@ public interface ICurrentUserService
     string? UserId { get; }
 
     void SetUser(ClaimsPrincipal user);
+
+    string? ConnectionId { get; }
+
+    void SetConnectionId(string connectionId);
 }
