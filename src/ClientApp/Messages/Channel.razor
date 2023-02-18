@@ -43,29 +43,31 @@
         <FooterTemplate>
             @if(last) 
             {
-                <TimeView>
-                @{
-                    var published = post.Published;
-                    var timeSince = context - published;
-                 }
-                @if (timeSince.TotalMinutes < 30)
-                {
-                    <small class="time">
-                        @if (timeSince.TotalMinutes >= 1)
-                        {
-                            <text>@timeSince.Humanize(minUnit: Humanizer.Localisation.TimeUnit.Minute) ago</text>
-                        }
-                        else
-                        {
-                            <text>Now</text>
-                        }
-                    </small>
-                }
-                else 
-                {
-                    <small>@published.ToString("HH:mm")</small>
-                }
-                </TimeView>
+                <div class="mb-2">
+                    <TimeView>
+                    @{
+                        var published = post.Published;
+                        var timeSince = context - published;
+                    }
+                    @if (timeSince.TotalMinutes < 30)
+                    {
+                        <small class="time">
+                            @if (timeSince.TotalMinutes >= 1)
+                            {
+                                <text>@timeSince.Humanize(minUnit: Humanizer.Localisation.TimeUnit.Minute) ago</text>
+                            }
+                            else
+                            {
+                                <text>Now</text>
+                            }
+                        </small>
+                    }
+                    else 
+                    {
+                        <small>@published.ToString("HH:mm")</small>
+                    }
+                    </TimeView>
+                </div>
             }
         </FooterTemplate>
     </Message>   
