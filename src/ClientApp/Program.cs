@@ -8,7 +8,8 @@ using Polly.Contrib.WaitAndRetry;
 using Polly.Extensions.Http;
 using ChatApp;
 using ChatApp.Theming;
-using ChatApp.Messages;
+using ChatApp.Chat;
+using ChatApp.Chat.Messages;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");

@@ -1,3 +1,4 @@
+@using ChatApp.Chat.Messages
 @using Microsoft.AspNetCore.Authorization;
 
 @page "/channels"
@@ -10,6 +11,7 @@
 @inject ISnackbar Snackbar
 @inject IMessagesClient MessagesClient
 @implements IDisposable
+@using ChatApp.Chat.Messages
 @using System.ComponentModel.DataAnnotations
 
 <div class="@(isDarkMode ? "dark" : null)">

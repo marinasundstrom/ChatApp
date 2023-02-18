@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 using MudBlazor;
 using Microsoft.AspNetCore.Components.Authorization;
 
-namespace ChatApp.Messages
+namespace ChatApp.Chat.Channels
 {
     public partial class Channel
     {
@@ -27,14 +27,22 @@ namespace ChatApp.Messages
             NavigationManager.LocationChanged += OnLocationChanged;
             ThemeManager.ColorSchemeChanged += ColorSchemeChanged;
             isDarkMode = ThemeManager.CurrentColorScheme == ColorScheme.Dark;
-            
+
             StateHasChanged();
 
             var authenticationState = await AuthenticationStateTask;
             MyUserId = authenticationState.User?.FindFirst("sub")?.Value!;
 
+            await LoadChannel();
+        }
+
+        private async Task LoadChannel()
+        {
             var result = await MessagesClient.GetMessagesAsync(1, 10, null, null);
-            foreach(var item in result.Items.Reverse())
+
+            posts.Clear();
+
+            foreach (var item in result.Items.Reverse())
             {
                 AddMessage(item);
             }
@@ -48,7 +56,7 @@ namespace ChatApp.Messages
                     options.AccessTokenProvider = async () =>
                     {
                         var tokenResult = await AccessTokenProvider.RequestAccessToken();
-                        if(tokenResult.TryGetToken(out var token)) 
+                        if (tokenResult.TryGetToken(out var token))
                         {
                             return token.Value;
                         }
@@ -117,9 +125,11 @@ namespace ChatApp.Messages
             StateHasChanged();
         }
 
-        void OnLocationChanged(object? sender, LocationChangedEventArgs eventArgs)
+        async void OnLocationChanged(object? sender, LocationChangedEventArgs eventArgs)
         {
+            await LoadChannel();
 
+            StateHasChanged();
         }
 
         void ColorSchemeChanged(object? sender, ColorSchemeChangedEventArgs arg)

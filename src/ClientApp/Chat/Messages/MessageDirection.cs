@@ -1,4 +1,4 @@
-namespace ChatApp.Messages;
+namespace ChatApp.Chat.Messages;
 
 public enum MessageDirection 
 {
