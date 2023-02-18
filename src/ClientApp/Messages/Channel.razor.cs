@@ -169,6 +169,12 @@ namespace ChatApp.Messages
             }
 
             var previousPost = posts[index - 1];
+
+            if(previousPost.Sender != post.Sender) 
+            {
+                return true;
+            }
+
             if (!(post.Published.Year == previousPost.Published.Year && post.Published.Month == previousPost.Published.Month && post.Published.Day == previousPost.Published.Day && post.Published.Hour == previousPost.Published.Hour && post.Published.Minute == previousPost.Published.Minute))
             {
                 return true;
@@ -186,6 +192,12 @@ namespace ChatApp.Messages
             }
 
             var nextPost = posts[index + 1];
+
+            if(nextPost.Sender != post.Sender) 
+            {
+                return true;
+            }
+
             if (!(post.Published.Year == nextPost.Published.Year && post.Published.Month == nextPost.Published.Month && post.Published.Day == nextPost.Published.Day && post.Published.Hour == nextPost.Published.Hour && post.Published.Minute == nextPost.Published.Minute))
             {
                 return true;
