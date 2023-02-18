@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ChatApp.Domain;
 
-namespace ChatApp.Features.Channels.Messages;
+namespace ChatApp.Features.Chat.Messages;
 
 public sealed record DeleteMessage(Guid MessageId, string Content) : IRequest<Result>
 {

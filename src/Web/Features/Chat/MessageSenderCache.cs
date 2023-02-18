@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Caching.Distributed;
 
-namespace ChatApp.Features.Channels;
+namespace ChatApp.Features.Chat;
 
 public record CachedMessageSender(string UserId, string ConnectionId);
 

@@ -1,4 +1,5 @@
-﻿using ChatApp.Features.Channels;
+﻿using ChatApp.Features.Chat;
+using ChatApp.Features.Chat.Messages;
 using ChatApp.Features.Users;
 
 namespace ChatApp.Extensions;

@@ -1,7 +1,7 @@
 ﻿using ChatApp.Domain.Specifications;
 using ChatApp.Domain.ValueObjects;
 
-namespace ChatApp.Features.Channels;
+namespace ChatApp.Features.Chat.Messages;
 
 public class ChannelWithId : BaseSpecification<Channel>
 {

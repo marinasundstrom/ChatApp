@@ -2,7 +2,7 @@ using FluentValidation;
 using MediatR;
 using ChatApp.Domain;
 
-namespace ChatApp.Features.Channels.Messages;
+namespace ChatApp.Features.Chat.Messages;
 
 public sealed record EditMessage(Guid MessageId, string Content) : IRequest<Result>
 {

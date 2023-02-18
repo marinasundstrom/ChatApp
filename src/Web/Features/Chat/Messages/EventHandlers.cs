@@ -1,7 +1,7 @@
 using ChatApp.Common;
 using Microsoft.Extensions.Caching.Distributed;
 
-namespace ChatApp.Features.Channels.EventHandlers;
+namespace ChatApp.Features.Chat.Messages.EventHandlers;
 
 public sealed class MessagePostedEventHandler : IDomainEventHandler<MessagePosted>
 {

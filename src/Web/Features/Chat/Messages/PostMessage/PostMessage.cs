@@ -4,8 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using ChatApp.Domain;
 using FastEndpoints;
 using ChatApp.Domain.ValueObjects;
+
 using Microsoft.Extensions.Caching.Distributed;
-namespace ChatApp.Features.Channels.Messages.PostMessage;
+namespace ChatApp.Features.Chat.Messages;
 
 public sealed record PostMessage(Guid ChannelId, string Content) : IRequest<Result<MessageId>>
 {

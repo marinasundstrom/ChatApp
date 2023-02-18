@@ -1,7 +1,7 @@
 using ChatApp.Features.Users;
 using Microsoft.EntityFrameworkCore;
 
-namespace ChatApp.Features.Channels;
+namespace ChatApp.Features.Chat;
 
 public static class Extensions
 {

@@ -7,7 +7,7 @@ using ChatApp.Extensions;
 using ChatApp.Infrastructure.Persistence;
 using ChatApp.Features.Users;
 
-namespace ChatApp.Features.Channels.Queries;
+namespace ChatApp.Features.Chat.Messages;
 
 public record GetMessages(int Page = 1, int PageSize = 10, string? SortBy = null, SortDirection? SortDirection = null) : IRequest<ItemsResult<MessageDto>>
 {

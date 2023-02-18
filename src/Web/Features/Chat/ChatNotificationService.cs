@@ -1,7 +1,8 @@
+using ChatApp.Features.Chat.Messages;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Distributed;
 
-namespace ChatApp.Features.Channels;
+namespace ChatApp.Features.Chat;
 
 public interface IChatNotificationService
 {

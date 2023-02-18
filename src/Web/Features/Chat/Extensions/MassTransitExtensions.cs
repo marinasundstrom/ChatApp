@@ -1,6 +1,6 @@
 using MassTransit;
 
-namespace ChatApp.Features.Channels;
+namespace ChatApp.Features.Chat;
 
 public static class MassTransitExtensions
 {

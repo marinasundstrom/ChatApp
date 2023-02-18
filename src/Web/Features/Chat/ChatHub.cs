@@ -1,10 +1,10 @@
 using ChatApp.Domain.ValueObjects;
-using ChatApp.Features.Channels.Messages.PostMessage;
+using ChatApp.Features.Chat.Messages;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
-namespace ChatApp.Features.Channels;
+namespace ChatApp.Features.Chat;
 
 [Authorize]
 public sealed class ChatHub : Hub<IChatHubClient>

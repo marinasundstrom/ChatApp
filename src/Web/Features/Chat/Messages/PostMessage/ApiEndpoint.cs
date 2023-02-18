@@ -1,7 +1,7 @@
 using MediatR;
 using FastEndpoints;
 
-namespace ChatApp.Features.Channels.Messages.PostMessage;
+namespace ChatApp.Features.Chat.Messages;
 
 public class CreateMessageRequest
 {

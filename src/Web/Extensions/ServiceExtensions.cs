@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using MediatR;
 using ChatApp.Behaviors;
-using ChatApp.Features.Channels;
+using ChatApp.Features.Chat;
 
 namespace ChatApp.Extensions;
 

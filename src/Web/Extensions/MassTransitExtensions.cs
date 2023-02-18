@@ -1,5 +1,5 @@
+using ChatApp.Features.Chat;
 using MassTransit;
-using ChatApp.Features.Channels;
 
 namespace ChatApp.Web.Extensions;
 

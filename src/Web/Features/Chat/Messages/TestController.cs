@@ -1,4 +1,4 @@
-﻿namespace ChatApp.Features.Channels;
+﻿namespace ChatApp.Features.Chat.Messages;
 
 /*
 [ApiController]

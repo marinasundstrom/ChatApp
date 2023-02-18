@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ChatApp.Domain;
 using FastEndpoints;
 
-namespace ChatApp.Features.Channels.Messages;
+namespace ChatApp.Features.Chat.Messages;
 
 public class ChannelsGroup : Group
 {

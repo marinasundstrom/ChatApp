@@ -4,10 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using ChatApp.Common;
 using ChatApp.Domain;
 using ChatApp.Extensions;
-using ChatApp.Features.Channels.Commands;
-using ChatApp.Features.Channels.Queries;
 
-namespace ChatApp.Features.Channels;
+namespace ChatApp.Features.Chat.Messages;
 
 public static class Endpoints
 {
