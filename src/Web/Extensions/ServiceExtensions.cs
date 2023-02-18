@@ -22,7 +22,7 @@ public static class ServiceExtensions
     {
         services.AddTodoControllers();
 
-        services.AddScoped<ITodoNotificationService, TodoNotificationService>();
+        services.AddScoped<IChatNotificationService, ChatNotificationService>();
 
         return services;
     }

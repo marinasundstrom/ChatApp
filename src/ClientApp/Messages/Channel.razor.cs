@@ -37,14 +37,9 @@ namespace ChatApp.Messages
             MyUserId = authenticationState.User?.FindFirst("sub")?.Value!;
 
             var result = await MessagesClient.GetMessagesAsync(1, 10, null, null);
-            foreach(var item in result.Items) 
+            foreach(var item in result.Items)
             {
-                posts.Add(new Post{
-                    Sender = item.CreatedBy.Id, 
-                    Published = item.Created, 
-                    Content = item.Content, 
-                    IsCurrentUser = item.CreatedBy.Id == MyUserId
-                });
+                AddMessage(item);
             }
 
             try
@@ -64,7 +59,7 @@ namespace ChatApp.Messages
                     };
                 }).WithAutomaticReconnect().Build();
 
-                hubConnection.On<string, string, string>("MessagePosted", OnMessagePosted);
+                hubConnection.On<ChatApp.Message>("MessagePosted", OnMessagePosted);
 
                 hubConnection.Closed += (error) =>
                 {
@@ -95,14 +90,21 @@ namespace ChatApp.Messages
             }
         }
 
-        private void OnMessagePosted(string channelId, string senderId, string content)
-        {            
-            posts.Add(new Post{
-                Sender = senderId, 
-                Published = DateTime.UtcNow, 
-                Content = content, 
-                IsCurrentUser = senderId == MyUserId
+        private void AddMessage(ChatApp.Message message)
+        {
+            posts.Add(new Post
+            {
+                Sender = message.CreatedBy.Id,
+                SenderInitials = GetInitials(message.CreatedBy.Name),
+                Published = message.Created,
+                Content = message.Content,
+                IsCurrentUser = message.CreatedBy.Id == MyUserId
             });
+        }
+
+        private void OnMessagePosted(ChatApp.Message message)
+        {            
+            AddMessage(message);
 
             StateHasChanged();
         }
@@ -127,6 +129,7 @@ namespace ChatApp.Messages
         class Post
         {
             public string Sender { get; set; } = default !;
+            public string SenderInitials { get; set; } = default!;
             public DateTimeOffset Published { get; set; }
 
             public string Content { get; set; } = default !;
@@ -174,6 +177,22 @@ namespace ChatApp.Messages
             }
 
             return nextPost.Sender != post.Sender;
+        }
+
+         static string GetInitials(string name)
+        {                       
+            // StringSplitOptions.RemoveEmptyEntries excludes empty spaces returned by the Split method
+
+            string[] nameSplit = name.Split(new string[] { "," , " "}, StringSplitOptions.RemoveEmptyEntries);
+                        
+            string initials = "";
+
+            foreach (string item in nameSplit)
+            {                
+                initials += item.Substring(0, 1).ToUpper();
+            }
+
+            return initials;           
         }
     }
 }

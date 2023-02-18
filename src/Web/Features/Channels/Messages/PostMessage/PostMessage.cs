@@ -6,7 +6,7 @@ using FastEndpoints;
 
 namespace ChatApp.Features.Channels.Messages.PostMessage;
 
-public sealed record PostMessage(Guid ChannelId, string Content) : IRequest<Result<MessageDto>>
+public sealed record PostMessage(Guid ChannelId, string Content) : IRequest<Result>
 {
     public sealed class Validator : AbstractValidator<PostMessage>
     {
@@ -18,7 +18,7 @@ public sealed record PostMessage(Guid ChannelId, string Content) : IRequest<Resu
         }
     }
 
-    public sealed class Handler : IRequestHandler<PostMessage, Result<MessageDto>>
+    public sealed class Handler : IRequestHandler<PostMessage, Result>
     {
         private readonly IChannelRepository channelRepository;
         private readonly IMessageRepository messageRepository;
@@ -31,7 +31,7 @@ public sealed record PostMessage(Guid ChannelId, string Content) : IRequest<Resu
             this.unitOfWork = unitOfWork;
         }
 
-        public async Task<Result<MessageDto>> Handle(PostMessage request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(PostMessage request, CancellationToken cancellationToken)
         {
             var hasChannel = await channelRepository
                 .GetAll(new ChannelWithId(request.ChannelId))
@@ -42,12 +42,13 @@ public sealed record PostMessage(Guid ChannelId, string Content) : IRequest<Resu
                 return Result.Failure<MessageDto>(Errors.Channels.ChannelNotFound);
             }
 
-            messageRepository.Add(
-                new Message(request.ChannelId, request.Content));
+            var message =  new Message(request.ChannelId, request.Content);
+
+            messageRepository.Add(message);
 
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Result.Success((MessageDto)null!);
+            return Result.Success();
         }
     }
 }

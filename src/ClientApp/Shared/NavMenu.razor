@@ -4,12 +4,15 @@
 @inject IFeatureManager FeatureManager
 
 <MudNavMenu>
-    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.List">@T["Todos"]</MudNavLink>
+    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.List">@T["Home"]</MudNavLink>
 
-    @if (isBoardEnabled)
-    {
-        <MudNavLink Href="/channels" Icon="@Icons.Material.Filled.Task">@T["Board"]</MudNavLink>
-    }
+    <MudNavGroup Title="@T["Channels"]" Expanded="true">
+        @if (isBoardEnabled)
+        {
+            <MudNavLink Href="/channels" Icon="@Icons.Material.Filled.Chat">@T["General"]</MudNavLink>
+        }
+    </MudNavGroup>
+
 </MudNavMenu>
 
 @code {

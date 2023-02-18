@@ -12,11 +12,13 @@
 	<resheader name="writer">
 		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
 	</resheader>
-	<data name="Todos">
-        <value>Todos</value>
+	<data name="Home">
+        <value>Home</value>
     </data>
-    <data name="Board">
-        <value>Board</value>
+    <data name="Channels">
+        <value>Channels</value>
+    </data>
+	<data name="General">
+        <value>General</value>
     </data>
 </root>
-

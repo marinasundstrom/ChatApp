@@ -272,6 +272,10 @@
             "type": "string",
             "format": "guid"
           },
+          "channelId": {
+            "type": "string",
+            "format": "guid"
+          },
           "content": {
             "type": "string"
           },

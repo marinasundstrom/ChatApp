@@ -1,12 +1,24 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ChatApp.Domain.ValueObjects;
 
-public readonly struct MessageId
+public struct MessageId
 {
     public MessageId(Guid value) => Value = value;
 
     public MessageId() => Value = Guid.NewGuid();
 
-    public Guid Value { get; } 
+    public Guid Value { get; set; } 
+
+    public override int GetHashCode()
+    {
+        return Value.GetHashCode();
+    }
+
+    public override bool Equals([NotNullWhen(true)] object? obj)
+    {
+        return base.Equals(obj);
+    }
 
     public override string ToString()
     {

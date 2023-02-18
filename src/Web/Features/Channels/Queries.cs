@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using ChatApp.Common;
 using ChatApp.Domain;
 using ChatApp.Extensions;
+using ChatApp.Infrastructure.Persistence;
+using ChatApp.Features.Users;
 
 namespace ChatApp.Features.Channels.Queries;
 
@@ -12,15 +14,17 @@ public record GetMessages(int Page = 1, int PageSize = 10, string? SortBy = null
     public class Handler : IRequestHandler<GetMessages, ItemsResult<MessageDto>>
     {
         private readonly IMessageRepository messageRepository;
+        private readonly ApplicationDbContext context;
 
-        public Handler(IMessageRepository messageRepository)
+        public Handler(IMessageRepository messageRepository, ApplicationDbContext context)
         {
             this.messageRepository = messageRepository;
+            this.context = context;
         }
 
         public async Task<ItemsResult<MessageDto>> Handle(GetMessages request, CancellationToken cancellationToken)
         {
-            var query = messageRepository.GetAll();
+            var query = context.Messages.AsQueryable();
 
             var totalCount = await query.CountAsync(cancellationToken);
 
@@ -34,12 +38,15 @@ public record GetMessages(int Page = 1, int PageSize = 10, string? SortBy = null
             }
 
             var messages = await query
+                .AsNoTracking()
                 .AsSplitQuery()
                 .Skip((request.Page - 1) * request.PageSize)
                 .Take(request.PageSize).AsQueryable()
                 .ToArrayAsync(cancellationToken);
 
-            return new ItemsResult<MessageDto>(messages.Select(x => x.ToDto()), totalCount);
+            IEnumerable<MessageDto> dtos = Extensions.GetMessageDtos(context.Users, messages);
+
+            return new ItemsResult<MessageDto>(dtos!, totalCount);
         }
     }
 }

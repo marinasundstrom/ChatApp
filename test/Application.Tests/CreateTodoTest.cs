@@ -28,7 +28,7 @@ public class CreateTodoTest
         fakeDateTimeService.Now.Returns(DateTime.UtcNow);
 
         var fakeDomainEventDispatcher = Substitute.For<IDomainEventDispatcher>();
-        var fakeTodoNotificationService = Substitute.For<ITodoNotificationService>();
+        var fakeTodoNotificationService = Substitute.For<IChatNotificationService>();
 
         using (var connection = new SqliteConnection("Data Source=:memory:"))
         {

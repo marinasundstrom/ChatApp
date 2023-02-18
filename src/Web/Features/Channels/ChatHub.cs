@@ -35,14 +35,7 @@ public sealed class ChatHub : Hub<IChatHubClient>
     {
         currentUserService.SetUser(Context.User!);
 
-        var messageDto = await mediator.Send(new PostMessage(Guid.Parse(channelId), content));
-        
-        var senderId = Context.UserIdentifier!;
-
-        await Clients
-            .Group($"channel-{channelId}")
-            //.GroupExcept($"channel-{channelId}", Context.ConnectionId)
-            .MessagePosted(channelId, senderId, content);
+        await mediator.Send(new PostMessage(Guid.Parse(channelId), content));   
     }
 
     public async Task EditMessage(string channelId, string messageId, string content) 
@@ -54,7 +47,7 @@ public sealed class ChatHub : Hub<IChatHubClient>
         await Clients
             .Group($"channel-{channelId}")
             //.GroupExcept($"channel-{channelId}", Context.ConnectionId)
-            .MessageEdited(channelId, messageId, senderId, content);
+            .MessageEdited(channelId, messageId, content);
     }
 
     public async Task DeleteMessage(string channelId, string messageId) 
@@ -66,15 +59,15 @@ public sealed class ChatHub : Hub<IChatHubClient>
         await Clients
             .Group($"channel-{channelId}")
             //.GroupExcept($"channel-{channelId}", Context.ConnectionId)
-            .MessageDeleted(channelId, senderId, messageId);
+            .MessageDeleted(channelId, messageId);
     }
 }
 
 public interface IChatHubClient
 {
-    Task MessagePosted(string channelId, string senderId, string content);
+    Task MessagePosted(MessageDto message);
 
-    Task MessageEdited(string channelId, string messageId, string senderId, string content);
+    Task MessageEdited(string channelId, string senderId, string content);
 
-    Task MessageDeleted(string channelId, string senderId, string messageId);
+    Task MessageDeleted(string channelId, string messageId);
 }
