@@ -3,6 +3,7 @@
 @page "/channels"
 @page "/channels/{Id}"
 @attribute [Authorize]
+@inject IStringLocalizer<Channel> T
 @inject ThemeManager ThemeManager
 @inject NavigationManager NavigationManager
 @inject IAccessTokenProvider AccessTokenProvider
@@ -79,8 +80,8 @@
     <EditForm OnValidSubmit="Send" Model="@this">
         <DataAnnotationsValidator />
 
-        <MudTextField @bind-Value="Text" Label="Message" Lines="3" For="() => Text"></MudTextField>
-        <MudButton ButtonType="ButtonType.Submit">Send</MudButton>
+        <MudTextField @bind-Value="Text" Label="@T["Message"]" Lines="3" For="() => Text"></MudTextField>
+        <MudButton ButtonType="ButtonType.Submit" StartIcon="@Icons.Material.Filled.Send">@T["Send"]</MudButton>
     </EditForm>
 </MudPaper>
 

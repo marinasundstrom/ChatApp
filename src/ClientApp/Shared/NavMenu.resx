@@ -21,4 +21,7 @@
 	<data name="General">
         <value>General</value>
     </data>
+	<data name="NewChannel">
+        <value>Ny kanal</value>
+    </data>
 </root>
