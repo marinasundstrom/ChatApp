@@ -185,3 +185,9 @@
     border-left-width: 5px;
     border-left-color: white;
 }
+
+.dark .bottom {
+    background-color: #373741;
+    border-top: solid #363636 1px;
+    box-shadow: 0 5px 5px -3px rgba(0,0,0,.06), 0 8px 10px 1px rgba(0,0,0,.042), 0 3px 14px 2px rgba(0,0,0,.036);
+}
