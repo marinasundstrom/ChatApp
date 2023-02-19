@@ -115,8 +115,12 @@ namespace ChatApp.Chat.Channels
 
         private void AddMessage(ChatApp.Message message)
         {
-            if(posts.Any(x => x.Id == message.Id)) 
+            var post = posts.FirstOrDefault(x => x.Id == message.Id);
+
+            if(post is not null) 
             {
+                post.Published = message.Created;
+                
                 return;
             }
 
