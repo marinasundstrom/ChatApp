@@ -26,23 +26,23 @@ public sealed record PostMessage(Guid ChannelId, string Content) : IRequest<Resu
         private readonly IMessageRepository messageRepository;
         private readonly IUnitOfWork unitOfWork;
         private readonly ICurrentUserService currentUserService;
-        private readonly IChatNotificationService chatNotificationService;
         private readonly IMessageSenderCache messageSenderCache;
+        private readonly IAdminCommandProcessor adminCommandProcessor;
 
         public Handler(
             IChannelRepository channelRepository,
             IMessageRepository messageRepository,
             IUnitOfWork unitOfWork,
             ICurrentUserService currentUserService,     
-            IChatNotificationService chatNotificationService,
-            IMessageSenderCache messageSenderCache)
+            IMessageSenderCache messageSenderCache,
+            IAdminCommandProcessor adminCommandProcessor)
         {
             this.channelRepository = channelRepository;
             this.messageRepository = messageRepository;
             this.unitOfWork = unitOfWork;
             this.currentUserService = currentUserService;
-            this.chatNotificationService = chatNotificationService;
             this.messageSenderCache = messageSenderCache;
+            this.adminCommandProcessor = adminCommandProcessor;
         }
 
         public async Task<Result<MessageId>> Handle(PostMessage request, CancellationToken cancellationToken)
@@ -60,7 +60,7 @@ public sealed record PostMessage(Guid ChannelId, string Content) : IRequest<Resu
 
             if (IsAdminCommand(notification.Content, out var args))
             {
-                return await ProcessAdminCommand(request.ChannelId.ToString(), args, cancellationToken);
+                return await adminCommandProcessor.ProcessAdminCommand(request.ChannelId.ToString(), args, cancellationToken);
             }
 
             var message = new Message(request.ChannelId, request.Content);
@@ -96,60 +96,6 @@ public sealed record PostMessage(Guid ChannelId, string Content) : IRequest<Resu
 
             args = Array.Empty<string>();
             return false;
-        }
-
-         private async Task<Result<MessageId>> ProcessAdminCommand(string channelId, string[] args, CancellationToken cancellationToken)
-        {
-            if (args.Length >= 2 && args[1].Equals("getNumberPosts"))
-            {
-                string content;
-
-                if(args.Length == 3 && args[2].Equals("/channel")) 
-                {
-                    var numberOfPosts = await messageRepository.GetAll(new MessagesInChannel(Guid.Parse(channelId))).CountAsync(cancellationToken);
-
-                    content = $"Number of posts in channel: {numberOfPosts}";
-                }
-                else 
-                {
-                    var numberOfPosts = await messageRepository.GetAll().CountAsync(cancellationToken);
-
-                    content = $"Total number of posts: {numberOfPosts}";
-                }
-
-                MessageDto messageDto = CreateMessage(channelId, content);
-
-                await SendMessage(messageDto, cancellationToken);
-            }
-            else if (args.Length > 1)
-            {
-                var content = $"Unknown command";
-
-                MessageDto messageDto = CreateMessage(channelId, content);
-
-                await SendMessage(messageDto, cancellationToken);
-            }
-            else
-            {
-                var content = $"Command expected";
-
-                MessageDto messageDto = CreateMessage(channelId, content);
-
-                await SendMessage(messageDto, cancellationToken);
-            }
-
-            return Result.Success(new MessageId());
-        }
-
-        private static MessageDto CreateMessage(string channelId, string content)
-        {
-            return new MessageDto(Guid.NewGuid(), Guid.Parse(channelId), content, DateTimeOffset.UtcNow, new Users.UserDto("system", "System"), null, null);
-        }
-
-        private async Task SendMessage(MessageDto messageDto, CancellationToken cancellationToken)
-        {
-            await chatNotificationService.SendMessageToUser(
-                currentUserService.UserId!.ToString(), messageDto, cancellationToken);
         }
     }
 }
