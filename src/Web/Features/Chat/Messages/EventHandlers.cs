@@ -9,18 +9,18 @@ public sealed class MessagePostedEventHandler : IDomainEventHandler<MessagePoste
     private readonly IMessageRepository messagesRepository;
     private readonly IUserRepository userRepository;
     private readonly IChatNotificationService chatNotificationService;
-    private readonly IMessageSenderCache messageSenderCache;
+    private readonly IMessageSenderCacheService messageSenderCacheService;
 
     public MessagePostedEventHandler(
         IMessageRepository messagesRepository, 
         IUserRepository userRepository,
         IChatNotificationService chatNotificationService,
-        IMessageSenderCache messageSenderCache)
+        IMessageSenderCacheService messageSenderCacheService)
     {
         this.messagesRepository = messagesRepository;
         this.userRepository = userRepository;
         this.chatNotificationService = chatNotificationService;
-        this.messageSenderCache = messageSenderCache;
+        this.messageSenderCacheService = messageSenderCacheService;
     }
 
     public async Task Handle(MessagePosted notification, CancellationToken cancellationToken)
@@ -65,6 +65,6 @@ public sealed class MessagePostedEventHandler : IDomainEventHandler<MessagePoste
 
     private async Task RemoveCachedSenderConnectionId(Message message)
     {
-        await messageSenderCache.RemoveCachedSenderConnectionId(message.Id.ToString());
+        await messageSenderCacheService.RemoveCachedSenderConnectionId(message.Id.ToString());
     }
 }

@@ -25,23 +25,20 @@ public sealed record PostMessage(Guid ChannelId, string Content) : IRequest<Resu
         private readonly IChannelRepository channelRepository;
         private readonly IMessageRepository messageRepository;
         private readonly IUnitOfWork unitOfWork;
-        private readonly ICurrentUserService currentUserService;
-        private readonly IMessageSenderCache messageSenderCache;
+        private readonly IMessageSenderCacheService messageSenderCacheService;
         private readonly IAdminCommandProcessor adminCommandProcessor;
 
         public Handler(
             IChannelRepository channelRepository,
             IMessageRepository messageRepository,
             IUnitOfWork unitOfWork,
-            ICurrentUserService currentUserService,     
-            IMessageSenderCache messageSenderCache,
+            IMessageSenderCacheService messageSenderCacheService,
             IAdminCommandProcessor adminCommandProcessor)
         {
             this.channelRepository = channelRepository;
             this.messageRepository = messageRepository;
             this.unitOfWork = unitOfWork;
-            this.currentUserService = currentUserService;
-            this.messageSenderCache = messageSenderCache;
+            this.messageSenderCacheService = messageSenderCacheService;
             this.adminCommandProcessor = adminCommandProcessor;
         }
 
@@ -67,21 +64,16 @@ public sealed record PostMessage(Guid ChannelId, string Content) : IRequest<Resu
 
             messageRepository.Add(message);
 
-            await CacheSenderConnectionId(message, cancellationToken);
+            await CacheMessageSenderConnectionId(message.Id.ToString(), cancellationToken);
 
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result.Success(message.Id);
         }
 
-        private async Task CacheSenderConnectionId(Message message, CancellationToken cancellationToken)
+        private async Task CacheMessageSenderConnectionId(string messageId, CancellationToken cancellationToken)
         {
-            var messageId = message.Id;
-            var userId = currentUserService.UserId;
-            var connectionId = currentUserService.ConnectionId;
-
-            await messageSenderCache.StoreSenderConnectionId(
-                messageId.ToString(), userId!, connectionId!, cancellationToken);
+            await messageSenderCacheService.StoreSenderConnectionId(messageId, cancellationToken);
         }
 
         private bool IsAdminCommand(string message, out string[] args)

@@ -16,19 +16,19 @@ public interface IChatNotificationService
 public class ChatNotificationService : IChatNotificationService
 {
     private readonly IHubContext<ChatHub, IChatHubClient> hubsContext;
-    private readonly IMessageSenderCache messageSenderCache;
+    private readonly IMessageSenderCacheService messageSenderCacheService;
 
     public ChatNotificationService(
         IHubContext<ChatHub, IChatHubClient> hubsContext, 
-        IMessageSenderCache messageSenderCache)
+        IMessageSenderCacheService messageSenderCacheService)
     {
         this.hubsContext = hubsContext;
-        this.messageSenderCache = messageSenderCache;
+        this.messageSenderCacheService = messageSenderCacheService;
     }
 
     public async Task NotifyMessagePosted(MessageDto message, CancellationToken cancellationToken = default)
     {
-        var (UserId, ConnectionId) = await messageSenderCache.GetSenderConnectionId(message.Id.ToString(), cancellationToken);
+        var (UserId, ConnectionId) = await messageSenderCacheService.GetSenderConnectionId(message.Id.ToString(), cancellationToken);
 
         await hubsContext.Clients
             .GroupExcept($"channel-{message.ChannelId}", ConnectionId)
@@ -44,7 +44,7 @@ public class ChatNotificationService : IChatNotificationService
 
     public async Task SendConfirmationToSender(string channelId, string messageId, CancellationToken cancellationToken = default)
     {
-        var (UserId, ConnectionId) = await messageSenderCache.GetSenderConnectionId(messageId, cancellationToken);
+        var (UserId, ConnectionId) = await messageSenderCacheService.GetSenderConnectionId(messageId, cancellationToken);
 
         await hubsContext.Clients
             .User(UserId)
