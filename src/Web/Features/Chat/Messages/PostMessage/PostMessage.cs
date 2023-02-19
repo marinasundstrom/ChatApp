@@ -25,20 +25,17 @@ public sealed record PostMessage(Guid ChannelId, string Content) : IRequest<Resu
         private readonly IChannelRepository channelRepository;
         private readonly IMessageRepository messageRepository;
         private readonly IUnitOfWork unitOfWork;
-        private readonly IMessageSenderCacheService messageSenderCacheService;
         private readonly IAdminCommandProcessor adminCommandProcessor;
 
         public Handler(
             IChannelRepository channelRepository,
             IMessageRepository messageRepository,
             IUnitOfWork unitOfWork,
-            IMessageSenderCacheService messageSenderCacheService,
             IAdminCommandProcessor adminCommandProcessor)
         {
             this.channelRepository = channelRepository;
             this.messageRepository = messageRepository;
             this.unitOfWork = unitOfWork;
-            this.messageSenderCacheService = messageSenderCacheService;
             this.adminCommandProcessor = adminCommandProcessor;
         }
 
@@ -64,16 +61,9 @@ public sealed record PostMessage(Guid ChannelId, string Content) : IRequest<Resu
 
             messageRepository.Add(message);
 
-            await CacheMessageSenderConnectionId(message.Id.ToString(), cancellationToken);
-
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result.Success(message.Id);
-        }
-
-        private async Task CacheMessageSenderConnectionId(string messageId, CancellationToken cancellationToken)
-        {
-            await messageSenderCacheService.StoreSenderConnectionId(messageId, cancellationToken);
         }
 
         private bool IsAdminCommand(string message, out string[] args)

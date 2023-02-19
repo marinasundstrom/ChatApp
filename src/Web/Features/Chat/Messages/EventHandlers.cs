@@ -9,18 +9,15 @@ public sealed class MessagePostedEventHandler : IDomainEventHandler<MessagePoste
     private readonly IMessageRepository messagesRepository;
     private readonly IUserRepository userRepository;
     private readonly IChatNotificationService chatNotificationService;
-    private readonly IMessageSenderCacheService messageSenderCacheService;
 
     public MessagePostedEventHandler(
         IMessageRepository messagesRepository, 
         IUserRepository userRepository,
-        IChatNotificationService chatNotificationService,
-        IMessageSenderCacheService messageSenderCacheService)
+        IChatNotificationService chatNotificationService)
     {
         this.messagesRepository = messagesRepository;
         this.userRepository = userRepository;
         this.chatNotificationService = chatNotificationService;
-        this.messageSenderCacheService = messageSenderCacheService;
     }
 
     public async Task Handle(MessagePosted notification, CancellationToken cancellationToken)
@@ -38,14 +35,12 @@ public sealed class MessagePostedEventHandler : IDomainEventHandler<MessagePoste
             return;
 
         await NotifyChannel(message, user, cancellationToken);
-
-        await RemoveCachedSenderConnectionId(message);
     }
 
     private async Task SendConfirmationToSender(Message message, CancellationToken cancellationToken)
     {
         await chatNotificationService.SendConfirmationToSender(
-            message.ChannelId.ToString(), message.Id.ToString(), cancellationToken);
+            message.ChannelId.ToString(), message.CreatedById.GetValueOrDefault().ToString(), message.Id.ToString(), cancellationToken);
     }
 
     private async Task NotifyChannel(Message message, User user, CancellationToken cancellationToken)
@@ -61,10 +56,5 @@ public sealed class MessagePostedEventHandler : IDomainEventHandler<MessagePoste
         return new MessageDto(message.Id, message.ChannelId, message.Content, message.Created,
             new Users.UserDto(user.Id, user.Name),
             null, null);
-    }
-
-    private async Task RemoveCachedSenderConnectionId(Message message)
-    {
-        await messageSenderCacheService.RemoveCachedSenderConnectionId(message.Id.ToString());
     }
 }
