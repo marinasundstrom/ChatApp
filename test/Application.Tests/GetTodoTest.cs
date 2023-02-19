@@ -2,14 +2,15 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
-using ChatApp.Features.Channels.Queries;
 using ChatApp.Services;
 using ChatApp.Infrastructure.Persistence;
 using ChatApp.Infrastructure.Persistence.Repositories;
 using ChatApp.Domain;
 
-namespace ChatApp.Todos.Commands;
+namespace ChatApp.Features.Chat.Messages;
 
+/*
+ * 
 public class GetTodoTest
 {
     [Fact]
@@ -49,3 +50,5 @@ public class GetTodoTest
         }
     }
 }
+
+*/

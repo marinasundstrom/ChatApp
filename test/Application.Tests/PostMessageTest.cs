@@ -5,19 +5,19 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using ChatApp.Domain.Events;
-using ChatApp.Features.Channels;
-using ChatApp.Features.Channels.Commands;
+using ChatApp.Features.Chat.Channels;
 using ChatApp.Services;
 using ChatApp.Infrastructure.Persistence;
 using ChatApp.Infrastructure.Persistence.Interceptors;
 using ChatApp.Infrastructure.Persistence.Repositories;
+using ChatApp.Domain.Entities;
 
-namespace ChatApp.Todos.Commands;
+namespace ChatApp.Features.Chat.Messages;
 
-public class CreateTodoTest
+public class PostMessageTest
 {
     [Fact]
-    public async Task CreateTodo_TodoCreated()
+    public async Task PostMessage_MessagePosted()
     {
         // Arrange
 
@@ -30,12 +30,14 @@ public class CreateTodoTest
         var fakeDomainEventDispatcher = Substitute.For<IDomainEventDispatcher>();
         var fakeTodoNotificationService = Substitute.For<IChatNotificationService>();
 
+        var adminCommandProcessor = Substitute.For<IAdminCommandProcessor>();
+
         using (var connection = new SqliteConnection("Data Source=:memory:"))
         {
             connection.Open();
 
             var dbContextOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .AddInterceptors(new AuditableEntitySaveChangesInterceptor(fakeCurrentUserService, fakeDateTimeService), new OutboxSaveChangesInterceptor())
+                .AddInterceptors(new AuditableEntitySaveChangesInterceptor(fakeCurrentUserService, fakeDateTimeService), new FakeOutboxSaveChangesInterceptor(fakeDomainEventDispatcher))
                 .UseSqlite(connection)
                 .Options;
 
@@ -47,39 +49,47 @@ public class CreateTodoTest
 
             await unitOfWork.SaveChangesAsync();
 
-            var todoRepository = new MessageRepository(unitOfWork);
+            var channelRepository = new ChannelRepository(unitOfWork);
 
-            var commandHandler = new CreateTodo.Handler(todoRepository, unitOfWork, fakeDomainEventDispatcher);
+            var channel = new Channel("myChannel");
 
-            var todos = todoRepository.GetAll();
+            channelRepository.Add(channel);
 
-            var initialTodoCount = todos.Count();
+            await unitOfWork.SaveChangesAsync();
+
+            var messageRepository = new MessageRepository(unitOfWork);
+
+            var commandHandler = new PostMessage.Handler(channelRepository, messageRepository, unitOfWork, adminCommandProcessor);
+
+            var messages = messageRepository.GetAll();
+
+            var initialMessageCount = await messages.CountAsync();
 
             string title = "test";
 
             // Act
 
-            var createTodoCommand = new CreateTodo(title, null, TodoStatusDto.NotStarted, null, 0, 0);
+            var postMessageCommand = new PostMessage(channel.Id, title);
 
-            var result = await commandHandler.Handle(createTodoCommand, default);
+            var result = await commandHandler.Handle(postMessageCommand, default);
 
             // Assert
 
             Assert.True(result.IsSuccess);
 
-            var todo = result.GetValue();
+            var messageId = result.GetValue();
 
-            todos = todoRepository.GetAll();
+            messages = messageRepository.GetAll();
 
-            var newTodoCount = todos.Count();
+            var newTodoCount = messages.Count();
 
-            newTodoCount.Should().BeGreaterThan(initialTodoCount);
+            newTodoCount.Should().BeGreaterThan(initialMessageCount);
 
             // Has Domain Event been published ?
 
             await fakeDomainEventDispatcher
                 .Received(1)
-                .Dispatch(Arg.Is<TodoCreated>(d => d.TodoId == todo.Id));
+                .Dispatch(Arg.Is<MessagePosted>(d => d.Message.MessageId == messageId));
         }
     }
 }
