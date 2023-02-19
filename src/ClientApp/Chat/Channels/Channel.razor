@@ -15,7 +15,7 @@
 
 <div class="@(isDarkMode ? "dark" : null)" style="padding-bottom: 150px;">
 
-@foreach (var post in posts)
+@foreach (var post in posts.OrderBy(x => x.Published))
 {
     bool first = IsFirst(post);
     bool last = IsLast(post);
