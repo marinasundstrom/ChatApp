@@ -5,7 +5,7 @@ namespace ChatApp.Domain.Entities;
 public abstract class Entity<TId> : IEquatable<Entity<TId>>, IHasDomainEvents
     where TId : notnull
 {
-    private readonly HashSet<DomainEvent> domainEvents = new HashSet<DomainEvent>();
+    private readonly List<DomainEvent> domainEvents = new List<DomainEvent>();
 
     protected Entity(TId id)
     {
