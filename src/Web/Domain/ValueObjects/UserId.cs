@@ -15,12 +15,12 @@ public struct UserId
 
     public override int GetHashCode()
     {
-        return Value.GetHashCode();
+        return Value?.GetHashCode() ?? string.Empty.GetHashCode();
     }
 
     public override string ToString()
     {
-        return Value?.ToString() ?? "No";
+        return Value?.ToString() ?? string.Empty;
     }
 
     public static bool operator ==(UserId lhs, UserId rhs) => lhs.Value == rhs.Value;
