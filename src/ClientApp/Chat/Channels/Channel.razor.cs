@@ -51,6 +51,8 @@ namespace ChatApp.Chat.Channels
 
             StateHasChanged();
 
+            await JSRuntime.InvokeVoidAsyncIgnoreErrors("helpers.scrollToBottom");
+
             try
             {
                 if(hubConnection is not null && hubConnection.State != HubConnectionState.Disconnected) 
@@ -130,11 +132,13 @@ namespace ChatApp.Chat.Channels
             });
         }
 
-        private void OnMessagePosted(ChatApp.Message message)
+        private async void OnMessagePosted(ChatApp.Message message)
         {            
             AddMessage(message);
 
             StateHasChanged();
+
+            await JSRuntime.InvokeVoidAsyncIgnoreErrors("helpers.scrollToBottom");
         }
 
         async void OnLocationChanged(object? sender, LocationChangedEventArgs eventArgs)
@@ -188,6 +192,8 @@ namespace ChatApp.Chat.Channels
             message.Id = await hubConnection.InvokeAsync<Guid>("PostMessage", Id, Text);
 
             Text = string.Empty;
+
+            await JSRuntime.InvokeVoidAsyncIgnoreErrors("helpers.scrollToBottom");
         }
 
         private bool IsFirst(Post post)
@@ -236,7 +242,7 @@ namespace ChatApp.Chat.Channels
             return nextPost.Sender != post.Sender;
         }
 
-         static string GetInitials(string name)
+        static string GetInitials(string name)
         {                       
             // StringSplitOptions.RemoveEmptyEntries excludes empty spaces returned by the Split method
 

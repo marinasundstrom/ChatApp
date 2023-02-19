@@ -1,6 +1,3 @@
-@using ChatApp.Chat.Messages
-@using Microsoft.AspNetCore.Authorization;
-
 @page "/channels"
 @page "/channels/{Id}"
 @attribute [Authorize]
@@ -10,11 +7,13 @@
 @inject IAccessTokenProvider AccessTokenProvider
 @inject ISnackbar Snackbar
 @inject IMessagesClient MessagesClient
+@inject IJSRuntime JSRuntime
 @implements IDisposable
 @using ChatApp.Chat.Messages
+@using Microsoft.AspNetCore.Authorization;
 @using System.ComponentModel.DataAnnotations
 
-<div class="@(isDarkMode ? "dark" : null)">
+<div class="@(isDarkMode ? "dark" : null)" style="padding-bottom: 150px;">
 
 @foreach (var post in posts)
 {
@@ -78,13 +77,23 @@
 
 @* <Loader class="my-4" /> *@
 
-<MudPaper Elevation="35" Class="mt-8 pa-4">
-    <EditForm OnValidSubmit="Send" Model="@this">
-        <DataAnnotationsValidator />
+    <div class="bottom">
+        <MudContainer MaxWidth="MaxWidth.Large" Class="pa-0">
+            <MudPaper Elevation="35">
+                <EditForm OnValidSubmit="Send" Model="@this">
+                    <DataAnnotationsValidator />
 
-        <MudTextField @bind-Value="Text" Label="@T["Message"]" Lines="3" For="() => Text"></MudTextField>
-        <MudButton ButtonType="ButtonType.Submit" StartIcon="@Icons.Material.Filled.Send">@T["Send"]</MudButton>
-    </EditForm>
-</MudPaper>
+                     <div class="d-flex flex-grow-1 gap-3">
+                        <div class="flex-auto d-flex" style="width: 100%">
+                            <MudTextField @bind-Value="Text" For="() => Text" Variant="Variant.Filled" Class="rounded-lg" Lines="2"></MudTextField>
+                        </div>
+                        <div class="flex-auto d-flex" style="width: 81px">
+                            <MudIconButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Icon="@Icons.Material.Filled.Send" Class="mt-2" Style="border-radius: 50%; padding: 15px; height: 70px; width: 70px;" />
+                        </div>
+                    </div>
+                </EditForm>
+            </MudPaper>
+        </MudContainer>
+    </div>
 
 </div>

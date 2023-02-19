@@ -15,7 +15,7 @@ public partial class NewChannelDialog
     {
         [Required]
         [StringLength(60, ErrorMessage = "Title length can't be more than 8.")]
-        public string Title { get; set; } = null !;
+        public string Name { get; set; } = null !;
     }
 
     [CascadingParameter]
@@ -23,7 +23,7 @@ public partial class NewChannelDialog
 
     async Task OnValidSubmit() 
     {
-        var channel = await ChannelsClient.CreateChannelAsync(new CreateChannelRequest() { Name = model.Title });
+        var channel = await ChannelsClient.CreateChannelAsync(new CreateChannelRequest() { Name = model.Name });
         MudDialog.Close(DialogResult.Ok(channel));
     }
 }
