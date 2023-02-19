@@ -1,4 +1,5 @@
 using ChatApp.Common;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 
 namespace ChatApp.Features.Chat.Messages.EventHandlers;
@@ -8,18 +9,18 @@ public sealed class MessagePostedEventHandler : IDomainEventHandler<MessagePoste
     private readonly IMessageRepository messagesRepository;
     private readonly IUserRepository userRepository;
     private readonly IChatNotificationService chatNotificationService;
-    private readonly IDistributedCache distributedCache;
+    private readonly IMessageSenderCache messageSenderCache;
 
     public MessagePostedEventHandler(
         IMessageRepository messagesRepository, 
-        IUserRepository userRepository, 
+        IUserRepository userRepository,
         IChatNotificationService chatNotificationService,
-        IDistributedCache distributedCache)
+        IMessageSenderCache messageSenderCache)
     {
         this.messagesRepository = messagesRepository;
         this.userRepository = userRepository;
         this.chatNotificationService = chatNotificationService;
-        this.distributedCache = distributedCache;
+        this.messageSenderCache = messageSenderCache;
     }
 
     public async Task Handle(MessagePosted notification, CancellationToken cancellationToken)
@@ -64,6 +65,6 @@ public sealed class MessagePostedEventHandler : IDomainEventHandler<MessagePoste
 
     private async Task RemoveCachedSenderConnectionId(Message message)
     {
-        await distributedCache.RemoveAsync(message.Id.ToString());
+        await messageSenderCache.RemoveCachedSenderConnectionId(message.Id.ToString());
     }
 }

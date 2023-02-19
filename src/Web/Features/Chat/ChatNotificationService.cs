@@ -7,6 +7,7 @@ namespace ChatApp.Features.Chat;
 public interface IChatNotificationService
 {
     Task NotifyMessagePosted(MessageDto message, CancellationToken cancellationToken = default);
+    Task SendMessageToUser(string user, MessageDto message, CancellationToken cancellationToken = default);
     Task SendConfirmationToSender(string channelId, string messageId, CancellationToken cancellationToken = default);
     Task NotifyMessageEdited(string channelId, string messageId, string content, CancellationToken cancellationToken = default);
     Task NotifyMessageDeleted(string channelId, string messageId, CancellationToken cancellationToken = default);
@@ -31,6 +32,13 @@ public class ChatNotificationService : IChatNotificationService
 
         await hubsContext.Clients
             .GroupExcept($"channel-{message.ChannelId}", ConnectionId)
+            .MessagePosted(message);
+    }
+
+    public async Task SendMessageToUser(string userId, MessageDto message, CancellationToken cancellationToken = default)
+    {
+        await hubsContext.Clients
+            .User(userId)
             .MessagePosted(message);
     }
 
