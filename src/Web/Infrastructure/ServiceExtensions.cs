@@ -27,7 +27,7 @@ public static class ServiceExtensions
                 .AddJob<ProcessOutboxMessagesJob>(jobKey)
                 .AddTrigger(trigger => trigger.ForJob(jobKey)
                     .WithSimpleSchedule(schedule => schedule
-                        .WithIntervalInSeconds(10)
+                        .WithIntervalInSeconds(5)
                         .RepeatForever()));
 
             configure.UseMicrosoftDependencyInjectionJobFactory();
