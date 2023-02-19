@@ -18,4 +18,13 @@
   <data name="Send" xml:space="preserve">
     <value>Send</value>
   </data>
+  <data name="Required" xml:space="preserve">
+    <value>Required</value>
+  </data>
+  <data name="Now" xml:space="preserve">
+    <value>Now</value>
+  </data>
+  <data name="TimeDisplay" xml:space="preserve">
+    <value>{0} ago</value>
+  </data>
 </root>

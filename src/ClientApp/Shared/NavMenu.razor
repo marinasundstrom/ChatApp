@@ -34,9 +34,9 @@
         channels = (await ChannelsClient.GetChannelsAsync(1, 100, null, null)).Items.ToList();
     }
 
-    async Task CreateChannel() 
+    async Task CreateChannel()
     {
-        var dialogRef = await DialogService.ShowAsync<NewChannelDialog>("New channel");
+        var dialogRef = await DialogService.ShowAsync<NewChannelDialog>(T["NewChannel"]);
         var result = await dialogRef.Result;
 
         if(result.Canceled) return;
