@@ -54,7 +54,7 @@ public class ChannelPageTest
 
         ctx.Services.AddSingleton<IMessagesClient>(fakeMessagesClient);
 
-        var cut = ctx.RenderComponent<ChatApp.Chat.Channels.Channel>();
+        var cut = ctx.RenderComponent<ChatApp.Chat.Channels.ChannelPage>();
 
         // Act
         //cut.Find("button").Click();

@@ -15,7 +15,7 @@ public partial class MessagesTest : IClassFixture<CustomWebApplicationFactory<Pr
     }
 
     [Fact]
-    public async Task PostMessages_ShouldBeRetrievedByItsId()
+    public async Task PostMessage_ShouldBeRetrievedByItsId()
     {
         // Arrange
 
