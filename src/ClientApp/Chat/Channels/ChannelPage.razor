@@ -49,10 +49,10 @@
             @if(last) 
             {
                 <div>
-                    <TimeView>
+                    <TimeView Context="now">
                     @{
                         var published = post.Published;
-                        var timeSince = context - published;
+                        var timeSince = now - published;
                     }
                     @if (timeSince.TotalMinutes < 30)
                     {
