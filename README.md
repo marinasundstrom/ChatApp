@@ -1,13 +1,19 @@
 # Chat App
 
-TBA
+Chat app based on the [TodoApp](https://github.com/marinasundstrom/todo-app) project.
+
+Watch the [video](https://youtu.be/e1RcKaZ2TSk)
+
+## Screenshot
+
+![Screenshot](/images/screenshot.png)
+
+## Features
 
 Two features: ```Channels``` and ```Messages```.
 
 Commands and Queries
 Publishing domain event
-
-## Features
 ### Sending a Message
 
 When a sender posts a Message, the ```PostMessage``` command will create a ``Message``. Once that Message has been persisted, then a ```MessagePosted``` event will be published. 
