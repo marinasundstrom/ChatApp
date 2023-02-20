@@ -21,8 +21,10 @@
     bool first = IsFirst(post);
     bool last = IsLast(post);
 
+    var isAuthorizedToDelete = isInAdminRole || post.Sender == myUserId;
+
     <Message @key="post.GetHashCode()" Direction="@(post.IsCurrentUser ? MessageDirection.Right : MessageDirection.Left)"
-        First=@first Last=@last IsFooterVisible=@last IsSideAreaVisible=@(post.Sender != MyUserId)>
+        First=@first Last=@last IsFooterVisible=@last IsSideAreaVisible=@(post.Sender != myUserId)>
         <SideAreaTemplate>
             @if(first) 
             {
@@ -33,7 +35,7 @@
              <Bubble>
                 @(new MarkupString(post.Content.Replace(Environment.NewLine, "<br />")))
 
-                @if(post.Sender == MyUserId) 
+                @if(post.Sender == myUserId) 
                 {
                     if(post.Confirmed) 
                     {
@@ -73,6 +75,44 @@
                 </div>
             }
         </FooterTemplate>
+
+        <ActionsTemplate>
+             @* <MudIconButton Icon="@Icons.Filled.Reply" Style="margin-top: -5px; padding: 10px;" Size="Size.Medium" OnClick="() => ReplyToMessage(message)" /> *@
+                <MudMenu AnchorOrigin="Origin.BottomLeft">
+                    <ActivatorContent>
+                        <MudIconButton Style="margin-top: -5px; padding: 10px;" Icon="@Icons.Filled.MoreVert"
+                                        Variant="Variant.Text" Color="Color.Secondary" />
+                    </ActivatorContent>
+                    <ChildContent>
+                        @*
+                        @if (isAuthorizedToEdit)
+                        {
+                            <MudMenuItem OnClick="() => EditMessage(message)">
+                                <div class="d-flex flex-row flex-grow-1 gap-2">
+                                    <MudIcon Icon="@Icons.Filled.Edit" Size="Size.Medium" />
+                                    Edit
+                                </div>
+                            </MudMenuItem>
+                        }
+                        *@
+                        @if (isAuthorizedToDelete)
+                        {
+                            <MudMenuItem OnClick="async () => await DeleteMessage(post)">
+                                <div class="d-flex flex-row flex-grow-1 gap-2">
+                                    <MudIcon Icon="@Icons.Filled.Delete" Size="Size.Medium" />
+                                    Delete
+                                </div>
+                            </MudMenuItem>
+                        }
+                        <MudMenuItem>
+                            <div class="d-flex flex-row flex-grow-1 gap-2">
+                                <MudIcon Icon="@Icons.Filled.Report" Size="Size.Medium" />
+                                Report
+                            </div>
+                        </MudMenuItem>
+                    </ChildContent>
+                </MudMenu>
+        </ActionsTemplate>
     </Message>   
 }
 

@@ -12,6 +12,8 @@ public static class Errors
     public static class Messages
     {
         public static readonly Error MessageNotFound = new Error(nameof(MessageNotFound), "Message not found", string.Empty);
+
+        public static readonly Error NotAllowedToDelete = new Error(nameof(NotAllowedToDelete), "Not allowed to delete", string.Empty);
     }
 
     public static class Users

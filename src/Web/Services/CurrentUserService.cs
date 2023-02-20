@@ -2,7 +2,7 @@
 
 namespace ChatApp.Web.Services;
 
-public sealed class CurrentUserService : ICurrentUserService
+public sealed class CurrentUserService : ICurrentUserService, ICurrentUserServiceInternal
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private ClaimsPrincipal? _user;
@@ -14,6 +14,8 @@ public sealed class CurrentUserService : ICurrentUserService
     }
 
     public string? UserId => _currentUserId ??= GetUser()?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    public bool IsInRole(string role) => GetUser().IsInRole(role);
 
     public string? ConnectionId { get; private set; }
 

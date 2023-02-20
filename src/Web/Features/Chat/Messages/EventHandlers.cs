@@ -58,3 +58,32 @@ public sealed class MessagePostedEventHandler : IDomainEventHandler<MessagePoste
             null, null);
     }
 }
+
+
+public sealed class MessageDeletedEventHandler : IDomainEventHandler<MessageDeleted>
+{
+    private readonly IMessageRepository messagesRepository;
+    private readonly IUserRepository userRepository;
+    private readonly IChatNotificationService chatNotificationService;
+
+    public MessageDeletedEventHandler(
+        IMessageRepository messagesRepository, 
+        IUserRepository userRepository,
+        IChatNotificationService chatNotificationService)
+    {
+        this.messagesRepository = messagesRepository;
+        this.userRepository = userRepository;
+        this.chatNotificationService = chatNotificationService;
+    }
+
+    public async Task Handle(MessageDeleted notification, CancellationToken cancellationToken)
+    {
+        await NotifyChannelMessageDeleted(notification.ChannelId.ToString(), notification.MessageId.ToString(), cancellationToken);
+    }
+
+    private async Task NotifyChannelMessageDeleted(string channelId, string messageId, CancellationToken cancellationToken)
+    {
+        await chatNotificationService.NotifyMessageDeleted(
+            channelId, messageId, cancellationToken);
+    }
+}

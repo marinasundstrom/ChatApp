@@ -10,9 +10,9 @@ namespace ChatApp.Features.Chat;
 public sealed class ChatHub : Hub<IChatHubClient>
 {
     private readonly IMediator mediator;
-    private readonly ICurrentUserService currentUserService;
+    private readonly ICurrentUserServiceInternal currentUserService;
 
-    public ChatHub(IMediator mediator, ICurrentUserService currentUserService)
+    public ChatHub(IMediator mediator, ICurrentUserServiceInternal currentUserService)
     {
         this.mediator = mediator;
         this.currentUserService = currentUserService;

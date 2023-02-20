@@ -30,7 +30,8 @@ builder.Services
     .AddSignalR();
 
 builder.Services
-    .AddScoped<ICurrentUserService, CurrentUserService>()
+    .AddScoped<ICurrentUserServiceInternal, CurrentUserService>()
+    .AddScoped<ICurrentUserService>(sp => sp.GetRequiredService<ICurrentUserServiceInternal>())
     .AddTransient<ExceptionHandlingMiddleware>();
 
 var app = builder.Build();

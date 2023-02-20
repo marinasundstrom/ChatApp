@@ -11,7 +11,9 @@ namespace ChatApp.Chat.Channels
     public partial class ChannelPage
     {
         bool isDarkMode = false;
-        string MyUserId = "BS";
+        string myUserId = "BS";
+        bool isInAdminRole = false;
+
         List<Post> posts = new List<Post>();
        
         [Parameter]
@@ -30,7 +32,8 @@ namespace ChatApp.Chat.Channels
 
             StateHasChanged();
 
-            MyUserId = await CurrentUserService.GetUserIdAsync();
+            myUserId = await CurrentUserService.GetUserIdAsync();
+            isInAdminRole = await CurrentUserService.IsInRoleAsync("admin");
 
             await LoadChannel();
         }
@@ -69,6 +72,7 @@ namespace ChatApp.Chat.Channels
 
                 hubConnection.On<ChatApp.Message>("MessagePosted", OnMessagePosted);
                 hubConnection.On<string>("MessagePostedConfirmed", OnMessagePostedConfirmed);
+                hubConnection.On<string, string>("MessageDeleted", OnMessageDeleted);
 
                 hubConnection.Closed += (error) =>
                 {
@@ -125,7 +129,7 @@ namespace ChatApp.Chat.Channels
                 SenderInitials = GetInitials(message.CreatedBy.Name),
                 Published = message.Created,
                 Content = message.Content,
-                IsCurrentUser = message.CreatedBy.Id == MyUserId,
+                IsCurrentUser = message.CreatedBy.Id == myUserId,
                 Confirmed = true
             });
         }
@@ -137,6 +141,18 @@ namespace ChatApp.Chat.Channels
             StateHasChanged();
 
             await JSRuntime.InvokeVoidAsyncIgnoreErrors("helpers.scrollToBottom");
+        }
+
+        private void OnMessageDeleted(string channelId, string messageId) 
+        {
+            var post = posts.FirstOrDefault(x => x.Id.ToString() == messageId);
+
+            if(post is not null) 
+            {
+                posts.Remove(post);
+
+                StateHasChanged();
+            }
         }
 
         async void OnLocationChanged(object? sender, LocationChangedEventArgs eventArgs)
@@ -179,7 +195,7 @@ namespace ChatApp.Chat.Channels
             {
                 Id = Guid.Empty,
                 Published = DateTimeOffset.UtcNow,
-                Sender = MyUserId,
+                Sender = myUserId,
                 SenderInitials = GetInitials("Foo"), // TODO: Fix with my name,
                 IsCurrentUser = true,
                 Content = Text
@@ -192,6 +208,18 @@ namespace ChatApp.Chat.Channels
             Text = string.Empty;
 
             await JSRuntime.InvokeVoidAsyncIgnoreErrors("helpers.scrollToBottom");
+        }
+
+        async Task DeleteMessage(Post post) 
+        {
+            await MessagesClient.DeleteMessageAsync(post.Id);
+
+            if(post is not null) 
+            {
+                posts.Remove(post);
+
+                StateHasChanged();
+            }
         }
 
         private bool IsFirst(Post post)

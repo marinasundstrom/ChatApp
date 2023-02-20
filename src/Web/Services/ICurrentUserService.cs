@@ -6,9 +6,14 @@ public interface ICurrentUserService
 {
     string? UserId { get; }
 
-    void SetUser(ClaimsPrincipal user);
-
     string? ConnectionId { get; }
+
+    bool IsInRole(string role);
+}
+
+public interface ICurrentUserServiceInternal : ICurrentUserService
+{
+    void SetUser(ClaimsPrincipal user);
 
     void SetConnectionId(string connectionId);
 }
