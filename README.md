@@ -45,9 +45,11 @@ Major technical characteristics of the project are listed below.
   * Endpoints - "Minimal API" with versioning
   * SignalR
   * OpenAPI
+
 * Frontend/UI
   * Blazor
   * MudBlazor (component framework)
+
 * Azure SQL Server
 * IdentityServer for authentication - with seeded users Alice and Bob.
 
@@ -56,10 +58,14 @@ Unused but available technologies:
   * MassTransit 
 * Redis (for distributed cache)
 
+Other:
+* Open Telemetry - with Zipkin
+* Health checks
+
 ### Tests
 * Application logic tests
 * Domain model test
-* Integration tests
+* Integration tests - with Test host and Testcontainers
 
 ## Running the project
 
@@ -74,6 +80,8 @@ To run the solution:
 ```
 tye run
 ```
+
+Dashboard: http://localhost:8000/
 
 With Watch feature:
 
