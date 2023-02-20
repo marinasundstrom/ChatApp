@@ -4,7 +4,7 @@ namespace ChatApp.Features.Chat;
 
 public static class MassTransitExtensions
 {
-    public static IBusRegistrationConfigurator AddTodoConsumers(this IBusRegistrationConfigurator busRegistrationConfigurator)
+    public static IBusRegistrationConfigurator AddMessageConsumers(this IBusRegistrationConfigurator busRegistrationConfigurator)
     {
         //busRegistrationConfigurator.AddConsumer<UpdateStatusConsumer>();
 

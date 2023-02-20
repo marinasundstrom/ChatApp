@@ -1,5 +1,6 @@
 using ChatApp.Features.Chat;
 using MassTransit;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ChatApp.Web.Extensions;
 
@@ -13,7 +14,7 @@ public static class MassTransitExtensions
 
             //x.AddConsumers(typeof(Program).Assembly);
 
-            x.AddTodoConsumers();
+            x.AddMessageConsumers();
 
             x.UsingRabbitMq((context, cfg) =>
             {

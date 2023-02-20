@@ -33,24 +33,30 @@ public static class Endpoints
             .Produces(StatusCodes.Status429TooManyRequests)
             .RequireRateLimiting("fixed");
 
-  /*
+
         group.MapGet("/{id}", GetMessageById)
+            .WithName($"Messages_{nameof(GetMessageById)}")
             .Produces<MessageDto>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .WithName(nameof(GetMessageById));
 
-        group.MapPost("/", CreateMessage)
-            .Produces<MessageDto>(StatusCodes.Status200OK)
+        group.MapPost("/", PostMessage)
+            .WithName($"Messages_{nameof(PostMessage)}")
+            .Produces<Guid>(StatusCodes.Status201Created)
             .ProducesProblem(StatusCodes.Status404NotFound);
+
 
         group.MapDelete("/{id}", DeleteMessage)
+            .WithName($"Messages_{nameof(DeleteMessage)}")
             .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound);
 
-        group.MapPut("/{id}/Title", UpdateTitle)
+        group.MapPut("/{id}", EditMessage)
+            .WithName($"Messages_{nameof(EditMessage)}")
             .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound);
 
+  /*
         group.MapPut("/{id}/Description", UpdateDescription)
             .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound);
@@ -74,38 +80,37 @@ public static class Endpoints
         */
     }
 
- 
-
     public static async Task<ItemsResult<MessageDto>> GetMessages(Guid channelId, int page = 1, int pageSize = 10, string? sortBy = null, SortDirection? sortDirection = null, CancellationToken cancellationToken = default, IMediator mediator = default!)
         => await mediator.Send(new GetMessages(channelId, page, pageSize, sortBy, sortDirection), cancellationToken);
 
-   /*
-    public static async Task<IResult> GetMessageById(int id, CancellationToken cancellationToken, IMediator mediator)
+
+    public static async Task<IResult> GetMessageById(Guid id, CancellationToken cancellationToken, IMediator mediator)
     {
         var result = await mediator.Send(new GetMessageById(id), cancellationToken);
         return HandleResult(result);
     }
 
-    public static async Task<IResult> CreateMessage(CreateMessageRequest request, CancellationToken cancellationToken, IMediator mediator)
+    public static async Task<IResult> PostMessage(PostMessageRequest request, CancellationToken cancellationToken, IMediator mediator)
     {
-        var result = await mediator.Send(new CreateMessage(request.Title, request.Description, request.Status, request.AssignedTo, request.EstimatedHours, request.RemainingHours), cancellationToken);
+        var result = await mediator.Send(new PostMessage(request.ChannelId, request.Content), cancellationToken);
         return result.Handle(
-            onSuccess: data => Results.CreatedAtRoute(nameof(GetMessageById), new { id = data.Id }, data),
+            onSuccess: data => Results.CreatedAtRoute(nameof(GetMessageById), new { id = data.Value }, data.Value),
             onError: error => Results.Problem(detail: error.Detail, title: error.Title, type: error.Id));
     }
 
-    public static async Task<IResult> DeleteMessage(int id, CancellationToken cancellationToken, IMediator mediator)
+    public static async Task<IResult> DeleteMessage(Guid id, CancellationToken cancellationToken, IMediator mediator)
     {
         var result = await mediator.Send(new DeleteMessage(id), cancellationToken);
         return HandleResult(result);
     }
 
-    public static async Task<IResult> UpdateTitle(int id, [FromBody] string title, CancellationToken cancellationToken, IMediator mediator)
+    public static async Task<IResult> EditMessage(Guid id, [FromBody] string content, CancellationToken cancellationToken, IMediator mediator)
     {
-        var result = await mediator.Send(new UpdateTitle(id, title), cancellationToken);
+        var result = await mediator.Send(new EditMessage(id, content), cancellationToken);
         return HandleResult(result);
     }
 
+   /*
     public static async Task<IResult> UpdateDescription(int id, [FromBody] string? description, CancellationToken cancellationToken, IMediator mediator)
     {
         var result = await mediator.Send(new UpdateDescription(id, description), cancellationToken);
@@ -135,6 +140,7 @@ public static class Endpoints
         var result = await mediator.Send(new UpdateRemainingHours(id, hours), cancellationToken);
         return HandleResult(result);
     }
+            */
 
     private static IResult HandleResult(Result result) => result.Handle(
             onSuccess: () => Results.Ok(),
@@ -157,6 +163,4 @@ public static class Endpoints
                 }
                 return Results.Problem(detail: error.Detail, title: error.Title, type: error.Id);
             });
-            
-            */
 }

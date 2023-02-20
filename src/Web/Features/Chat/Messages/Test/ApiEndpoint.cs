@@ -3,15 +3,7 @@ using FastEndpoints;
 
 namespace ChatApp.Features.Chat.Messages;
 
-public class CreateMessageRequest
-{
-    public Guid ChannelId { get; set; }
-
-    [FromBody]
-    public string Content { get; set; } = default!;
-}
-
-public sealed class ApiEndpoint : Endpoint<CreateMessageRequest>
+public sealed class ApiEndpoint : Endpoint<PostMessageRequest>
 {
     private readonly IMediator mediator;
 
@@ -27,7 +19,7 @@ public sealed class ApiEndpoint : Endpoint<CreateMessageRequest>
         Version(2);
     }
 
-    public override async Task HandleAsync(CreateMessageRequest req, CancellationToken ct)
+    public override async Task HandleAsync(PostMessageRequest req, CancellationToken ct)
     {
         await mediator.Send(new PostMessage(req.ChannelId, req.Content));
     }

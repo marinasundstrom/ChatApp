@@ -2,7 +2,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ChatApp.Common;
-using ChatApp.Domain;
 using ChatApp.Extensions;
 using ChatApp.Infrastructure.Persistence;
 using ChatApp.Features.Users;
@@ -52,39 +51,6 @@ public record GetMessages(Guid? ChannelId, int Page = 1, int PageSize = 10, stri
             IEnumerable<MessageDto> dtos = Extensions.GetMessageDtos(context.Users, messages);
 
             return new ItemsResult<MessageDto>(dtos!, totalCount);
-        }
-    }
-}
-
-public record GetMessageById(Guid Id) : IRequest<Result<MessageDto>>
-{
-    public class Validator : AbstractValidator<GetMessageById>
-    {
-        public Validator()
-        {
-            RuleFor(x => x.Id).NotEmpty();
-        }
-    }
-
-    public class Handler : IRequestHandler<GetMessageById, Result<MessageDto>>
-    {
-        private readonly IMessageRepository messageRepository;
-
-        public Handler(IMessageRepository messageRepository)
-        {
-            this.messageRepository = messageRepository;
-        }
-
-        public async Task<Result<MessageDto>> Handle(GetMessageById request, CancellationToken cancellationToken)
-        {
-            var todo = await messageRepository.FindByIdAsync(request.Id, cancellationToken);
-
-            if (todo is null)
-            {
-                return Result.Failure<MessageDto>(Errors.Messages.MessageNotFound);
-            }
-
-            return Result.Success(todo.ToDto());
         }
     }
 }

@@ -5,15 +5,13 @@ using ChatApp.Domain;
 
 namespace ChatApp.Features.Chat.Messages;
 
-public sealed record DeleteMessage(Guid MessageId, string Content) : IRequest<Result>
+public sealed record DeleteMessage(Guid MessageId) : IRequest<Result>
 {
     public sealed class Validator : AbstractValidator<DeleteMessage>
     {
         public Validator()
         {
             RuleFor(x => x.MessageId).NotEmpty();
-
-            RuleFor(x => x.Content).MaximumLength(1024);
         }
     }
 
