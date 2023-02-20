@@ -8,47 +8,94 @@ Watch the [video](https://youtu.be/e1RcKaZ2TSk)
 
 ![Screenshot](/images/screenshot.png)
 
+## Background
+
+This project was created as part of an assignment for a Job interview process. Coincidentally, I had been thinking of renovating my old "[Messenger](https://github.com/marinasundstrom/YourBrand/tree/main/Messenger/Messenger.UI)" project the days before receiving the assignment.
+
+This assignment gave me a scope and some motivation.
+
 ## Features
 
-Two features: ```Channels``` and ```Messages```.
+Here are the main features of the app:
 
-Commands and Queries
-Publishing domain event
-### Sending a Message
+* View and create channels.
+* Post messages in specific channels.
+* Admin commands - sent in channel.
 
-When a sender posts a Message, the ```PostMessage``` command will create a ``Message``. Once that Message has been persisted, then a ```MessagePosted``` event will be published. 
+Other features:
+* User registration - aka "Welcome screen".
+* Light and Dark mode
+* Localization - English and Swedish
 
-On the ```MessagePosted``` event, the sender of the ``Message`` will get a confirmation, and the other clients that subscribe to the same ```Channel``` that the message been posted in will be notified about there being a new Message.
+For more details, read the [design](/docs/design.md) document.
 
-### Admin commands
+## Project
+The app consists of a Frontend built with Blazor WebAssembly, and a Backend with ASP.NET Core.
 
-Get the total number of posts
+Major technical characteristics of the project are listed below.
 
-```
-/admin getNumberPosts
-```
+###  Architecture
+* Clean Architecture (CA) in app project, with Vertical-slices architecture (VSA)
+  * Combining all layers into one project with focus on features.
+  * Using Domain-driven design (DDD) practices
+* Event-driven architecture - Domain Events
+  
+### Technologies
+* ASP.NET Core
+  * Endpoints - "Minimal API" with versioning
+  * SignalR
+  * OpenAPI
+* Frontend/UI
+  * Blazor
+  * MudBlazor (component framework)
+* Azure SQL Server
+* IdentityServer for authentication - with seeded users Alice and Bob.
 
-Get number of posts in the current channel
+Unused but available technologies:
+* RabbitMQ (for asynchronous messaging)
+  * MassTransit 
+* Redis (for distributed cache)
 
-```
-/admin getNumberPosts /channel
-```
+### Tests
+* Application logic tests
+* Domain model test
+* Integration tests
 
 ## Running the project
 
 ### Tye
 
+[Project Tye](https://github.com/dotnet/tye) is an experimental developer tool for .NET from Microsoft. It allows you to speed up development time by locally orchestrating your services, both projects and containers. Tye also helps with service discovery.
+
+Install the Tye [CLI tool](https://github.com/dotnet/tye/blob/main/docs/getting_started.md). Make sure to have Docker Desktop installed.
+
+To run the solution:
+
 ```
 tye run
 ```
 
+With Watch feature:
+
+```
+tye run --watch
+```
+
 ### Docker Compose
+
+TBA
 
 ```
 docker-compose up
 ```
 
 ### Seeding the databases
+
+In order for the databases to be created and for the app to function, you need to seed the databases for the ```Web``` and ```IdentityService``` projects.
+
+The services, in particular the databases, have to be running for this to work. 
+
+The seeding code target databases that have been defined in the ```appsettings.json``` files in each project.
 
 #### Web
 
@@ -66,7 +113,17 @@ When in the IdentityService project:
 dotnet run -- /seed
 ```
 
+### Services
+
+These are the services:
+
+* Frontend: https://localhost:5021/
+* Backend: https://localhost:5001/
+  * Swagger UI: https://localhost:5001/swagger/
+
 ### Login credentials
+
+Here are the users available to login as, provided that you have seeded the database.
 
 ```
 Username: alice 
@@ -76,6 +133,6 @@ Username: bob
 Password: bob
 ```
 
-### Swagger
+### Swagger UI
 
-https://localhost:5001/swagger/
+Hosted at: https://localhost:5001/swagger/
