@@ -20,11 +20,13 @@ public sealed record EditMessage(Guid MessageId, string Content) : IRequest<Resu
     {
         private readonly IMessageRepository messageRepository;
         private readonly IUnitOfWork unitOfWork;
+        private readonly ICurrentUserService currentUserService;
 
-        public Handler(IMessageRepository messageRepository, IUnitOfWork unitOfWork)
+        public Handler(IMessageRepository messageRepository, IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
         {
             this.messageRepository = messageRepository;
             this.unitOfWork = unitOfWork;
+            this.currentUserService = currentUserService;
         }
 
         public async Task<Result> Handle(EditMessage request, CancellationToken cancellationToken)
@@ -36,7 +38,16 @@ public sealed record EditMessage(Guid MessageId, string Content) : IRequest<Resu
                 return Result.Failure(Errors.Messages.MessageNotFound);
             }
 
+
+            var userId = currentUserService.UserId;
+
+            if(message.CreatedById != userId) 
+            {
+                return Result.Failure(Errors.Messages.NotAllowedToEdit);
+            }
+
             message.UpdateContent(request.Content);
+            
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result.Success();

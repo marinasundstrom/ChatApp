@@ -13,6 +13,7 @@ namespace ChatApp.Chat.Channels
         bool isDarkMode = false;
         string myUserId = "BS";
         bool isInAdminRole = false;
+        Guid? editingPostId = null;
 
         List<Post> posts = new List<Post>();
        
@@ -72,6 +73,7 @@ namespace ChatApp.Chat.Channels
 
                 hubConnection.On<ChatApp.Message>("MessagePosted", OnMessagePosted);
                 hubConnection.On<string>("MessagePostedConfirmed", OnMessagePostedConfirmed);
+                hubConnection.On<string, string, string>("MessageEdited", OnMessageEdited);
                 hubConnection.On<string, string>("MessageDeleted", OnMessageDeleted);
 
                 hubConnection.Closed += (error) =>
@@ -143,6 +145,18 @@ namespace ChatApp.Chat.Channels
             await JSRuntime.InvokeVoidAsyncIgnoreErrors("helpers.scrollToBottom");
         }
 
+        private void OnMessageEdited(string channelId, string messageId, string content) 
+        {
+            var post = posts.FirstOrDefault(x => x.Id.ToString() == messageId);
+
+            if(post is not null) 
+            {
+                post.Content = content;
+
+                StateHasChanged();
+            }
+        }
+
         private void OnMessageDeleted(string channelId, string messageId) 
         {
             var post = posts.FirstOrDefault(x => x.Id.ToString() == messageId);
@@ -191,6 +205,13 @@ namespace ChatApp.Chat.Channels
 
         async Task Send()
         {
+            if(editingPostId is not null) 
+            {
+                await UpdatePost();
+
+                return;
+            }
+
             var message = new Post() 
             {
                 Id = Guid.Empty,
@@ -210,6 +231,21 @@ namespace ChatApp.Chat.Channels
             await JSRuntime.InvokeVoidAsyncIgnoreErrors("helpers.scrollToBottom");
         }
 
+        private async Task UpdatePost()
+        {
+            var post = posts.FirstOrDefault(x => x.Id == editingPostId);
+
+            if(post is not null) 
+            {
+                post.Content = Text;
+
+                await MessagesClient.EditMessageAsync(editingPostId.GetValueOrDefault(), Text);
+
+                Text = string.Empty;
+                editingPostId = null;
+            }
+        }
+
         async Task DeleteMessage(Post post) 
         {
             await MessagesClient.DeleteMessageAsync(post.Id);
@@ -217,9 +253,19 @@ namespace ChatApp.Chat.Channels
             if(post is not null) 
             {
                 posts.Remove(post);
-
-                StateHasChanged();
             }
+        }
+
+        void EditMessage(Post post) 
+        {
+            editingPostId = post.Id;
+            Text = post.Content;
+        }
+
+        void AbortEditMessage() 
+        {
+            editingPostId = null;
+            Text = string.Empty;
         }
 
         private bool IsFirst(Post post)

@@ -21,6 +21,7 @@
 }
 
 .message .message-actions-container {
+    margin-top: 4px;
     visibility: hidden;
 }
 

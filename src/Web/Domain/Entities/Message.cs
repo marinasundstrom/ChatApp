@@ -26,7 +26,7 @@ public sealed class Message : AggregateRoot<MessageId>, IAuditable
 
         Content = newContent;
 
-        // Todo: Emit Domain Event
+        AddDomainEvent(new MessageEdited(ChannelId, new MessageEditedData(Id, Content)));
 
         return true;
     }

@@ -22,6 +22,7 @@
     bool last = IsLast(post);
 
     var isAuthorizedToDelete = isInAdminRole || post.Sender == myUserId;
+    var isAuthorizedToEdit = post.Sender == myUserId;
 
     <Message @key="post.GetHashCode()" Direction="@(post.IsCurrentUser ? MessageDirection.Right : MessageDirection.Left)"
         First=@first Last=@last IsFooterVisible=@last IsSideAreaVisible=@(post.Sender != myUserId)>
@@ -84,17 +85,15 @@
                                         Variant="Variant.Text" Color="Color.Secondary" />
                     </ActivatorContent>
                     <ChildContent>
-                        @*
                         @if (isAuthorizedToEdit)
                         {
-                            <MudMenuItem OnClick="() => EditMessage(message)">
+                            <MudMenuItem OnClick="() => EditMessage(post)">
                                 <div class="d-flex flex-row flex-grow-1 gap-2">
                                     <MudIcon Icon="@Icons.Filled.Edit" Size="Size.Medium" />
                                     Edit
                                 </div>
                             </MudMenuItem>
                         }
-                        *@
                         @if (isAuthorizedToDelete)
                         {
                             <MudMenuItem OnClick="async () => await DeleteMessage(post)">
@@ -123,6 +122,14 @@
             <MudPaper Elevation="35">
                 <EditForm OnValidSubmit="Send" Model="@this">
                     <DataAnnotationsValidator />
+
+                    @if (editingPostId is not null)
+                    {
+                        <div class="d-flex flex-grow-1 gap-4">
+                            <MudText Typo="Typo.h6">Editing</MudText>
+                            <MudIconButton Icon="@Icons.Filled.Cancel" Size="Size.Small" OnClick="AbortEditMessage" />
+                        </div>
+                    }
 
                      <div class="d-flex flex-grow-1 gap-3">
                         <div class="flex-auto d-flex" style="width: 100%">

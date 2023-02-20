@@ -59,6 +59,33 @@ public sealed class MessagePostedEventHandler : IDomainEventHandler<MessagePoste
     }
 }
 
+public sealed class MessageEditedEventHandler : IDomainEventHandler<MessageEdited>
+{
+    private readonly IMessageRepository messagesRepository;
+    private readonly IUserRepository userRepository;
+    private readonly IChatNotificationService chatNotificationService;
+
+    public MessageEditedEventHandler(
+        IMessageRepository messagesRepository, 
+        IUserRepository userRepository,
+        IChatNotificationService chatNotificationService)
+    {
+        this.messagesRepository = messagesRepository;
+        this.userRepository = userRepository;
+        this.chatNotificationService = chatNotificationService;
+    }
+
+    public async Task Handle(MessageEdited notification, CancellationToken cancellationToken)
+    {
+        await NotifyChannelMessageEdited(notification.ChannelId.ToString(), notification.Message.MessageId.ToString(), notification.Message.Content, cancellationToken);
+    }
+
+    private async Task NotifyChannelMessageEdited(string channelId, string messageId, string content, CancellationToken cancellationToken)
+    {
+        await chatNotificationService.NotifyMessageEdited(
+            channelId, messageId, content, cancellationToken);
+    }
+}
 
 public sealed class MessageDeletedEventHandler : IDomainEventHandler<MessageDeleted>
 {
@@ -78,7 +105,8 @@ public sealed class MessageDeletedEventHandler : IDomainEventHandler<MessageDele
 
     public async Task Handle(MessageDeleted notification, CancellationToken cancellationToken)
     {
-        await NotifyChannelMessageDeleted(notification.ChannelId.ToString(), notification.MessageId.ToString(), cancellationToken);
+        await NotifyChannelMessageDeleted(
+            notification.ChannelId.ToString(), notification.MessageId.ToString(), cancellationToken);
     }
 
     private async Task NotifyChannelMessageDeleted(string channelId, string messageId, CancellationToken cancellationToken)
