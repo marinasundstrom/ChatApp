@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 namespace ChatApp.Chat.Channels
 {
-    public partial class Channel
+    public partial class ChannelPage
     {
         bool isDarkMode = false;
         string MyUserId = "BS";
