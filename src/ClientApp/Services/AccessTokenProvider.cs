@@ -2,7 +2,12 @@ using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 
 namespace ChatApp.Services;
 
-public class AccessTokenProvider : IAccessTokenProvider
+public interface IAccessTokenProvider
+{
+    Task<string?> GetAccessTokenAsync();
+}
+
+public sealed class AccessTokenProvider : IAccessTokenProvider
 {
     private readonly Microsoft.AspNetCore.Components.WebAssembly.Authentication.IAccessTokenProvider _accessTokenProvider;
 

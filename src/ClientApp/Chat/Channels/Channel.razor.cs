@@ -30,8 +30,7 @@ namespace ChatApp.Chat.Channels
 
             StateHasChanged();
 
-            var authenticationState = await AuthenticationStateTask;
-            MyUserId = authenticationState.User?.FindFirst("sub")?.Value!;
+            MyUserId = await CurrentUserService.GetUserIdAsync();
 
             await LoadChannel();
         }
@@ -64,12 +63,7 @@ namespace ChatApp.Chat.Channels
                 {
                     options.AccessTokenProvider = async () =>
                     {
-                        var tokenResult = await AccessTokenProvider.RequestAccessToken();
-                        if (tokenResult.TryGetToken(out var token))
-                        {
-                            return token.Value;
-                        }
-                        return null;
+                        return await AccessTokenProvider.GetAccessTokenAsync();
                     };
                 }).WithAutomaticReconnect().Build();
 

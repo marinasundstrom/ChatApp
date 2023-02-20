@@ -2,9 +2,10 @@
 @page "/channels/{Id}"
 @attribute [Authorize]
 @inject IStringLocalizer<Channel> T
-@inject ThemeManager ThemeManager
+@inject IThemeManager ThemeManager
 @inject NavigationManager NavigationManager
-@inject IAccessTokenProvider AccessTokenProvider
+@inject Services.IAccessTokenProvider AccessTokenProvider
+@inject Services.ICurrentUserService CurrentUserService
 @inject ISnackbar Snackbar
 @inject IMessagesClient MessagesClient
 @inject IJSRuntime JSRuntime

@@ -59,6 +59,8 @@ builder.Services.AddOidcAuthentication(options =>
 
 builder.Services.AddScoped<ChatApp.Services.IAccessTokenProvider, ChatApp.Services.AccessTokenProvider>();
 
+builder.Services.AddScoped<ChatApp.Services.ICurrentUserService, ChatApp.Services.CurrentUserService>();
+
 builder.Services.AddMudServices();
 
 builder.Services.AddBlazoredLocalStorage();
@@ -67,7 +69,7 @@ builder.Services.AddThemeServices();
 
 builder.Services.AddLocalization();
 
-builder.Services.AddSingleton<TimeViewService>();
+builder.Services.AddSingleton<ITimeViewService, TimeViewService>();
 
 var app = builder.Build();
 

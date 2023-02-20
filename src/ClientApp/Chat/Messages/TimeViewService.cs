@@ -1,13 +1,18 @@
 namespace ChatApp.Chat.Messages;
 
-public sealed class TimeViewService : IDisposable
+public interface ITimeViewService : IDisposable
+{
+    event EventHandler Tick;
+}
+
+public sealed class TimeViewService : ITimeViewService
 {
     Task task = default!;
     PeriodicTimer? timer;
     CancellationTokenSource? cts;
     DateTimeOffset dateTime;
 
-    public TimeViewService() 
+    public TimeViewService()
     {
         cts = new CancellationTokenSource();
         task = Task.Run(async () => await Do(cts.Token), cts.Token);
@@ -18,16 +23,16 @@ public sealed class TimeViewService : IDisposable
     async Task Do(CancellationToken token)
     {
         timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
-        
+
         try
         {
-            while(await timer.WaitForNextTickAsync(token))
+            while (await timer.WaitForNextTickAsync(token))
             {
                 dateTime = DateTimeOffset.UtcNow;
                 Tick?.Invoke(this, EventArgs.Empty);
             }
         }
-        catch(TaskCanceledException)
+        catch (TaskCanceledException)
         {
 
         }
@@ -42,7 +47,7 @@ public sealed class TimeViewService : IDisposable
         timer?.Dispose();
         timer = null;
 
-        if(cts is not null) 
+        if (cts is not null)
         {
             cts.Cancel();
             cts.Dispose();
