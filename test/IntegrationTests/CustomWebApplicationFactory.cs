@@ -6,9 +6,16 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using ChatApp;
-using ChatApp.Features.Channels;
+using ChatApp.Features.Chat.Channels;
 using ChatApp.Infrastructure.Persistence;
 using ChatApp.Infrastructure.Persistence.Interceptors;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using ChatApp.Features.Chat;
+using System;
+using Microsoft.Extensions.Logging;
+using System.Linq;
 
 namespace ChatApp.IntegrationTests;
 
@@ -61,7 +68,7 @@ public sealed class CustomWebApplicationFactory<TStartup>
 
             services.AddMassTransitTestHarness(cfg =>
             {
-                cfg.AddTodoConsumers();
+                cfg.AddMessageConsumers();
             });
 
             var sp = services.BuildServiceProvider();

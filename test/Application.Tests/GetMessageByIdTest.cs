@@ -6,15 +6,15 @@ using ChatApp.Services;
 using ChatApp.Infrastructure.Persistence;
 using ChatApp.Infrastructure.Persistence.Repositories;
 using ChatApp.Domain;
+using System;
 
 namespace ChatApp.Features.Chat.Messages;
 
-/*
- * 
+
 public class GetTodoTest
 {
     [Fact]
-    public async Task GetTodo_TodoNotFound()
+    public async Task GetMessageById_MessageNotFound()
     {
         // Arrange
 
@@ -34,15 +34,15 @@ public class GetTodoTest
 
             var todoRepository = new MessageRepository(unitOfWork);
 
-            var commandHandler = new GetTodoById.Handler(todoRepository);
+            var commandHandler = new GetMessageById.Handler(todoRepository);
 
-            int nonExistentTodoId = 9999;
+            Guid nonExistentMessageId = Guid.NewGuid();
 
             // Act
 
-            var getTodoByIdCommand = new GetTodoById(nonExistentTodoId);
+            var getMessageByIdCommand = new GetMessageById(nonExistentMessageId);
 
-            var result = await commandHandler.Handle(getTodoByIdCommand, default);
+            var result = await commandHandler.Handle(getMessageByIdCommand, default);
 
             // Assert
 
@@ -50,5 +50,3 @@ public class GetTodoTest
         }
     }
 }
-
-*/

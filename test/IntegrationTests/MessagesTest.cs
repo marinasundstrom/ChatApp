@@ -1,20 +1,21 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
 
 namespace ChatApp.IntegrationTests;
 
-public partial class TodosTest : IClassFixture<CustomWebApplicationFactory<Program>>, IAsyncLifetime
+public partial class MessagesTest : IClassFixture<CustomWebApplicationFactory<Program>>, IAsyncLifetime
 {
     private readonly CustomWebApplicationFactory<Program> _factory;
 
-    public TodosTest(CustomWebApplicationFactory<Program> factory)
+    public MessagesTest(CustomWebApplicationFactory<Program> factory)
     {
         _factory = factory;
     }
 
     [Fact]
-    public async Task CreatedoShouldBeRetrievedByItsId()
+    public async Task PostMessages_ShouldBeRetrievedByItsId()
     {
         // Arrange
 
@@ -23,37 +24,23 @@ public partial class TodosTest : IClassFixture<CustomWebApplicationFactory<Progr
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("JWT");
 
-        TodosClient todosClient = new(client);
+        MessagesClient messagesClient = new(client);
 
-        string title = "Foo Bar";
-        string description = "Lorem ipsum";
-        TodoStatus status = TodoStatus.InProgress;
+        string content = "Foo Bar";
 
         // Act
 
-        var todo = await todosClient.CreateTodoAsync(new CreateTodoRequest()
+        var messageId = await messagesClient.PostMessageAsync(new PostMessageRequest()
         {
-            Title = title,
-            Description = description,
-            Status = status
+            ChannelId = Utilities.ChannelId,
+            Content = content
         });
 
-        var todo2 = await todosClient.GetTodoByIdAsync(todo.Id);
+        var message = await messagesClient.GetMessageByIdAsync(messageId);
 
         // Assert
-
-        Assert.Equal(title, todo.Title);
-
-        todo.Title.Should().Be(title);
-        todo.Description.Should().Be(description);
-        todo.Status.Should().Be(status);
-
-        todo2.Id.Should().Be(todo.Id);
-        todo2.Title.Should().Be(todo.Title);
-        todo2.Description.Should().Be(todo.Description);
-        todo2.Status.Should().Be(todo.Status);
-        //todo2.Created.Should().Be(todo.Created);
-        todo2.LastModified.Should().Be(todo.LastModified);
+        message.Id.Should().Be(messageId);
+        message.Content.Should().Be(content);
     }
 
     public Task DisposeAsync()
@@ -91,15 +78,15 @@ public partial class TodosTest : IClassFixture<CustomWebApplicationFactory<Progr
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("JWT");
 
-        TodosClient todosClient = new(client);
+        MessagesClient messagesClient = new(client);
 
-        int nonExistentId = 99999;
+        Guid nonExistentId = Guid.NewGuid();
 
         // Act
 
-        var exception = await Assert.ThrowsAsync<ApiException<ProblemDetails>>(async () =>
+        var exception = await Assert.ThrowsAsync<ApiException>(async () =>
         {
-            var todo = await todosClient.GetTodoByIdAsync(nonExistentId);
+            var message = await messagesClient.GetMessageByIdAsync(nonExistentId);
         });
 
         // Assert

@@ -45,7 +45,7 @@ public class PostMessageTest
 
             await unitOfWork.Database.EnsureCreatedAsync();
 
-            unitOfWork.Users.Add(new Domain.Entities.User("foo", "Test Tesston", "test@foo.com"));
+            unitOfWork.Users.Add(new Domain.Entities.User("foo", "Test Testsson", "test@foo.com"));
 
             await unitOfWork.SaveChangesAsync();
 

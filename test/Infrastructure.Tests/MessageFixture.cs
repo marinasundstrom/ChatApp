@@ -12,13 +12,13 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace ChatApp.Infrastructure;
 
-public class TodoFixture : IDisposable
+public class MessageFixture : IDisposable
 {
     private readonly ICurrentUserService fakeCurrentUserService;
     private readonly IDateTime fakeDateTimeService;
     private SqliteConnection connection = null!;
 
-    public TodoFixture()
+    public MessageFixture()
     {
         fakeCurrentUserService = Substitute.For<ICurrentUserService>();
         fakeCurrentUserService.UserId.Returns("foo");
