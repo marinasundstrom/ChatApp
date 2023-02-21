@@ -29,6 +29,11 @@ Other features:
 
 For more details, read the [design](/docs/design.md) document.
 
+### Futures
+
+* Incremental load of history
+* Read receipt
+
 ## Project
 The app consists of a Frontend built with Blazor WebAssembly, and a Backend with ASP.NET Core.
 
