@@ -39,7 +39,15 @@
              <Bubble Class="@(message.Deleted is not null ? "deleted" : string.Empty)">
                 @if (message.Deleted is not null)
                 {
-                    <p>Message was deleted @if(message.DeletedById != message.PostedById) { <text>by @(message.DeletedByName)</text> }</p>
+                    <p>@if(message.DeletedById != message.PostedById) 
+                        { 
+                            <text>@($"{T["DeletedBy", message.DeletedByName!]}")</text> 
+                        }
+                        else 
+                        {
+                            <text>@($"{T["Deleted"]}")</text> 
+                        }
+                    </p>
                 }
                 else
                 {
@@ -49,7 +57,15 @@
 
                         @if (message.ReplyTo.Deleted is not null)
                         {
-                            <p>Message was deleted  @if(message.ReplyTo.DeletedById != message.ReplyTo.PostedById) { <text>by @(message.ReplyTo.DeletedByName)</text> }</p>
+                            <p>@if(message.ReplyTo.DeletedById != message.PostedById) 
+                                { 
+                                    <text>@($"{T["DeletedBy", message.ReplyTo.DeletedByName!]}")</text> 
+                                }
+                                else 
+                                {
+                                    <text>@($"{T["Deleted"]}")</text> 
+                                }
+                            </p>
                         }
                         else 
                         {
@@ -75,7 +91,7 @@
 
                             @if (message.Edited is not null)
                             {
-                                <MudTooltip Text="@($"{message.Edited?.Humanize()} by {message.EditedByName}")">
+                                <MudTooltip Text="@($"{T["EditedBy", message.Edited.Humanize()!, message.EditedByName!]}")">
                                     <MudIcon Icon="@Icons.Filled.Edit" Size="Size.Small" Style="height: 0.8em; top: 3px; position: relative;" />
                                 </MudTooltip>
                             }
@@ -133,7 +149,7 @@
                             <MudMenuItem OnClick="() => EditMessage(message)">
                                 <div class="d-flex flex-row flex-grow-1 gap-2">
                                     <MudIcon Icon="@Icons.Filled.Edit" Size="Size.Medium" />
-                                    Edit
+                                     @T["Edit"]
                                 </div>
                             </MudMenuItem>
                         }
@@ -142,14 +158,14 @@
                             <MudMenuItem OnClick="async () => await DeleteMessage(message)">
                                 <div class="d-flex flex-row flex-grow-1 gap-2">
                                     <MudIcon Icon="@Icons.Filled.Delete" Size="Size.Medium" />
-                                    Delete
+                                     @T["Delete"]
                                 </div>
                             </MudMenuItem>
                         }
                         <MudMenuItem>
                             <div class="d-flex flex-row flex-grow-1 gap-2">
                                 <MudIcon Icon="@Icons.Filled.Report" Size="Size.Medium" />
-                                Report
+                                @T["Report"]
                             </div>
                         </MudMenuItem>
                     </ChildContent>

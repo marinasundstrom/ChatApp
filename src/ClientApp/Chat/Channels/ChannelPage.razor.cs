@@ -85,24 +85,41 @@ namespace ChatApp.Chat.Channels
                 {
                     if (error is not null)
                     {
-                        Snackbar.Add($"{error.Message}", Severity.Error);
+                        Snackbar.Add($"{error.Message}", Severity.Error, configure: options => {
+                            options.Icon = Icons.Material.Filled.Cable;
+                        });
                     }
 
-                    Snackbar.Add("Connection closed");
+                    Snackbar.Add(T["Disconnected"], configure: options => {
+                        options.Icon = Icons.Material.Filled.Cable;
+                    });
+
                     return Task.CompletedTask;
                 };
+
                 hubConnection.Reconnected += (error) =>
                 {
-                    Snackbar.Add("Reconnected");
+                    Snackbar.Add(T["Reconnected"], configure: options => {
+                        options.Icon = Icons.Material.Filled.Cable;
+                    });
+
                     return Task.CompletedTask;
                 };
+
                 hubConnection.Reconnecting += (error) =>
                 {
-                    Snackbar.Add("Reconnecting");
+                    Snackbar.Add(T["Reconnecting"], configure: options => {
+                        options.Icon = Icons.Material.Filled.Cable;
+                    });
+
                     return Task.CompletedTask;
                 };
+
                 await hubConnection.StartAsync();
-                Snackbar.Add("Connected");
+
+                Snackbar.Add(T["Connected"], configure: options => {
+                    options.Icon = Icons.Material.Filled.Cable;
+                });
             }
             catch (Exception exc)
             {
