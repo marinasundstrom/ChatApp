@@ -130,8 +130,10 @@ namespace ChatApp.Chat.Channels
                 messageVm.Content = message.Content;
                 messageVm.Edited = message.LastModified;
                 messageVm.EditedById = message.LastModifiedBy?.Id;
+                messageVm.EditedByName = message.LastModifiedBy?.Name;
                 messageVm.Deleted = message.Deleted;
                 messageVm.DeletedById = message.DeletedBy?.Id;
+                messageVm.DeletedByName = message.DeletedBy?.Name;
                 messageVm.IsFromCurrentUser = message.PublishedBy.Id == currentUserId;
 
                 // This is a new incoming message:
@@ -140,6 +142,7 @@ namespace ChatApp.Chat.Channels
                 {
                     messageVm.Id = message.Id;
                     messageVm.PostedById = message.PublishedBy.Id;
+                    messageVm.PostedByName = message.PublishedBy.Name;
                     messageVm.PostedByInitials = GetInitials(message.PublishedBy.Name);
                     messageVm.Content = message.Content;
                     messageVm.ReplyTo = message.ReplyTo is null ? null : GetOrCreateReplyMessageVm(message.ReplyTo);
@@ -153,14 +156,18 @@ namespace ChatApp.Chat.Channels
             {
                 Id = message.Id,
                 PostedById = message.PublishedBy.Id,
+                PostedByName = message.PublishedBy.Name,
                 PostedByInitials = GetInitials(message.PublishedBy.Name),
                 Published = message.Published,
                 Edited = message.LastModified,
                 EditedById = message.LastModifiedBy?.Id,
+                EditedByName = message.LastModifiedBy?.Name,
                 Content = message.Content,
                 IsFromCurrentUser = message.PublishedBy.Id == currentUserId,
                 ReplyTo = message.ReplyTo is null ? null : GetOrCreateReplyMessageVm(message.ReplyTo),
                 Deleted = message.Deleted,
+                DeletedById = message.DeletedBy?.Id,
+                DeletedByName = message.DeletedBy?.Name,
                 Confirmed = true
             };
 
@@ -235,6 +242,7 @@ namespace ChatApp.Chat.Channels
                 messageVm.Content = content;
                 messageVm.Edited = DateTimeOffset.UtcNow;
                 messageVm.EditedById = null;
+                messageVm.EditedByName = null;
 
                 StateHasChanged();
             }
@@ -251,6 +259,7 @@ namespace ChatApp.Chat.Channels
                 messageVm.Content = string.Empty;
                 messageVm.Deleted = DateTimeOffset.UtcNow;
                 messageVm.DeletedById = null;
+                messageVm.DeletedByName = null;
 
                 StateHasChanged();
             }
@@ -281,13 +290,16 @@ namespace ChatApp.Chat.Channels
 
             public DateTimeOffset Published { get; set; }
             public string PostedById { get; set; } = default !;
+            public string PostedByName { get; set; } = default !;
             public string PostedByInitials { get; set; } = default!;
             
             public DateTimeOffset? Deleted { get; set; }
             public string? DeletedById { get; set; }
+            public string? DeletedByName { get; set; }
 
             public DateTimeOffset? Edited { get; set; }
             public string? EditedById { get; set; }
+            public string? EditedByName { get; set; }
 
             public MessageViewModel? ReplyTo { get; set; }
 

@@ -28,15 +28,17 @@
         First=@first Last=@last IsFooterVisible=@last IsSideAreaVisible=@(message.PostedById != currentUserId)>
         <SideAreaTemplate>
             @if(first) 
-            {
-                <MudAvatar Class="mt-2" Size="Size.Small">@message.PostedByInitials</MudAvatar>
+            {   
+                <MudTooltip Text="@message.PostedByName">
+                    <MudAvatar Class="mt-2" Size="Size.Small">@message.PostedByInitials</MudAvatar>
+                </MudTooltip>
             }
         </SideAreaTemplate>
         <ChildContent>
              <Bubble Class="@(message.Deleted is not null ? "deleted" : string.Empty)">
                 @if (message.Deleted is not null)
                 {
-                    <p>Message was deleted.</p>
+                    <p>Message was deleted @if(message.DeletedById != message.PostedById) { <text>by @(message.DeletedByName)</text> }</p>
                 }
                 else
                 {
@@ -46,12 +48,12 @@
 
                         @if (message.ReplyTo.Deleted is not null)
                         {
-                            <p>Message was deleted.</p>
+                            <p>Message was deleted  @if(message.ReplyTo.DeletedById != message.ReplyTo.PostedById) { <text>by @(message.ReplyTo.DeletedByName)</text> }</p>
                         }
                         else 
                         {
-                                <small><b>@message.ReplyTo.PostedById</b></small>
-                                <p> @message.ReplyTo.Content</p>
+                            <small><b>@message.ReplyTo.PostedByName</b></small>
+                            <p> @message.ReplyTo.Content</p>
                         }
                         </div>
                     }
@@ -70,7 +72,7 @@
 
                         @if (message.Edited is not null)
                         {
-                            <MudTooltip Text="@(message.Edited?.ToString("g"))">
+                            <MudTooltip Text="@($"{message.Edited?.Humanize()} by {message.EditedByName}")">
                                 <MudIcon Icon="@Icons.Filled.Edit" Size="Size.Small" Style="height: 0.8em; top: 3px; position: relative;" />
                             </MudTooltip>
                         }
@@ -165,7 +167,7 @@
                     {
                         <div class="reply-bubble @(replyToMessage.PostedById == currentUserId ? "right" : "left")" style="border-top-left-radius: 4px; border-top-right-radius: 4px;">
                             <div class="d-flex justify-space-between" style="padding-top: 4px">
-                                <small><b>@replyToMessage.PostedByInitials</b></small>
+                                <small><b>@replyToMessage.PostedByName</b></small>
                                 <MudIconButton Icon="@Icons.Filled.Cancel" Size="Size.Small" OnClick="AbortReplyToMessage" />
                             </div>
                             <div>

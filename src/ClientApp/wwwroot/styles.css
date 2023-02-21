@@ -114,13 +114,13 @@
 
 .message .bubble.deleted {
     background-color: #fff !important;
-    color: darkslategray;
+    color: darkslategray !important;
     border: 1px solid #dddddd;
 }
 
 .reply-bubble.deleted {
     background-color: #fff !important;
-    color: darkslategray;
+    color: darkslategray !important;
     border: 1px solid #dddddd;
 }
 
