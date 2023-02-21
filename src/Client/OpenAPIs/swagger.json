@@ -736,12 +736,12 @@
           "publishedBy": {
             "$ref": "#/components/schemas/User"
           },
-          "lastModified": {
+          "lastEdited": {
             "type": "string",
             "format": "date-time",
             "nullable": true
           },
-          "lastModifiedBy": {
+          "lastEditedBy": {
             "nullable": true,
             "oneOf": [
               {

@@ -138,9 +138,9 @@ namespace ChatApp.Chat.Channels
             {
                 messageVm.Published = message.Published;
                 messageVm.Content = message.Content;
-                messageVm.Edited = message.LastModified;
-                messageVm.EditedById = message.LastModifiedBy?.Id;
-                messageVm.EditedByName = message.LastModifiedBy?.Name;
+                messageVm.Edited = message.LastEdited;
+                messageVm.EditedById = message.LastEditedBy?.Id;
+                messageVm.EditedByName = message.LastEditedBy?.Name;
                 messageVm.Deleted = message.Deleted;
                 messageVm.DeletedById = message.DeletedBy?.Id;
                 messageVm.DeletedByName = message.DeletedBy?.Name;
@@ -169,9 +169,9 @@ namespace ChatApp.Chat.Channels
                 PostedByName = message.PublishedBy.Name,
                 PostedByInitials = GetInitials(message.PublishedBy.Name),
                 Published = message.Published,
-                Edited = message.LastModified,
-                EditedById = message.LastModifiedBy?.Id,
-                EditedByName = message.LastModifiedBy?.Name,
+                Edited = message.LastEdited,
+                EditedById = message.LastEditedBy?.Id,
+                EditedByName = message.LastEditedBy?.Name,
                 Content = message.Content,
                 IsFromCurrentUser = message.PublishedBy.Id == currentUserId,
                 ReplyTo = message.ReplyTo is null ? null : GetOrCreateReplyMessageVm(message.ReplyTo),
