@@ -89,7 +89,7 @@ public class PostMessageTest
 
             await fakeDomainEventDispatcher
                 .Received(1)
-                .Dispatch(Arg.Is<MessagePosted>(d => d.Message.MessageId == messageId));
+                .Dispatch(Arg.Is<MessagePosted>(d => d.MessageId == messageId));
         }
     }
 }

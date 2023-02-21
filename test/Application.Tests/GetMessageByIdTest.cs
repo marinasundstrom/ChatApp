@@ -34,7 +34,7 @@ public class GetTodoTest
 
             var todoRepository = new MessageRepository(unitOfWork);
 
-            var commandHandler = new GetMessageById.Handler(todoRepository);
+            var commandHandler = new GetMessageById.Handler(todoRepository, new DtoComposer(unitOfWork, new DtoFactory()));
 
             Guid nonExistentMessageId = Guid.NewGuid();
 

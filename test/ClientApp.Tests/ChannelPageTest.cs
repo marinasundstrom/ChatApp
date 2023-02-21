@@ -54,6 +54,16 @@ public class ChannelPageTest
 
         ctx.Services.AddSingleton<IMessagesClient>(fakeMessagesClient);
 
+        var fakeUsersClient = Substitute.For<IUsersClient>();
+        fakeUsersClient.GetUserInfoAsync()
+            .ReturnsForAnyArgs(t => new UserInfo
+            {
+                Id = "1",
+                Name = "Foo"
+            });
+
+        ctx.Services.AddSingleton<IUsersClient>(fakeUsersClient);
+
         var cut = ctx.RenderComponent<ChatApp.Chat.Channels.ChannelPage>();
 
         // Act
