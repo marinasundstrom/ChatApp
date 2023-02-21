@@ -58,13 +58,24 @@
 
                     @(new MarkupString(message.Content.Replace(Environment.NewLine, "<br />")))
 
-                    @if(message.PostedById == currentUserId) 
-                    {
-                        if(message.Confirmed) 
+                    <div class="d-inline-flex" style="height: 20px">
+
+                        @if(message.PostedById == currentUserId) 
                         {
-                            <MudIcon Icon="@Icons.Filled.CheckCircle" Size="Size.Small" Class="ms-1" Style="height: 0.8em; top: 3px; position: relative;" />
+                            if(message.Confirmed) 
+                            {
+                                <MudIcon Icon="@Icons.Filled.CheckCircle" Size="Size.Small" Class="ms-1" Style="height: 0.8em; top: 3px; position: relative;" />
+                            }
                         }
-                    }
+
+                        @if (message.Edited is not null)
+                        {
+                            <MudTooltip Text="@(message.Edited?.ToString("g"))">
+                                <MudIcon Icon="@Icons.Filled.Edit" Size="Size.Small" Style="height: 0.8em; top: 3px; position: relative;" />
+                            </MudTooltip>
+                        }
+
+                    </div>
             }
             </Bubble>
         </ChildContent>

@@ -128,6 +128,10 @@ namespace ChatApp.Chat.Channels
             {
                 messageVm.Published = message.Published;
                 messageVm.Content = message.Content;
+                messageVm.Edited = message.LastModified;
+                messageVm.EditedById = message.LastModifiedBy?.Id;
+                messageVm.Deleted = message.Deleted;
+                messageVm.DeletedById = message.DeletedBy?.Id;
                 messageVm.IsFromCurrentUser = message.PublishedBy.Id == currentUserId;
 
                 // This is a new incoming message:
@@ -139,7 +143,6 @@ namespace ChatApp.Chat.Channels
                     messageVm.PostedByInitials = GetInitials(message.PublishedBy.Name);
                     messageVm.Content = message.Content;
                     messageVm.ReplyTo = message.ReplyTo is null ? null : GetOrCreateReplyMessageVm(message.ReplyTo);
-                    messageVm.Deleted = message.Deleted;
                     messageVm.Confirmed = true;
                 }
 
@@ -152,6 +155,8 @@ namespace ChatApp.Chat.Channels
                 PostedById = message.PublishedBy.Id,
                 PostedByInitials = GetInitials(message.PublishedBy.Name),
                 Published = message.Published,
+                Edited = message.LastModified,
+                EditedById = message.LastModifiedBy?.Id,
                 Content = message.Content,
                 IsFromCurrentUser = message.PublishedBy.Id == currentUserId,
                 ReplyTo = message.ReplyTo is null ? null : GetOrCreateReplyMessageVm(message.ReplyTo),
@@ -228,6 +233,8 @@ namespace ChatApp.Chat.Channels
             if(messageVm is not null) 
             {
                 messageVm.Content = content;
+                messageVm.Edited = DateTimeOffset.UtcNow;
+                messageVm.EditedById = null;
 
                 StateHasChanged();
             }
@@ -271,11 +278,17 @@ namespace ChatApp.Chat.Channels
         public class MessageViewModel : IComparable<MessageViewModel>
         {
             public Guid Id { get; set; } 
+
             public DateTimeOffset Published { get; set; }
             public string PostedById { get; set; } = default !;
             public string PostedByInitials { get; set; } = default!;
+            
             public DateTimeOffset? Deleted { get; set; }
             public string? DeletedById { get; set; }
+
+            public DateTimeOffset? Edited { get; set; }
+            public string? EditedById { get; set; }
+
             public MessageViewModel? ReplyTo { get; set; }
 
             public string Content { get; set; } = default !;
