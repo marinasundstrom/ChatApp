@@ -50,12 +50,20 @@ services:
       protocol: rabbitmq
     - name: management
       port: 15672
+  volumes:
+    - source: .data/rabbitmq/data
+      target: /var/lib/rabbitmq/
+    - source: .data/rabbitmq/log
+      target: /var/log/rabbitmq
   
 - name: redis
   image: redis
   bindings:
     - port: 6379
       connectionString: "${host}:${port}"
+  volumes:
+    - source: .data/redis
+      target: /data
 
 - name: redis-cli
   image: redis
@@ -97,3 +105,6 @@ services:
     port: 25
     containerPort: 25
     protocol: smtp
+  volumes:
+    - source: .data/smtp4dev
+      target: /smtp4dev
