@@ -19,7 +19,7 @@ This assignment gave me a scope and some motivation.
 Here are the main features of the app:
 
 * View and create channels.
-* Post messages in specific channels.
+* Post messages in specific channels. Edit and delete them.
 * Admin commands - sent in channel.
 
 Other features:
