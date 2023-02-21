@@ -4,7 +4,7 @@
 @ChildContent(dateTime)
 
 @code {
-    DateTimeOffset dateTime;
+    DateTimeOffset dateTime = DateTimeOffset.UtcNow;
 
     [Parameter]
     [EditorRequired]
