@@ -50,7 +50,7 @@ public record GetMessages(Guid? ChannelId, int Page = 1, int PageSize = 10, stri
                 .Take(request.PageSize).AsQueryable()
                 .ToArrayAsync(cancellationToken);
 
-            IEnumerable<MessageDto> dtos = dtoFactory.GetMessageDtos(messages);
+            IEnumerable<MessageDto> dtos = await dtoFactory.GetMessageDtos(messages);
 
             return new ItemsResult<MessageDto>(dtos!, totalCount);
         }

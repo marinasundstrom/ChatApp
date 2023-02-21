@@ -1,12 +1,13 @@
+using ChatApp.Domain.ValueObjects;
 using ChatApp.Features.Users;
 using ChatApp.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChatApp.Features.Chat;
 
-public interface IDtoFactory 
+public interface IDtoFactory
 {
-    IEnumerable<MessageDto> GetMessageDtos(Message[] messages);
+    Task<IEnumerable<MessageDto>> GetMessageDtos(Message[] messages, CancellationToken cancellationToken = default);
 }
 
 public sealed class DtoFactory : IDtoFactory
@@ -18,50 +19,80 @@ public sealed class DtoFactory : IDtoFactory
         this.context = context;
     }
 
-    public IEnumerable<MessageDto> GetMessageDtos(Message[] messages)
+
+    public async Task<IEnumerable<MessageDto>> GetMessageDtos(Message[] messages, CancellationToken cancellationToken = default)
     {
-        var groups = messages.Join(
-                        context.Users,
-                        m => (string?)m.CreatedById,
-                        u => (string)u.Id,
-                        (Message, CreatedBy) => new
-                        {
-                            Message,
-                            CreatedBy
-                        });
+        HashSet<UserId> userIds = new();
+        HashSet<MessageId> messageIds = new();
 
-        var messagesWithReplies = groups
-            .Select(x => x.Message)
-            .Where(x => x.ReplyToId != null);
-
-        Dictionary<Message, Message> repliedMessages = new Dictionary<Message, Message>();
-
-        if(messagesWithReplies.Any()) 
+        foreach (var message in messages)
         {
-            repliedMessages = messagesWithReplies
-                .Join(context.Messages, x => x.ReplyToId, x => x.Id, 
-                (message, reply) => new {
-                    message,
-                    reply
-                }).ToDictionary(x => x.message, x => x.reply);
+            if (message.ReplyToId is not null)
+            {
+                messageIds.Add(message.ReplyToId.GetValueOrDefault());
+            }
+
+            if (message.CreatedById is not null)
+            {
+                userIds.Add(message.CreatedById.GetValueOrDefault());
+            }
+
+            if (message.LastModifiedById is not null)
+            {
+                userIds.Add(message.LastModifiedById.GetValueOrDefault());
+            }
+
+            if (message.DeletedById is not null)
+            {
+                userIds.Add(message.DeletedById.GetValueOrDefault());
+            }
         }
 
-        return groups.Select(g => {
-            repliedMessages.TryGetValue(g.Message, out var replyMessage);
+        var users = await context.Users
+            .Where(x => userIds.Any(z => x.Id == z))
+            .ToDictionaryAsync(x => x.Id, x => x, cancellationToken);
+
+        var repliedMessages = await context.Messages
+            .Where(x => messageIds.Any(z => x.Id == z))
+            .ToDictionaryAsync(x => x.Id, x => x, cancellationToken);
+
+        return messages.Select(message =>
+        {
+            repliedMessages.TryGetValue(message.ReplyToId.GetValueOrDefault(), out var replyMessage);
+
+            users.TryGetValue(message.CreatedById.GetValueOrDefault(), out var publishedBy);
+
+            users.TryGetValue(message.LastModifiedById.GetValueOrDefault(), out var editedBy);
+
+            users.TryGetValue(message.DeletedById.GetValueOrDefault(), out var deletedBy);
+
+            ReplyMessageDto? replyMessageDto = null;
+
+            if (replyMessage is not null)
+            {
+                users.TryGetValue(replyMessage.CreatedById.GetValueOrDefault(), out var replyMessagePublishedBy);
+
+                users.TryGetValue(replyMessage.LastModifiedById.GetValueOrDefault(), out var replyMessageEditedBy);
+
+                users.TryGetValue(replyMessage.DeletedById.GetValueOrDefault(), out var replyMessageDeletedBy);
+
+                replyMessageDto = new ReplyMessageDto(
+                    (Guid)replyMessage.Id,
+                    replyMessage.ChannelId,
+                    replyMessage.Content,
+                    replyMessage.Created, new UserDto(replyMessagePublishedBy!.Id.ToString(), replyMessagePublishedBy.Name),
+                    replyMessage.LastModified, replyMessage.LastModifiedById is null ? null : new UserDto(replyMessageEditedBy!.Id.ToString(), replyMessageEditedBy.Name),
+                    replyMessage.Deleted, replyMessage.DeletedById is null ? null : new UserDto(replyMessageDeletedBy!.Id.ToString(), replyMessageDeletedBy.Name));
+            }
 
             return new MessageDto(
-                g.Message.Id, g.Message.ChannelId, 
-                replyMessage is null ? null 
-                : new ReplyMessageDto(
-                    (Guid)replyMessage.ReplyToId.GetValueOrDefault(), 
-                    replyMessage?.ChannelId ?? Guid.NewGuid(), 
-                    replyMessage?.Content ?? string.Empty,
-                    replyMessage!.Published, new UserDto(replyMessage.CreatedById.ToString()!, string.Empty),
-                    replyMessage!.LastModified, null, 
-                    replyMessage!.Deleted, null), 
-                g.Message.Content, g.Message.Created, new UserDto(g.CreatedBy.Id.ToString(), g.CreatedBy.Name), 
-                g.Message.LastModified, null, 
-                g.Message.Deleted, null); 
-        }).ToList();
+                message.Id,
+                message.ChannelId,
+                replyMessageDto,
+                message.Content,
+                message.Created, new UserDto(publishedBy!.Id.ToString(), publishedBy.Name),
+                message.LastModified, message.LastModifiedById is null ? null : new UserDto(editedBy!.Id.ToString(), editedBy.Name),
+                message.Deleted, message.DeletedById is null ? null : new UserDto(deletedBy!.Id.ToString(), deletedBy.Name));
+        });
     }
 }
