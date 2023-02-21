@@ -21,6 +21,6 @@ public sealed class ApiEndpoint : Endpoint<PostMessageRequest>
 
     public override async Task HandleAsync(PostMessageRequest req, CancellationToken ct)
     {
-        await mediator.Send(new PostMessage(req.ChannelId, req.Content));
+        await mediator.Send(new PostMessage(req.ChannelId, req.ReplyToId, req.Content));
     }
 }

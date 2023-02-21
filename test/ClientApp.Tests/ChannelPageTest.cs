@@ -42,8 +42,8 @@ public class ChannelPageTest
                     {
                         Id = Guid.NewGuid(),
                         Content = "Hello world",
-                        Created = DateTimeOffset.Now.AddMinutes(-3),
-                        CreatedBy = new User {
+                        Published = DateTimeOffset.Now.AddMinutes(-3),
+                        PublishedBy = new User {
                             Id = "1",
                             Name = "Foo"
                         }

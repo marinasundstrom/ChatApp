@@ -51,11 +51,14 @@ public sealed class MessagePostedEventHandler : IDomainEventHandler<MessagePoste
             messageDto, cancellationToken);
     }
 
-    private static MessageDto CreateMessageDto(Message message, User user)
+    private static MessageDto CreateMessageDto(Message message,  User user)
     {
-        return new MessageDto(message.Id, message.ChannelId, message.Content, message.Created,
+        return new MessageDto(message.Id, message.ChannelId, 
+            message.ReplyToId is null ? null : new ReplyMessageDto(
+                message.ReplyToId.GetValueOrDefault(), Guid.NewGuid(), string.Empty, DateTimeOffset.Now, new Users.UserDto(string.Empty, string.Empty), null, null, null, null), message.Content, message.Created,
             new Users.UserDto(user.Id, user.Name),
-            null, null);
+            message.LastModified, null,
+            message.Deleted, null);
     }
 }
 

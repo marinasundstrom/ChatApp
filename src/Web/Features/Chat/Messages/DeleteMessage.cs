@@ -46,9 +46,13 @@ public sealed record DeleteMessage(Guid MessageId) : IRequest<Result>
                 return Result.Failure(Errors.Messages.NotAllowedToDelete);
             }
 
+            message.UpdateContent(string.Empty);
+            message.DeletedById = currentUserService.UserId;
+            message.Deleted = DateTime.Now;
+
             message.AddDomainEvent(new MessageDeleted(message.ChannelId, message.Id));
 
-            messageRepository.Remove(message);
+            //messageRepository.Remove(message);
 
             await unitOfWork.SaveChangesAsync(cancellationToken);
 

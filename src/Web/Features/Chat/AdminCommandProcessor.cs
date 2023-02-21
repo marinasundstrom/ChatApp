@@ -67,7 +67,7 @@ public sealed class AdminCommandProcessor : IAdminCommandProcessor
 
     private static MessageDto CreateMessage(string channelId, string content)
     {
-        return new MessageDto(Guid.NewGuid(), Guid.Parse(channelId), content, DateTimeOffset.UtcNow, new Users.UserDto("system", "System"), null, null);
+        return new MessageDto(Guid.NewGuid(), Guid.Parse(channelId), null, content, DateTimeOffset.UtcNow, new Users.UserDto("system", "System"), null, null, null, null);
     }
 
     private async Task SendMessage(MessageDto messageDto, CancellationToken cancellationToken)

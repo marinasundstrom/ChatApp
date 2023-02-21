@@ -17,6 +17,14 @@ public sealed class Message : AggregateRoot<MessageId>, IAuditable
         AddDomainEvent(new MessagePosted(channelId, new MessagePostedData(Id, Content)));
     }
 
+    public Message(ChannelId channelId, MessageId replyToId, string text)
+        : this(channelId, text)
+    {
+        ReplyToId = replyToId;
+    }
+
+    public MessageId? ReplyToId { get; set; }
+
     public string Content { get; private set; } = null!;
 
     public bool UpdateContent(string newContent) 
@@ -40,4 +48,7 @@ public sealed class Message : AggregateRoot<MessageId>, IAuditable
 
     public UserId? LastModifiedById { get; set; }
     public DateTimeOffset? LastModified { get; set; }
+
+    public UserId? DeletedById { get; set; }
+    public DateTimeOffset? Deleted { get; set; }
 }

@@ -16,33 +16,56 @@
 
 <div class="@(isDarkMode ? "dark" : null)" style="padding-bottom: 150px;">
 
-@foreach (var post in posts.OrderBy(x => x.Published))
+@foreach (var message in loadedMessages.OrderBy(x => x.Published))
 {
-    bool first = IsFirst(post);
-    bool last = IsLast(post);
+    bool first = IsFirst(message);
+    bool last = IsLast(message);
 
-    var isAuthorizedToDelete = isInAdminRole || post.Sender == myUserId;
-    var isAuthorizedToEdit = post.Sender == myUserId;
+    var isAuthorizedToDelete = isInAdminRole || message.PostedById == currentUserId;
+    var isAuthorizedToEdit = message.PostedById == currentUserId;
 
-    <Message @key="post.GetHashCode()" Direction="@(post.IsCurrentUser ? MessageDirection.Right : MessageDirection.Left)"
-        First=@first Last=@last IsFooterVisible=@last IsSideAreaVisible=@(post.Sender != myUserId)>
+    <Message @key="message.GetHashCode()" Direction="@(message.IsFromCurrentUser ? MessageDirection.Right : MessageDirection.Left)"
+        First=@first Last=@last IsFooterVisible=@last IsSideAreaVisible=@(message.PostedById != currentUserId)>
         <SideAreaTemplate>
             @if(first) 
             {
-                <MudAvatar Class="mt-2" Size="Size.Small">@post.SenderInitials</MudAvatar>
+                <MudAvatar Class="mt-2" Size="Size.Small">@message.PostedByInitials</MudAvatar>
             }
         </SideAreaTemplate>
         <ChildContent>
-             <Bubble>
-                @(new MarkupString(post.Content.Replace(Environment.NewLine, "<br />")))
-
-                @if(post.Sender == myUserId) 
+             <Bubble Class="@(message.Deleted is not null ? "deleted" : string.Empty)">
+                @if (message.Deleted is not null)
                 {
-                    if(post.Confirmed) 
-                    {
-                        <MudIcon Icon="@Icons.Filled.CheckCircle" Size="Size.Small" Class="ms-1" Style="height: 0.8em; top: 3px; position: relative;" />
-                    }
+                    <p>Message was deleted.</p>
                 }
+                else
+                {
+                    if (message.ReplyTo is not null)
+                    {
+                        <div class="reply-bubble @(message.ReplyTo.Deleted is not null ? "deleted" : string.Empty)  @(message.PostedById == currentUserId ? "right" : "left")">
+
+                        @if (message.ReplyTo.Deleted is not null)
+                        {
+                            <p>Message was deleted.</p>
+                        }
+                        else 
+                        {
+                                <small><b>@message.ReplyTo.PostedById</b></small>
+                                <p> @message.ReplyTo.Content</p>
+                        }
+                        </div>
+                    }
+
+                    @(new MarkupString(message.Content.Replace(Environment.NewLine, "<br />")))
+
+                    @if(message.PostedById == currentUserId) 
+                    {
+                        if(message.Confirmed) 
+                        {
+                            <MudIcon Icon="@Icons.Filled.CheckCircle" Size="Size.Small" Class="ms-1" Style="height: 0.8em; top: 3px; position: relative;" />
+                        }
+                    }
+            }
             </Bubble>
         </ChildContent>
         
@@ -52,7 +75,7 @@
                 <div>
                     <TimeView Context="now">
                     @{
-                        var published = post.Published;
+                        var published = message.Published;
                         var timeSince = now - published;
                     }
                     @if (timeSince.TotalMinutes < 30)
@@ -78,7 +101,10 @@
         </FooterTemplate>
 
         <ActionsTemplate>
-             @* <MudIconButton Icon="@Icons.Filled.Reply" Style="margin-top: -5px; padding: 10px;" Size="Size.Medium" OnClick="() => ReplyToMessage(message)" /> *@
+            @if (message.Deleted is null)
+            {
+                <MudIconButton Icon="@Icons.Filled.Reply" Style="margin-top: -5px; padding: 10px;" Size="Size.Medium" OnClick="() => ReplyToMessage(message)" />
+                
                 <MudMenu AnchorOrigin="Origin.BottomLeft">
                     <ActivatorContent>
                         <MudIconButton Style="margin-top: -5px; padding: 10px;" Icon="@Icons.Filled.MoreVert"
@@ -87,7 +113,7 @@
                     <ChildContent>
                         @if (isAuthorizedToEdit)
                         {
-                            <MudMenuItem OnClick="() => EditMessage(post)">
+                            <MudMenuItem OnClick="() => EditMessage(message)">
                                 <div class="d-flex flex-row flex-grow-1 gap-2">
                                     <MudIcon Icon="@Icons.Filled.Edit" Size="Size.Medium" />
                                     Edit
@@ -96,7 +122,7 @@
                         }
                         @if (isAuthorizedToDelete)
                         {
-                            <MudMenuItem OnClick="async () => await DeleteMessage(post)">
+                            <MudMenuItem OnClick="async () => await DeleteMessage(message)">
                                 <div class="d-flex flex-row flex-grow-1 gap-2">
                                     <MudIcon Icon="@Icons.Filled.Delete" Size="Size.Medium" />
                                     Delete
@@ -111,6 +137,7 @@
                         </MudMenuItem>
                     </ChildContent>
                 </MudMenu>
+            }
         </ActionsTemplate>
     </Message>   
 }
@@ -123,7 +150,20 @@
                 <EditForm OnValidSubmit="Send" Model="@this">
                     <DataAnnotationsValidator />
 
-                    @if (editingPostId is not null)
+                    @if (replyToMessage is not null)
+                    {
+                        <div class="reply-bubble @(replyToMessage.PostedById == currentUserId ? "right" : "left")" style="border-top-left-radius: 4px; border-top-right-radius: 4px;">
+                            <div class="d-flex justify-space-between" style="padding-top: 4px">
+                                <small><b>@replyToMessage.PostedByInitials</b></small>
+                                <MudIconButton Icon="@Icons.Filled.Cancel" Size="Size.Small" OnClick="AbortReplyToMessage" />
+                            </div>
+                            <div>
+                                @replyToMessage.Content
+                            </div>
+                        </div>
+                    }
+
+                    @if (editingMessageId is not null)
                     {
                         <div class="d-flex flex-grow-1 gap-4">
                             <MudText Typo="Typo.h6">Editing</MudText>

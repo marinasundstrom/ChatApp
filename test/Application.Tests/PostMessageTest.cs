@@ -69,7 +69,7 @@ public class PostMessageTest
 
             // Act
 
-            var postMessageCommand = new PostMessage(channel.Id, title);
+            var postMessageCommand = new PostMessage(channel.Id, null, title);
 
             var result = await commandHandler.Handle(postMessageCommand, default);
 

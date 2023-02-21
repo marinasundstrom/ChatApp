@@ -2,10 +2,9 @@
 
 namespace ChatApp.Features.Chat;
 
-public sealed record MessageDto(Guid Id, Guid ChannelId, string Content, DateTimeOffset Created, UserDto CreatedBy, DateTimeOffset? LastModified, UserDto? LastModifiedBy);
+public sealed record MessageDto(Guid Id, Guid ChannelId, ReplyMessageDto? ReplyTo, string Content, DateTimeOffset Published, UserDto PublishedBy, DateTimeOffset? LastModified, UserDto? LastModifiedBy, DateTimeOffset? Deleted, UserDto? DeletedBy);
 
-
-public sealed record TodoDto(int Id, string Title, string? Description, TodoStatusDto Status, UserDto? AssignedTo, double? EstimatedHours, double? RemainingHours, DateTimeOffset Created, UserDto CreatedBy, DateTimeOffset? LastModified, UserDto? LastModifiedBy);
+public sealed record ReplyMessageDto(Guid Id, Guid ChannelId, string Content, DateTimeOffset Published, UserDto PublishedBy, DateTimeOffset? LastModified, UserDto? LastModifiedBy, DateTimeOffset? Deleted, UserDto? DeletedBy);
 
 public enum TodoStatusDto
 {

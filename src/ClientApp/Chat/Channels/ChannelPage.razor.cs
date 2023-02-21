@@ -11,11 +11,13 @@ namespace ChatApp.Chat.Channels
     public partial class ChannelPage
     {
         bool isDarkMode = false;
-        string myUserId = "BS";
+        string currentUserId = "BS";
         bool isInAdminRole = false;
-        Guid? editingPostId = null;
+        Guid? editingMessageId = null;
+        MessageViewModel? replyToMessage = null;
 
-        List<Post> posts = new List<Post>();
+        List<MessageViewModel> messagesCache = new List<MessageViewModel>();
+        List<MessageViewModel> loadedMessages = new List<MessageViewModel>();
        
         [Parameter]
         public string? Id { get; set; }
@@ -33,7 +35,7 @@ namespace ChatApp.Chat.Channels
 
             StateHasChanged();
 
-            myUserId = await CurrentUserService.GetUserIdAsync();
+            currentUserId = await CurrentUserService.GetUserIdAsync();
             isInAdminRole = await CurrentUserService.IsInRoleAsync("admin");
 
             await LoadChannel();
@@ -43,14 +45,7 @@ namespace ChatApp.Chat.Channels
         {
             Id = Id ?? "73b202c5-3ef1-4cd8-b1ed-04c05f47e981";
 
-            var result = await MessagesClient.GetMessagesAsync(Guid.Parse(Id!), 1, 10, null, null);
-
-            posts.Clear();
-
-            foreach (var item in result.Items.Reverse())
-            {
-                AddMessage(item);
-            }
+            await LoadMessages();
 
             StateHasChanged();
 
@@ -58,7 +53,7 @@ namespace ChatApp.Chat.Channels
 
             try
             {
-                if(hubConnection is not null && hubConnection.State != HubConnectionState.Disconnected) 
+                if (hubConnection is not null && hubConnection.State != HubConnectionState.Disconnected)
                 {
                     await hubConnection.DisposeAsync();
                 }
@@ -105,53 +100,134 @@ namespace ChatApp.Chat.Channels
             }
         }
 
+        private async Task LoadMessages()
+        {
+            var result = await MessagesClient.GetMessagesAsync(Guid.Parse(Id!), 1, 10, null, null);
+
+            loadedMessages.Clear();
+
+            foreach (var item in result.Items.Reverse())
+            {
+                AddOrUpdateMessage(item);
+            }
+        }
+
         private void OnMessagePostedConfirmed(string messageId)
         {
-            var post = posts.First(x => x.Id == Guid.Parse(messageId));
-            post.Confirmed = true;
+            var messageVm = loadedMessages.First(x => x.Id == Guid.Parse(messageId));
+            messageVm.Confirmed = true;
 
             StateHasChanged();
         }
 
-        private void AddMessage(ChatApp.Message message)
+        private void AddOrUpdateMessage(ChatApp.Message message)
         {
-            var post = posts.FirstOrDefault(x => x.Id == message.Id);
+            var messageVm = loadedMessages.FirstOrDefault(x => x.Id == message.Id);
 
-            if(post is not null) 
+            if (messageVm is not null)
             {
-                post.Published = message.Created;
-                
+                messageVm.Published = message.Published;
+                messageVm.Content = message.Content;
+                messageVm.IsFromCurrentUser = message.PublishedBy.Id == currentUserId;
+
+                // This is a new incoming message:
+
+                if(message.PublishedBy.Id != currentUserId) 
+                {
+                    messageVm.Id = message.Id;
+                    messageVm.PostedById = message.PublishedBy.Id;
+                    messageVm.PostedByInitials = GetInitials(message.PublishedBy.Name);
+                    messageVm.Content = message.Content;
+                    messageVm.ReplyTo = message.ReplyTo is null ? null : GetOrCreateReplyMessageVm(message.ReplyTo);
+                    messageVm.Deleted = message.Deleted;
+                    messageVm.Confirmed = true;
+                }
+
                 return;
             }
 
-            posts.Add(new Post
+            messageVm = new MessageViewModel
             {
                 Id = message.Id,
-                Sender = message.CreatedBy.Id,
-                SenderInitials = GetInitials(message.CreatedBy.Name),
-                Published = message.Created,
+                PostedById = message.PublishedBy.Id,
+                PostedByInitials = GetInitials(message.PublishedBy.Name),
+                Published = message.Published,
                 Content = message.Content,
-                IsCurrentUser = message.CreatedBy.Id == myUserId,
+                IsFromCurrentUser = message.PublishedBy.Id == currentUserId,
+                ReplyTo = message.ReplyTo is null ? null : GetOrCreateReplyMessageVm(message.ReplyTo),
+                Deleted = message.Deleted,
                 Confirmed = true
-            });
+            };
+
+            loadedMessages.Add(messageVm);
+            messagesCache.Add(messageVm);
+        }
+
+        private MessageViewModel? GetOrCreateReplyMessageVm(ReplyMessage replyMessage)
+        {
+            var existingMessageVm =  messagesCache.FirstOrDefault(x => x.Id == replyMessage.Id);
+
+            if(existingMessageVm is not null) 
+            {
+                return existingMessageVm;
+            }
+
+            var messageVm = new MessageViewModel
+            {
+                Id = replyMessage.Id,
+                Content = replyMessage.Content,
+                Published = replyMessage.Published,
+                Deleted = replyMessage.Deleted,
+                //IsFromCurrentUser = replyMessage.PublishedBy.Id == currentUserId,
+                Confirmed = true
+            };
+
+            messagesCache.Add(messageVm);
+
+            return messageVm;
         }
 
         private async void OnMessagePosted(ChatApp.Message message)
-        {            
-            AddMessage(message);
+        {
+            AddOrUpdateMessage(message);
+
+            loadedMessages.Sort();
 
             StateHasChanged();
 
-            await JSRuntime.InvokeVoidAsyncIgnoreErrors("helpers.scrollToBottom");
+            await NotifyParticipants(message);
+        }
+
+        private async Task NotifyParticipants(Message message)
+        {
+            if (message.ReplyTo is null)
+            {
+                if (message.PublishedBy.Id == currentUserId)
+                {
+                    await JSRuntime.InvokeVoidAsyncIgnoreErrors("helpers.scrollToBottom");
+                }
+                else
+                {
+                    // TODO: Only display when outside viewport
+
+                    Snackbar.Add($"{message.PublishedBy.Name} said: \"{message.Content}\"", Severity.Normal, options =>
+                    {
+                        options.Onclick = async (sb) =>
+                        {
+                            await JSRuntime.InvokeVoidAsyncIgnoreErrors("helpers.scrollToBottom");
+                        };
+                    });
+                }
+            }
         }
 
         private void OnMessageEdited(string channelId, string messageId, string content) 
         {
-            var post = posts.FirstOrDefault(x => x.Id.ToString() == messageId);
+            var messageVm = messagesCache.FirstOrDefault(x => x.Id.ToString() == messageId);
 
-            if(post is not null) 
+            if(messageVm is not null) 
             {
-                post.Content = content;
+                messageVm.Content = content;
 
                 StateHasChanged();
             }
@@ -159,11 +235,15 @@ namespace ChatApp.Chat.Channels
 
         private void OnMessageDeleted(string channelId, string messageId) 
         {
-            var post = posts.FirstOrDefault(x => x.Id.ToString() == messageId);
+            var messageVm = messagesCache.FirstOrDefault(x => x.Id.ToString() == messageId);
 
-            if(post is not null) 
+            if(messageVm is not null) 
             {
-                posts.Remove(post);
+                //messages.Remove(messageVm);
+
+                messageVm.Content = string.Empty;
+                messageVm.Deleted = DateTimeOffset.UtcNow;
+                messageVm.DeletedById = null;
 
                 StateHasChanged();
             }
@@ -188,16 +268,27 @@ namespace ChatApp.Chat.Channels
             ThemeManager.ColorSchemeChanged -= ColorSchemeChanged;
         }
 
-        class Post
+        public class MessageViewModel : IComparable<MessageViewModel>
         {
             public Guid Id { get; set; } 
-            public string Sender { get; set; } = default !;
-            public string SenderInitials { get; set; } = default!;
             public DateTimeOffset Published { get; set; }
+            public string PostedById { get; set; } = default !;
+            public string PostedByInitials { get; set; } = default!;
+            public DateTimeOffset? Deleted { get; set; }
+            public string? DeletedById { get; set; }
+            public MessageViewModel? ReplyTo { get; set; }
 
             public string Content { get; set; } = default !;
-            public bool IsCurrentUser { get; set; } = default !;
+
+            public bool IsFromCurrentUser { get; set; } = default !;
             public bool Confirmed { get; set; }
+
+            public int CompareTo(MessageViewModel? other)
+            {
+                if(other is null) return 1;
+
+                return this.Published.CompareTo(other.Published);
+            }
         }
 
         [Required]
@@ -205,113 +296,138 @@ namespace ChatApp.Chat.Channels
 
         async Task Send()
         {
-            if(editingPostId is not null) 
+            if(editingMessageId is not null) 
             {
-                await UpdatePost();
+                await UpdateMessage();
 
                 return;
             }
 
-            var message = new Post() 
+            var message = new MessageViewModel() 
             {
                 Id = Guid.Empty,
                 Published = DateTimeOffset.UtcNow,
-                Sender = myUserId,
-                SenderInitials = GetInitials("Foo"), // TODO: Fix with my name,
-                IsCurrentUser = true,
+                PostedById = currentUserId,
+                PostedByInitials = GetInitials("Foo"), // TODO: Fix with my name,
+                ReplyTo = replyToMessage,
+                IsFromCurrentUser = true,
                 Content = Text
             };
 
-            posts.Add(message);
+            loadedMessages.Add(message);
+            messagesCache.Add(message);
 
-            message.Id = await hubConnection.InvokeAsync<Guid>("PostMessage", Id, Text);
+            message.Id = await hubConnection.InvokeAsync<Guid>("PostMessage", Id, replyToMessage?.Id, Text);
 
             Text = string.Empty;
+            replyToMessage = null;
 
             await JSRuntime.InvokeVoidAsyncIgnoreErrors("helpers.scrollToBottom");
         }
 
-        private async Task UpdatePost()
+        private async Task UpdateMessage()
         {
-            var post = posts.FirstOrDefault(x => x.Id == editingPostId);
+            var messageVm = loadedMessages.FirstOrDefault(x => x.Id == editingMessageId);
 
-            if(post is not null) 
+            if(messageVm is not null) 
             {
-                post.Content = Text;
+                messageVm.Content = Text;
 
-                await MessagesClient.EditMessageAsync(editingPostId.GetValueOrDefault(), Text);
+                await MessagesClient.EditMessageAsync(editingMessageId.GetValueOrDefault(), Text);
 
                 Text = string.Empty;
-                editingPostId = null;
+                editingMessageId = null;
             }
         }
 
-        async Task DeleteMessage(Post post) 
+        async Task DeleteMessage(MessageViewModel messageVm) 
         {
-            await MessagesClient.DeleteMessageAsync(post.Id);
+            await MessagesClient.DeleteMessageAsync(messageVm.Id);
 
-            if(post is not null) 
+            if(messageVm is not null) 
             {
-                posts.Remove(post);
+                if(replyToMessage?.Id == messageVm.Id)
+                {
+                    AbortReplyToMessage();
+                }
+
+                if(editingMessageId == messageVm.Id)
+                {
+                    AbortEditMessage();
+                }
             }
         }
 
-        void EditMessage(Post post) 
+        void EditMessage(MessageViewModel messageVm) 
         {
-            editingPostId = post.Id;
-            Text = post.Content;
+            replyToMessage = null;
+            editingMessageId = messageVm.Id;
+            Text = messageVm.Content;
         }
 
         void AbortEditMessage() 
         {
-            editingPostId = null;
+            editingMessageId = null;
             Text = string.Empty;
         }
 
-        private bool IsFirst(Post post)
+        void ReplyToMessage(MessageViewModel messageVm) 
         {
-            var index = posts.IndexOf(post);
+            editingMessageId = null;
+            replyToMessage = messageVm;
+            Text = string.Empty;
+        }
+
+        void AbortReplyToMessage() 
+        {
+            replyToMessage = null;
+            Text = string.Empty;
+        }
+
+        private bool IsFirst(MessageViewModel currentMessage)
+        {
+            var index = loadedMessages.IndexOf(currentMessage);
             if (index == 0)
             {
                 return true;
             }
 
-            var previousPost = posts[index - 1];
+            var previousMessage = loadedMessages[index - 1];
 
-            if(previousPost.Sender != post.Sender) 
+            if(previousMessage.PostedById != currentMessage.PostedById) 
             {
                 return true;
             }
 
-            if (!(post.Published.Year == previousPost.Published.Year && post.Published.Month == previousPost.Published.Month && post.Published.Day == previousPost.Published.Day && post.Published.Hour == previousPost.Published.Hour && post.Published.Minute == previousPost.Published.Minute))
+            if (!(currentMessage.Published.Year == previousMessage.Published.Year && currentMessage.Published.Month == previousMessage.Published.Month && currentMessage.Published.Day == previousMessage.Published.Day && currentMessage.Published.Hour == previousMessage.Published.Hour && currentMessage.Published.Minute == previousMessage.Published.Minute))
             {
                 return true;
             }
 
-            return previousPost.Sender != post.Sender;
+            return previousMessage.PostedById != currentMessage.PostedById;
         }
 
-        private bool IsLast(Post post)
+        private bool IsLast(MessageViewModel currentMessage)
         {
-            var index = posts.IndexOf(post);
-            if (index == posts.Count - 1)
+            var index = loadedMessages.IndexOf(currentMessage);
+            if (index == loadedMessages.Count - 1)
             {
                 return true;
             }
 
-            var nextPost = posts[index + 1];
+            var nextMessage = loadedMessages[index + 1];
 
-            if(nextPost.Sender != post.Sender) 
+            if(nextMessage.PostedById != currentMessage.PostedById) 
             {
                 return true;
             }
 
-            if (!(post.Published.Year == nextPost.Published.Year && post.Published.Month == nextPost.Published.Month && post.Published.Day == nextPost.Published.Day && post.Published.Hour == nextPost.Published.Hour && post.Published.Minute == nextPost.Published.Minute))
+            if (!(currentMessage.Published.Year == nextMessage.Published.Year && currentMessage.Published.Month == nextMessage.Published.Month && currentMessage.Published.Day == nextMessage.Published.Day && currentMessage.Published.Hour == nextMessage.Published.Hour && currentMessage.Published.Minute == nextMessage.Published.Minute))
             {
                 return true;
             }
 
-            return nextPost.Sender != post.Sender;
+            return nextMessage.PostedById != currentMessage.PostedById;
         }
 
         static string GetInitials(string name)

@@ -8,7 +8,7 @@ public static class Mappings
 {
     public static ChannelDto ToDto(this Channel channel) => new (channel.Id, channel.Title);
 
-    public static MessageDto ToDto(this Message message) => new (message.Id, message.ChannelId, message.Content, message.Published, new UserDto(message.CreatedById.ToString()!, ""), message.LastModified, message.LastModifiedById is null ? null : new UserDto(message.LastModifiedById.ToString()!, ""));
+    public static MessageDto ToDto(this Message message) => new (message.Id, message.ChannelId, null, message.Content, message.Published, new UserDto(message.CreatedById.ToString()!, ""), message.LastModified, message.LastModifiedById is null ? null : new UserDto(message.LastModifiedById.ToString()!, ""), message.Deleted, null);
 
     public static UserDto ToDto(this User user) => new (user.Id, user.Name);
 

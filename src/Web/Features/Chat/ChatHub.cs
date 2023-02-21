@@ -32,12 +32,13 @@ public sealed class ChatHub : Hub<IChatHubClient>
         return base.OnConnectedAsync();
     }
 
-    public async Task<Guid> PostMessage(string channelId, string content) 
+    public async Task<Guid> PostMessage(string channelId, string? replyTo, string content) 
     {
         currentUserService.SetUser(Context.User!);
         currentUserService.SetConnectionId(Context.ConnectionId);
 
-        return (MessageId)await mediator.Send(new PostMessage(Guid.Parse(channelId), content));   
+        return (MessageId)await mediator.Send(
+            new PostMessage(Guid.Parse(channelId), replyTo is null ? null : Guid.Parse(replyTo), content));   
     }
 
     public async Task EditMessage(string channelId, string messageId, string content) 

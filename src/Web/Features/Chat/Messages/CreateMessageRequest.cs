@@ -1,11 +1,10 @@
-﻿using FastEndpoints;
-
-namespace ChatApp.Features.Chat.Messages;
+﻿namespace ChatApp.Features.Chat.Messages;
 
 public class PostMessageRequest
 {
     public Guid ChannelId { get; set; }
 
-    [FromBody]
+    public Guid? ReplyToId { get; set; }
+
     public string Content { get; set; } = default!;
 }

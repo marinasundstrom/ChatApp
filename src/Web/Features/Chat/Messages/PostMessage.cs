@@ -8,7 +8,7 @@ using ChatApp.Domain.ValueObjects;
 using Microsoft.Extensions.Caching.Distributed;
 namespace ChatApp.Features.Chat.Messages;
 
-public sealed record PostMessage(Guid ChannelId, string Content) : IRequest<Result<MessageId>>
+public sealed record PostMessage(Guid ChannelId, Guid? ReplyToId, string Content) : IRequest<Result<MessageId>>
 {
     public sealed class Validator : AbstractValidator<PostMessage>
     {
@@ -57,7 +57,16 @@ public sealed record PostMessage(Guid ChannelId, string Content) : IRequest<Resu
                 return await adminCommandProcessor.ProcessAdminCommand(request.ChannelId.ToString(), args, cancellationToken);
             }
 
-            var message = new Message(request.ChannelId, request.Content);
+            Message message;
+            
+            if(request.ReplyToId is not null) 
+            {
+                message = new Message(request.ChannelId, request.ReplyToId.GetValueOrDefault(), request.Content);
+            }
+            else 
+            {
+                message = new Message(request.ChannelId, request.Content);
+            }
 
             messageRepository.Add(message);
 

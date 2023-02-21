@@ -92,7 +92,7 @@ public static class Endpoints
 
     public static async Task<IResult> PostMessage(PostMessageRequest request, CancellationToken cancellationToken, IMediator mediator)
     {
-        var result = await mediator.Send(new PostMessage(request.ChannelId, request.Content), cancellationToken);
+        var result = await mediator.Send(new PostMessage(request.ChannelId, request.ReplyToId, request.Content), cancellationToken);
         return result.Handle(
             onSuccess: data => Results.CreatedAtRoute(nameof(GetMessageById), new { id = data.Value }, data.Value),
             onError: error => Results.Problem(detail: error.Detail, title: error.Title, type: error.Id));

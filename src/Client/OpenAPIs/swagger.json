@@ -718,14 +718,22 @@
             "type": "string",
             "format": "guid"
           },
+          "replyTo": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ReplyMessage"
+              }
+            ]
+          },
           "content": {
             "type": "string"
           },
-          "created": {
+          "published": {
             "type": "string",
             "format": "date-time"
           },
-          "createdBy": {
+          "publishedBy": {
             "$ref": "#/components/schemas/User"
           },
           "lastModified": {
@@ -734,6 +742,69 @@
             "nullable": true
           },
           "lastModifiedBy": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/User"
+              }
+            ]
+          },
+          "deleted": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/User"
+              }
+            ]
+          }
+        }
+      },
+      "ReplyMessage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "channelId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "content": {
+            "type": "string"
+          },
+          "published": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "publishedBy": {
+            "$ref": "#/components/schemas/User"
+          },
+          "lastModified": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastModifiedBy": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/User"
+              }
+            ]
+          },
+          "deleted": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
             "nullable": true,
             "oneOf": [
               {
@@ -762,6 +833,11 @@
           "channelId": {
             "type": "string",
             "format": "guid"
+          },
+          "replyToId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
           },
           "content": {
             "type": "string"
