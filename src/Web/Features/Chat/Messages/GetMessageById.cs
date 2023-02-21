@@ -17,22 +17,25 @@ public record GetMessageById(Guid Id) : IRequest<Result<MessageDto>>
     public class Handler : IRequestHandler<GetMessageById, Result<MessageDto>>
     {
         private readonly IMessageRepository messageRepository;
+        private readonly IDtoComposer dtoComposer;
 
-        public Handler(IMessageRepository messageRepository)
+        public Handler(IMessageRepository messageRepository, IDtoComposer dtoComposer)
         {
             this.messageRepository = messageRepository;
+            this.dtoComposer = dtoComposer;
         }
 
         public async Task<Result<MessageDto>> Handle(GetMessageById request, CancellationToken cancellationToken)
         {
-            var todo = await messageRepository.FindByIdAsync(request.Id, cancellationToken);
+            var message = await messageRepository.FindByIdAsync(request.Id, cancellationToken);
 
-            if (todo is null)
+            if (message is null)
             {
                 return Result.Failure<MessageDto>(Errors.Messages.MessageNotFound);
             }
 
-            return Result.Success(todo.ToDto());
+            return Result.Success(
+                await dtoComposer.ComposeMessageDto(message, cancellationToken));
         }
     }
 }

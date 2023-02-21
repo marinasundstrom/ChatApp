@@ -26,6 +26,21 @@ public sealed class DtoComposer : IDtoComposer
         HashSet<UserId> userIds = new();
         HashSet<MessageId> messageIds = new();
 
+        ExtractIds(message, userIds, messageIds);
+
+        var users = await context.Users
+            .Where(x => userIds.Any(z => x.Id == z))
+            .ToDictionaryAsync(x => x.Id, x => x, cancellationToken);
+
+        var repliedMessages = await context.Messages
+            .Where(x => messageIds.Any(z => x.Id == z))
+            .ToDictionaryAsync(x => x.Id, x => x, cancellationToken);
+
+        return ComposeMessageDtoInternal(message, users, repliedMessages);
+    }
+
+    private static void ExtractIds(Message message, HashSet<UserId> userIds, HashSet<MessageId> messageIds)
+    {
         if (message.ReplyToId is not null)
         {
             messageIds.Add(message.ReplyToId.GetValueOrDefault());
@@ -45,16 +60,6 @@ public sealed class DtoComposer : IDtoComposer
         {
             userIds.Add(message.DeletedById.GetValueOrDefault());
         }
-
-        var users = await context.Users
-            .Where(x => userIds.Any(z => x.Id == z))
-            .ToDictionaryAsync(x => x.Id, x => x, cancellationToken);
-
-        var repliedMessages = await context.Messages
-            .Where(x => messageIds.Any(z => x.Id == z))
-            .ToDictionaryAsync(x => x.Id, x => x, cancellationToken);
-
-        return ComposeMessageDtoInternal(message, users, repliedMessages);
     }
 
     public async Task<IEnumerable<MessageDto>> ComposeMessageDtos(Message[] messages, CancellationToken cancellationToken = default)
@@ -64,25 +69,7 @@ public sealed class DtoComposer : IDtoComposer
 
         foreach (var message in messages)
         {
-            if (message.ReplyToId is not null)
-            {
-                messageIds.Add(message.ReplyToId.GetValueOrDefault());
-            }
-
-            if (message.CreatedById is not null)
-            {
-                userIds.Add(message.CreatedById.GetValueOrDefault());
-            }
-
-            if (message.LastModifiedById is not null)
-            {
-                userIds.Add(message.LastModifiedById.GetValueOrDefault());
-            }
-
-            if (message.DeletedById is not null)
-            {
-                userIds.Add(message.DeletedById.GetValueOrDefault());
-            }
+            ExtractIds(message, userIds, messageIds);
         }
 
         var users = await context.Users
