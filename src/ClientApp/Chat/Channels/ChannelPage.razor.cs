@@ -27,6 +27,8 @@ namespace ChatApp.Chat.Channels
 
         HubConnection hubConnection = null!;
 
+        UserInfo userInfo = default!;
+
         protected override async Task OnInitializedAsync()
         {
             NavigationManager.LocationChanged += OnLocationChanged;
@@ -38,8 +40,16 @@ namespace ChatApp.Chat.Channels
             currentUserId = await CurrentUserService.GetUserIdAsync();
             isInAdminRole = await CurrentUserService.IsInRoleAsync("admin");
 
+            userInfo = await UsersClient.GetUserInfoAsync();
+
             await LoadChannel();
         }
+
+        public record MessageEditedData(Guid Id, DateTimeOffset LastEdited, UserData LastEditedBy, string Content);
+
+        public record MessageDeletedData(Guid Id, DateTimeOffset Deleted, UserData DeletedBy);
+
+        public record UserData(string Id, string Name);
 
         private async Task LoadChannel()
         {
@@ -68,8 +78,8 @@ namespace ChatApp.Chat.Channels
 
                 hubConnection.On<ChatApp.Message>("MessagePosted", OnMessagePosted);
                 hubConnection.On<string>("MessagePostedConfirmed", OnMessagePostedConfirmed);
-                hubConnection.On<string, string, string>("MessageEdited", OnMessageEdited);
-                hubConnection.On<string, string>("MessageDeleted", OnMessageDeleted);
+                hubConnection.On<Guid, MessageEditedData>("MessageEdited", OnMessageEdited);
+                hubConnection.On<Guid, MessageDeletedData>("MessageDeleted", OnMessageDeleted);
 
                 hubConnection.Closed += (error) =>
                 {
@@ -233,33 +243,33 @@ namespace ChatApp.Chat.Channels
             }
         }
 
-        private void OnMessageEdited(string channelId, string messageId, string content) 
+        private void OnMessageEdited(Guid channelId, MessageEditedData data) 
         {
-            var messageVm = messagesCache.FirstOrDefault(x => x.Id.ToString() == messageId);
+            var messageVm = messagesCache.FirstOrDefault(x => x.Id == data.Id);
 
             if(messageVm is not null) 
             {
-                messageVm.Content = content;
-                messageVm.Edited = DateTimeOffset.UtcNow;
-                messageVm.EditedById = null;
-                messageVm.EditedByName = null;
+                messageVm.Content = data.Content;
+                messageVm.Edited = data.LastEdited;
+                messageVm.EditedById = data.LastEditedBy.Id;
+                messageVm.EditedByName = data.LastEditedBy.Name;
 
                 StateHasChanged();
             }
         }
 
-        private void OnMessageDeleted(string channelId, string messageId) 
+        private void OnMessageDeleted(Guid channelId, MessageDeletedData data) 
         {
-            var messageVm = messagesCache.FirstOrDefault(x => x.Id.ToString() == messageId);
+            var messageVm = messagesCache.FirstOrDefault(x => x.Id == data.Id);
 
             if(messageVm is not null) 
             {
                 //messages.Remove(messageVm);
 
                 messageVm.Content = string.Empty;
-                messageVm.Deleted = DateTimeOffset.UtcNow;
-                messageVm.DeletedById = null;
-                messageVm.DeletedByName = null;
+                messageVm.Deleted = data.Deleted;
+                messageVm.DeletedById = data.DeletedBy.Id;
+                messageVm.DeletedByName = data.DeletedBy.Name;
 
                 StateHasChanged();
             }
@@ -333,7 +343,8 @@ namespace ChatApp.Chat.Channels
                 Id = Guid.Empty,
                 Published = DateTimeOffset.UtcNow,
                 PostedById = currentUserId,
-                PostedByInitials = GetInitials("Foo"), // TODO: Fix with my name,
+                PostedByName = userInfo.Name,
+                PostedByInitials = GetInitials(userInfo.Name), // TODO: Fix with my name,
                 ReplyTo = replyToMessage,
                 IsFromCurrentUser = true,
                 Content = Text

@@ -25,7 +25,7 @@ public sealed class MessagePostedEventHandler : IDomainEventHandler<MessagePoste
 
     public async Task Handle(MessagePosted notification, CancellationToken cancellationToken)
     {
-        var message = await messagesRepository.FindByIdAsync(notification.Message.MessageId, cancellationToken);
+        var message = await messagesRepository.FindByIdAsync(notification.MessageId, cancellationToken);
 
         if (message is null)
             return;
@@ -43,7 +43,7 @@ public sealed class MessagePostedEventHandler : IDomainEventHandler<MessagePoste
     private async Task SendConfirmationToSender(Message message, CancellationToken cancellationToken)
     {
         await chatNotificationService.SendConfirmationToSender(
-            message.ChannelId.ToString(), message.CreatedById.GetValueOrDefault().ToString(), message.Id.ToString(), cancellationToken);
+            message.ChannelId, message.CreatedById.GetValueOrDefault(), message.Id, cancellationToken);
     }
 
     private async Task NotifyChannel(Message message, User user, CancellationToken cancellationToken)
@@ -73,13 +73,11 @@ public sealed class MessageEditedEventHandler : IDomainEventHandler<MessageEdite
 
     public async Task Handle(MessageEdited notification, CancellationToken cancellationToken)
     {
-        await NotifyChannelMessageEdited(notification.ChannelId.ToString(), notification.Message.MessageId.ToString(), notification.Message.Content, cancellationToken);
-    }
+        var message = await messagesRepository.FindByIdAsync(notification.MessageId);
+        var user = await userRepository.FindByIdAsync(message!.LastModifiedById.GetValueOrDefault());
 
-    private async Task NotifyChannelMessageEdited(string channelId, string messageId, string content, CancellationToken cancellationToken)
-    {
         await chatNotificationService.NotifyMessageEdited(
-            channelId, messageId, content, cancellationToken);
+            notification.ChannelId, new MessageEditedData(notification.MessageId, message.LastModified.GetValueOrDefault(), new UserData(user!.Id, user.Name), notification.Content), cancellationToken);
     }
 }
 
@@ -101,13 +99,10 @@ public sealed class MessageDeletedEventHandler : IDomainEventHandler<MessageDele
 
     public async Task Handle(MessageDeleted notification, CancellationToken cancellationToken)
     {
-        await NotifyChannelMessageDeleted(
-            notification.ChannelId.ToString(), notification.MessageId.ToString(), cancellationToken);
-    }
+        var message = await messagesRepository.FindByIdAsync(notification.MessageId);
+        var user = await userRepository.FindByIdAsync(message!.DeletedById.GetValueOrDefault());
 
-    private async Task NotifyChannelMessageDeleted(string channelId, string messageId, CancellationToken cancellationToken)
-    {
         await chatNotificationService.NotifyMessageDeleted(
-            channelId, messageId, cancellationToken);
+            notification.ChannelId, new MessageDeletedData(notification.MessageId, message!.Deleted.GetValueOrDefault(), new UserData(user!.Id, user.Name)), cancellationToken);
     }
 }

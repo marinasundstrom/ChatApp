@@ -1,4 +1,5 @@
-﻿using ChatApp.Extensions;
+﻿using ChatApp.Domain;
+using ChatApp.Extensions;
 using ChatApp.Infrastructure;
 
 namespace ChatApp.Web.Extensions;
@@ -10,6 +11,7 @@ public static class ApplicationExtensions
         services
             .AddPresentation()
             .AddApplication()
+            .AddDomain()
             .AddInfrastructure(configuration);
 
         return services;

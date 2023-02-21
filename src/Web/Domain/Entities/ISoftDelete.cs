@@ -1,7 +1,9 @@
-﻿namespace ChatApp.Domain.Entities;
+﻿using ChatApp.Domain.ValueObjects;
+
+namespace ChatApp.Domain.Entities;
 
 public interface ISoftDelete
 {
-    string? DeletedById { get; set; }
+    UserId? DeletedById { get; set; }
     DateTimeOffset? Deleted { get; set; }
 }

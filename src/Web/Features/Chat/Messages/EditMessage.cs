@@ -38,7 +38,6 @@ public sealed record EditMessage(Guid MessageId, string Content) : IRequest<Resu
                 return Result.Failure(Errors.Messages.MessageNotFound);
             }
 
-
             var userId = currentUserService.UserId;
 
             if(message.CreatedById != userId) 

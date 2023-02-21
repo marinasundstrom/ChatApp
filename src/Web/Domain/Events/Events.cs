@@ -2,12 +2,8 @@ using ChatApp.Domain.ValueObjects;
 
 namespace ChatApp.Domain.Events;
 
-public sealed record MessagePosted(ChannelId ChannelId, MessagePostedData Message) : DomainEvent;
+public sealed record MessagePosted(ChannelId ChannelId, MessageId MessageId, MessageId? ReplyToId) : DomainEvent;
 
-public sealed record MessagePostedData(MessageId MessageId, string Content);
-
-public sealed record MessageEdited(ChannelId ChannelId, MessageEditedData Message) : DomainEvent;
-
-public sealed record MessageEditedData(MessageId MessageId, string Content);
+public sealed record MessageEdited(ChannelId ChannelId, MessageId MessageId, string Content) : DomainEvent;
 
 public sealed record MessageDeleted(ChannelId ChannelId, MessageId MessageId) : DomainEvent;

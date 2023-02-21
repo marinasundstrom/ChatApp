@@ -17,17 +17,23 @@ public sealed class MessageRepository : IMessageRepository
 
     public IQueryable<Message> GetAll()
     {
-        return dbSet.AsQueryable();
+        return dbSet
+            .IgnoreQueryFilters()
+            .AsQueryable();
     }
 
     public async Task<Message?> FindByIdAsync(MessageId id, CancellationToken cancellationToken = default)
     {
-        return await dbSet.FirstOrDefaultAsync(x => x.Id.Equals(id), cancellationToken);
+        return await dbSet
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(x => x.Id.Equals(id), cancellationToken);
     }
 
     public IQueryable<Message> GetAll(ISpecification<Message> specification)
     {
-        return dbSet.Where(specification.Criteria);
+        return dbSet
+            .IgnoreQueryFilters()
+            .Where(specification.Criteria);
     }
 
     public void Add(Message item)

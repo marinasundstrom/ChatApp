@@ -18,13 +18,15 @@ public sealed record DeleteMessage(Guid MessageId) : IRequest<Result>
     public sealed class Handler : IRequestHandler<DeleteMessage, Result>
     {
         private readonly IMessageRepository messageRepository;
+        private readonly IUserRepository userRepository;
         private readonly IUnitOfWork unitOfWork;
         private readonly ICurrentUserService currentUserService;
 
         public Handler(
-            IMessageRepository messageRepository, IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
+            IMessageRepository messageRepository, IUserRepository userRepository, IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
         {
             this.messageRepository = messageRepository;
+            this.userRepository = userRepository;
             this.unitOfWork = unitOfWork;
             this.currentUserService = currentUserService;
         }
@@ -46,13 +48,9 @@ public sealed record DeleteMessage(Guid MessageId) : IRequest<Result>
                 return Result.Failure(Errors.Messages.NotAllowedToDelete);
             }
 
-            message.UpdateContent(string.Empty);
-            message.DeletedById = currentUserService.UserId;
-            message.Deleted = DateTime.Now;
+            message.DeleteMarkForDeletion();
 
-            message.AddDomainEvent(new MessageDeleted(message.ChannelId, message.Id));
-
-            //messageRepository.Remove(message);
+            messageRepository.Remove(message);
 
             await unitOfWork.SaveChangesAsync(cancellationToken);
 

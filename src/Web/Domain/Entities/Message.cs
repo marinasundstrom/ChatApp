@@ -2,25 +2,30 @@
 
 namespace ChatApp.Domain.Entities;
 
-public sealed class Message : AggregateRoot<MessageId>, IAuditable
+public sealed class Message : AggregateRoot<MessageId>, IAuditable, ISoftDelete
 {
     private Message() : base(new MessageId())
     {
     }
 
-    public Message(ChannelId channelId, string text)
+    public Message(ChannelId channelId, string content)
         : base(new MessageId())
     {
         ChannelId = channelId;
-        Content = text;
+        Content = content;
 
-        AddDomainEvent(new MessagePosted(channelId, new MessagePostedData(Id, Content)));
+        AddDomainEvent(new MessagePosted(ChannelId, Id, null));
     }
 
-    public Message(ChannelId channelId, MessageId replyToId, string text)
-        : this(channelId, text)
+    public Message(ChannelId channelId, MessageId replyToId, string content)
+        : base(new MessageId())
     {
+        ChannelId = channelId;
+        Content = content;
+        
         ReplyToId = replyToId;
+
+        AddDomainEvent(new MessagePosted(ChannelId, Id, ReplyToId));
     }
 
     public MessageId? ReplyToId { get; set; }
@@ -34,9 +39,16 @@ public sealed class Message : AggregateRoot<MessageId>, IAuditable
 
         Content = newContent;
 
-        AddDomainEvent(new MessageEdited(ChannelId, new MessageEditedData(Id, Content)));
+        AddDomainEvent(new MessageEdited(ChannelId, Id, Content));
 
         return true;
+    }
+
+    public void DeleteMarkForDeletion()
+    {
+        UpdateContent(string.Empty);
+
+        AddDomainEvent(new MessageDeleted(ChannelId, Id));
     }
 
     public DateTimeOffset Published => Created;

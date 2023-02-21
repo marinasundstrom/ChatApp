@@ -46,6 +46,6 @@ public static class ServiceExtensions
         services.AddScoped<IMessageRepository, MessageRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
 
-        //services.Decorate<ITodoRepository, CachedTodoRepository>();
+        services.Decorate<IUserRepository, CachedUserRepository>();
     }
 }

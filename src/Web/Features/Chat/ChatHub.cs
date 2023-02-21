@@ -32,16 +32,18 @@ public sealed class ChatHub : Hub<IChatHubClient>
         return base.OnConnectedAsync();
     }
 
-    public async Task<Guid> PostMessage(string channelId, string? replyTo, string content) 
+    public async Task<Guid> PostMessage(Guid channelId, Guid? replyTo, string content) 
     {
         currentUserService.SetUser(Context.User!);
         currentUserService.SetConnectionId(Context.ConnectionId);
 
         return (MessageId)await mediator.Send(
-            new PostMessage(Guid.Parse(channelId), replyTo is null ? null : Guid.Parse(replyTo), content));   
+            new PostMessage(channelId, replyTo, content));
     }
 
-    public async Task EditMessage(string channelId, string messageId, string content) 
+    /*
+
+    public async Task EditMessage(Guid channelId, Guid messageId, string content) 
     {
         currentUserService.SetUser(Context.User!);
         
@@ -50,10 +52,10 @@ public sealed class ChatHub : Hub<IChatHubClient>
         await Clients
             .Group($"channel-{channelId}")
             //.GroupExcept($"channel-{channelId}", Context.ConnectionId)
-            .MessageEdited(channelId, messageId, content);
+            .MessageEdited(channelId, new MessageEdited(messageId, content);
     }
 
-    public async Task DeleteMessage(string channelId, string messageId) 
+    public async Task DeleteMessage(Guid channelId, Guid messageId) 
     {
         currentUserService.SetUser(Context.User!);
 
@@ -64,15 +66,17 @@ public sealed class ChatHub : Hub<IChatHubClient>
             //.GroupExcept($"channel-{channelId}", Context.ConnectionId)
             .MessageDeleted(channelId, messageId);
     }
+
+    */
 }
 
 public interface IChatHubClient
 {
     Task MessagePosted(MessageDto message);
 
-    Task MessagePostedConfirmed(string messageId);
+    Task MessagePostedConfirmed(Guid messageId);
 
-    Task MessageEdited(string channelId, string senderId, string content);
+    Task MessageEdited(Guid channelId, MessageEditedData data);
 
-    Task MessageDeleted(string channelId, string messageId);
+    Task MessageDeleted(Guid channelId, MessageDeletedData data);
 }
