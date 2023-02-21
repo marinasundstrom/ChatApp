@@ -26,26 +26,38 @@ public sealed class DtoComposer : IDtoComposer
         HashSet<UserId> userIds = new();
         HashSet<MessageId> messageIds = new();
 
-        ExtractIds(message, userIds, messageIds);
+        ExtractUserIds(message, userIds);
+        ExtractReplyIds(message, messageIds);
+        
+        var replyMessages = await context.Messages
+            .Where(x => messageIds.Any(z => x.Id == z))
+            .ToDictionaryAsync(x => x.Id, x => x, cancellationToken);
+
+        if(replyMessages.Any()) 
+        {
+            foreach(var replyMessage in replyMessages.Select(x => x.Value)) 
+            {
+                ExtractUserIds(replyMessage, userIds);
+            }
+        }
 
         var users = await context.Users
             .Where(x => userIds.Any(z => x.Id == z))
             .ToDictionaryAsync(x => x.Id, x => x, cancellationToken);
 
-        var repliedMessages = await context.Messages
-            .Where(x => messageIds.Any(z => x.Id == z))
-            .ToDictionaryAsync(x => x.Id, x => x, cancellationToken);
-
-        return ComposeMessageDtoInternal(message, users, repliedMessages);
+        return ComposeMessageDtoInternal(message, users, replyMessages);
     }
 
-    private static void ExtractIds(Message message, HashSet<UserId> userIds, HashSet<MessageId> messageIds)
+    private static void ExtractReplyIds(Message message, HashSet<MessageId> messageIds)
     {
         if (message.ReplyToId is not null)
         {
             messageIds.Add(message.ReplyToId.GetValueOrDefault());
         }
+    }
 
+    private static void ExtractUserIds(Message message, HashSet<UserId> userIds)
+    {
         if (message.CreatedById is not null)
         {
             userIds.Add(message.CreatedById.GetValueOrDefault());
@@ -69,20 +81,29 @@ public sealed class DtoComposer : IDtoComposer
 
         foreach (var message in messages)
         {
-            ExtractIds(message, userIds, messageIds);
+            ExtractUserIds(message, userIds);
+            ExtractReplyIds(message, messageIds);
         }
 
+        var replyMessages = await context.Messages
+            .Where(x => messageIds.Any(z => x.Id == z))
+            .ToDictionaryAsync(x => x.Id, x => x, cancellationToken);
+
+        if(replyMessages.Any()) 
+        {
+            foreach(var replyMessage in replyMessages.Select(x => x.Value)) 
+            {
+                ExtractUserIds(replyMessage, userIds);
+            }
+        }
+        
         var users = await context.Users
             .Where(x => userIds.Any(z => x.Id == z))
             .ToDictionaryAsync(x => x.Id, x => x, cancellationToken);
 
-        var repliedMessages = await context.Messages
-            .Where(x => messageIds.Any(z => x.Id == z))
-            .ToDictionaryAsync(x => x.Id, x => x, cancellationToken);
-
         return messages.Select(message =>
         {
-            return ComposeMessageDtoInternal(message, users, repliedMessages);
+            return ComposeMessageDtoInternal(message, users, replyMessages);
         });
     }
 
