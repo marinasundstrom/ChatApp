@@ -9,15 +9,18 @@ public sealed class MessagePostedEventHandler : IDomainEventHandler<MessagePoste
     private readonly IMessageRepository messagesRepository;
     private readonly IUserRepository userRepository;
     private readonly IChatNotificationService chatNotificationService;
+    private readonly IDtoComposer dtoComposer;
 
     public MessagePostedEventHandler(
         IMessageRepository messagesRepository, 
         IUserRepository userRepository,
-        IChatNotificationService chatNotificationService)
+        IChatNotificationService chatNotificationService,
+        IDtoComposer dtoComposer)
     {
         this.messagesRepository = messagesRepository;
         this.userRepository = userRepository;
         this.chatNotificationService = chatNotificationService;
+        this.dtoComposer = dtoComposer;
     }
 
     public async Task Handle(MessagePosted notification, CancellationToken cancellationToken)
@@ -45,20 +48,10 @@ public sealed class MessagePostedEventHandler : IDomainEventHandler<MessagePoste
 
     private async Task NotifyChannel(Message message, User user, CancellationToken cancellationToken)
     {
-        MessageDto messageDto = CreateMessageDto(message, user);
+        MessageDto messageDto = await dtoComposer.ComposeMessageDto(message,cancellationToken);
 
         await chatNotificationService.NotifyMessagePosted(
             messageDto, cancellationToken);
-    }
-
-    private static MessageDto CreateMessageDto(Message message,  User user)
-    {
-        return new MessageDto(message.Id, message.ChannelId, 
-            message.ReplyToId is null ? null : new ReplyMessageDto(
-                message.ReplyToId.GetValueOrDefault(), Guid.NewGuid(), string.Empty, DateTimeOffset.Now, new Users.UserDto(string.Empty, string.Empty), null, null, null, null), message.Content, message.Created,
-            new Users.UserDto(user.Id, user.Name),
-            message.LastModified, null,
-            message.Deleted, null);
     }
 }
 

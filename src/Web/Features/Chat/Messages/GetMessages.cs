@@ -14,13 +14,13 @@ public record GetMessages(Guid? ChannelId, int Page = 1, int PageSize = 10, stri
     {
         private readonly IMessageRepository messageRepository;
         private readonly ApplicationDbContext context;
-        private readonly IDtoFactory dtoFactory;
+        private readonly IDtoComposer dtoComposer;
 
-        public Handler(IMessageRepository messageRepository, ApplicationDbContext context, IDtoFactory dtoFactory)
+        public Handler(IMessageRepository messageRepository, ApplicationDbContext context, IDtoComposer dtoComposer)
         {
             this.messageRepository = messageRepository;
             this.context = context;
-            this.dtoFactory = dtoFactory;
+            this.dtoComposer = dtoComposer;
         }
 
         public async Task<ItemsResult<MessageDto>> Handle(GetMessages request, CancellationToken cancellationToken)
@@ -50,7 +50,7 @@ public record GetMessages(Guid? ChannelId, int Page = 1, int PageSize = 10, stri
                 .Take(request.PageSize).AsQueryable()
                 .ToArrayAsync(cancellationToken);
 
-            IEnumerable<MessageDto> dtos = await dtoFactory.GetMessageDtos(messages);
+            IEnumerable<MessageDto> dtos = await dtoComposer.ComposeMessageDtos(messages);
 
             return new ItemsResult<MessageDto>(dtos!, totalCount);
         }

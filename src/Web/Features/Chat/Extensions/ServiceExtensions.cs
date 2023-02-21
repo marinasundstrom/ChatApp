@@ -6,6 +6,7 @@ public static class ServiceExtensions
     {
         services.AddScoped<IAdminCommandProcessor, AdminCommandProcessor>();
         services.AddScoped<IDtoFactory, DtoFactory>();
+        services.AddScoped<IDtoComposer, DtoComposer>();
 
         return services;
     }
