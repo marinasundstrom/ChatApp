@@ -25,7 +25,9 @@ public record GetMessages(Guid? ChannelId, int Page = 1, int PageSize = 10, stri
 
         public async Task<ItemsResult<MessageDto>> Handle(GetMessages request, CancellationToken cancellationToken)
         {
-            var query = context.Messages.AsQueryable();
+            var query = context.Messages
+                .IgnoreQueryFilters()
+                .AsQueryable();
 
             var totalCount = await query.CountAsync(cancellationToken);
 
