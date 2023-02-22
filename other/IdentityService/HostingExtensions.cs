@@ -61,7 +61,9 @@ internal static class HostingExtensions
                 options.RemoveConsumedTokens = true;
             });
 
-        builder.Services.AddAuthentication()
+         /*
+        builder.Services.AddAuthentication();
+       
             .AddGoogle(options =>
             {
                 options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
@@ -72,6 +74,7 @@ internal static class HostingExtensions
                 options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
                 options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
             });
+            */
 
 
         // this adds the necessary config for the simple admin/config pages

@@ -6,10 +6,13 @@ using ChatApp.Infrastructure.Persistence;
 using ChatApp.Web.Extensions;
 using ChatApp.Web.Middleware;
 using ChatApp.Web.Services;
+using Microsoft.IdentityModel.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var configuration = builder.Configuration;
+
+IdentityModelEventSource.ShowPII = true;
 
 builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
