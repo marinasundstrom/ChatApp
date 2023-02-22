@@ -1,6 +1,127 @@
-version:  "3"
+version: '3.4'
 
 services:
+  registry:
+    image: registry:2.7
+    ports:
+      - "5005:5000"
+    volumes:
+        - .docker-data/registry/data:/data
+        - .docker-data/registry/auth:/auth
+
+  web:
+    image: ${DOCKER_REGISTRY-}web
+    build:
+      context: .
+      dockerfile: src/Web/Dockerfile
+    depends_on:
+      - "mssql"
+      - "rabbitmq"
+      - "redis"
+    ports:
+        - 5001:443
+        - 5002:80
+    restart: always
+    volumes:
+      - .certs:/certs
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=myPass123
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/certs/aspnetapp.pfx
+      - "CONNECTIONSTRINGS__MSSQL=Server=host.docker.internal,1433;User Id=sa;Password=P@ssw0rd;Encrypt=false" 
+      - "SERVICE__WEB__HTTP__PROTOCOL=http" 
+      - "WEB_HTTP_SERVICE_PROTOCOL=http" 
+      - "SERVICE__WEB__HTTP__PORT=5000" 
+      - "WEB_HTTP_SERVICE_PORT=5000" 
+      - "SERVICE__WEB__HTTP__HOST=host.docker.internal" 
+      - "WEB_HTTP_SERVICE_HOST=host.docker.internal" 
+      - "SERVICE__WEB__HTTPS__PROTOCOL=https" 
+      - "WEB_HTTPS_SERVICE_PROTOCOL=https" 
+      - "SERVICE__WEB__HTTPS__PORT=5001" 
+      - "WEB_HTTPS_SERVICE_PORT=5001" 
+      - "SERVICE__WEB__HTTPS__HOST=host.docker.internal" 
+      - "WEB_HTTPS_SERVICE_HOST=host.docker.internal" 
+      - "SERVICE__CLIENTAPP__HTTP__PROTOCOL=http" 
+      - "CLIENTAPP_HTTP_SERVICE_PROTOCOL=http" 
+      - "SERVICE__CLIENTAPP__HTTP__PORT=5020" 
+      - "CLIENTAPP_HTTP_SERVICE_PORT=5020" 
+      - "SERVICE__CLIENTAPP__HTTP__HOST=host.docker.internal" 
+      - "CLIENTAPP_HTTP_SERVICE_HOST=host.docker.internal" 
+      - "SERVICE__CLIENTAPP__HTTPS__PROTOCOL=https" 
+      - "CLIENTAPP_HTTPS_SERVICE_PROTOCOL=https" 
+      - "SERVICE__CLIENTAPP__HTTPS__PORT=5021" 
+      - "CLIENTAPP_HTTPS_SERVICE_PORT=5021" 
+      - "SERVICE__CLIENTAPP__HTTPS__HOST=host.docker.internal" 
+      - "CLIENTAPP_HTTPS_SERVICE_HOST=host.docker.internal" 
+      - "SERVICE__RABBITMQ__RABBIT__PROTOCOL=rabbitmq" 
+      - "RABBITMQ_RABBIT_SERVICE_PROTOCOL=rabbitmq" 
+      - "SERVICE__RABBITMQ__RABBIT__PORT=5672" 
+      - "RABBITMQ_RABBIT_SERVICE_PORT=5672" 
+      - "SERVICE__RABBITMQ__RABBIT__HOST=host.docker.internal" 
+      - "RABBITMQ_RABBIT_SERVICE_HOST=host.docker.internal" 
+      - "SERVICE__RABBITMQ__MANAGEMENT__PORT=15672" 
+      - "RABBITMQ_MANAGEMENT_SERVICE_PORT=15672" 
+      - "SERVICE__RABBITMQ__MANAGEMENT__HOST=host.docker.internal" 
+      - "RABBITMQ_MANAGEMENT_SERVICE_HOST=host.docker.internal" 
+      - "CONNECTIONSTRINGS__REDIS=host.docker.internal:6379" 
+      - "SERVICE__ZIPKIN__PORT=9411" 
+      - "ZIPKIN_SERVICE_PORT=9411" 
+      - "SERVICE__ZIPKIN__HOST=host.docker.internal" 
+      - "ZIPKIN_SERVICE_HOST=host.docker.internal" 
+      - "SERVICE__HEALTHCHECKS__HTTP__PROTOCOL=http" 
+      - "HEALTHCHECKS_HTTP_SERVICE_PROTOCOL=http" 
+      - "SERVICE__HEALTHCHECKS__HTTP__PORT=5030" 
+      - "HEALTHCHECKS_HTTP_SERVICE_PORT=5030" 
+      - "SERVICE__HEALTHCHECKS__HTTP__HOST=host.docker.internal" 
+      - "HEALTHCHECKS_HTTP_SERVICE_HOST=host.docker.internal" 
+      - "SERVICE__HEALTHCHECKS__HTTPS__PROTOCOL=https" 
+      - "HEALTHCHECKS_HTTPS_SERVICE_PROTOCOL=https" 
+      - "SERVICE__HEALTHCHECKS__HTTPS__PORT=5031" 
+      - "HEALTHCHECKS_HTTPS_SERVICE_PORT=5031" 
+      - "SERVICE__HEALTHCHECKS__HTTPS__HOST=host.docker.internal" 
+      - "HEALTHCHECKS_HTTPS_SERVICE_HOST=host.docker.internal" 
+      - "SERVICE__IDENTITYSERVICE__HTTP__PROTOCOL=http" 
+      - "IDENTITYSERVICE_HTTP_SERVICE_PROTOCOL=http" 
+      - "SERVICE__IDENTITYSERVICE__HTTP__PORT=5040" 
+      - "IDENTITYSERVICE_HTTP_SERVICE_PORT=5040" 
+      - "SERVICE__IDENTITYSERVICE__HTTP__HOST=host.docker.internal" 
+      - "IDENTITYSERVICE_HTTP_SERVICE_HOST=host.docker.internal" 
+      - "SERVICE__IDENTITYSERVICE__HTTPS__PROTOCOL=https" 
+      - "IDENTITYSERVICE_HTTPS_SERVICE_PROTOCOL=https" 
+      - "SERVICE__IDENTITYSERVICE__HTTPS__PORT=5041" 
+      - "IDENTITYSERVICE_HTTPS_SERVICE_PORT=5041" 
+      - "SERVICE__IDENTITYSERVICE__HTTPS__HOST=host.docker.internal" 
+      - "IDENTITYSERVICE_HTTPS_SERVICE_HOST=host.docker.internal" 
+      - "SERVICE__SMTP4DEV__UI__PROTOCOL=http" 
+      - "SMTP4DEV_UI_SERVICE_PROTOCOL=http" 
+      - "SERVICE__SMTP4DEV__UI__PORT=3000" 
+      - "SMTP4DEV_UI_SERVICE_PORT=3000" 
+      - "SERVICE__SMTP4DEV__UI__HOST=host.docker.internal" 
+      - "SMTP4DEV_UI_SERVICE_HOST=host.docker.internal" 
+      - "SERVICE__SMTP4DEV__SMTP__PROTOCOL=smtp" 
+      - "SMTP4DEV_SMTP_SERVICE_PROTOCOL=smtp" 
+      - "SERVICE__SMTP4DEV__SMTP__PORT=25" 
+      - "SMTP4DEV_SMTP_SERVICE_PORT=25" 
+      - "SERVICE__SMTP4DEV__SMTP__HOST=host.docker.internal" 
+      - "SMTP4DEV_SMTP_SERVICE_HOST=host.docker.internal" 
+
+  clientapp:
+    image: ${DOCKER_REGISTRY-}clientapp
+    build:
+      context: .
+      dockerfile: src/ClientApp/Dockerfile
+    ports:
+        - 5021:443
+        - 5020:80
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=myPass123
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/certs/aspnetapp.pfx
+    volumes:
+      - .certs:/etc/nginx/certs
+
   mssql:
     image: mcr.microsoft.com/azure-sql-edge:latest
     cap_add: [ 'SYS_PTRACE' ]
@@ -12,10 +133,52 @@ services:
       - "1433:1433"
     hostname: mssql
     volumes:
-      - "./data/sql-edge:/var/opt/mssql"
+      - ".docker-data/sql-edge:/var/opt/mssql"
+    networks: 
+      - "my_network"
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    hostname: rabbitmq
+    ports:
+        - 5672:5672
+        - 15672:15672
+    volumes:
+      - .docker-data/rabbitmq/data/:/var/lib/rabbitmq/
+      - .docker-data/rabbitmq/log/:/var/log/rabbitmq
+    networks: 
+      - "my_network"
+
+  redis:
+    image: redis
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes: 
+      - .docker-data/redis:/data
     networks: 
       - "my_network"
   
+  identityservice:
+    image: ${DOCKER_REGISTRY-}identityservice
+    build:
+      context: .
+      dockerfile: other/IdentityService/Dockerfile
+    ports:
+        - 5041:443
+    restart: always
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=myPass123
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/certs/aspnetapp.pfx
+      - "CONNECTIONSTRINGS__MSSQL=Server=host.docker.internal,1433;User Id=sa;Password=P@ssw0rd;Encrypt=false" 
+    networks: 
+      - "my_network"
+    volumes:
+      - .certs:/certs
+
 networks:
   my_network:
-    driver: bridge
+    name: my_network

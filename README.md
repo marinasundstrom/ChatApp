@@ -149,3 +149,11 @@ Password: bob
 ### Swagger UI
 
 Hosted at: https://localhost:5001/swagger/
+
+## Certs
+
+```
+dotnet dev-certs https -ep aspnetapp.pfx -p myPass123
+
+dotnet dev-certs https --trust
+```

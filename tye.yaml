@@ -5,6 +5,8 @@
 #    https://aka.ms/AA7q20u
 #
 name: chatapp
+registry: localhost:5005
+
 services:
 - name: web
   project: src/Web/Web.csproj

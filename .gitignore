@@ -465,6 +465,7 @@ _site
 .$diagram.drawio.dtmp
 .$diagram.drawio.bkp
 .data
+.docker-data
 *.db
 *.db-shm
 *.db-wal
