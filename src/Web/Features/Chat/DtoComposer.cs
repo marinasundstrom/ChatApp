@@ -30,6 +30,7 @@ public sealed class DtoComposer : IDtoComposer
         ExtractReplyIds(message, messageIds);
         
         var replyMessages = await context.Messages
+            .IgnoreQueryFilters()
             .Where(x => messageIds.Any(z => x.Id == z))
             .ToDictionaryAsync(x => x.Id, x => x, cancellationToken);
 
@@ -86,6 +87,7 @@ public sealed class DtoComposer : IDtoComposer
         }
 
         var replyMessages = await context.Messages
+            .IgnoreQueryFilters()
             .Where(x => messageIds.Any(z => x.Id == z))
             .ToDictionaryAsync(x => x.Id, x => x, cancellationToken);
 
