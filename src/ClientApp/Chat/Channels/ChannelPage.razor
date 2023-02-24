@@ -47,6 +47,13 @@
                         {
                             <text>@($"{T["Deleted"]}")</text> 
                         }
+
+                        @if (message.Deleted is not null)
+                        {
+                            <MudTooltip Text="@($"{T["DeletedByAt", message.Deleted.Humanize()!, message.DeletedByName!]}")">
+                                <MudIcon Icon="@Icons.Filled.Delete" Size="Size.Small" Style="height: 0.8em; top: 3px; position: relative;" />
+                            </MudTooltip>
+                        }
                     </p>
                 }
                 else
@@ -64,6 +71,13 @@
                                 else 
                                 {
                                     <text>@($"{T["Deleted"]}")</text> 
+                                }
+
+                                @if (message.ReplyTo.Deleted is not null)
+                                {
+                                    <MudTooltip Text="@($"{T["DeletedByAt", message.ReplyTo.Deleted.Humanize()!, message.ReplyTo.DeletedByName!]}")">
+                                        <MudIcon Icon="@Icons.Filled.Delete" Size="Size.Small" Style="height: 0.8em; top: 3px; position: relative;" />
+                                    </MudTooltip>
                                 }
                             </p>
                         }

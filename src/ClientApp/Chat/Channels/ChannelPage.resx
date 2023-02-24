@@ -36,6 +36,9 @@
   <data name="DeletedBy" xml:space="preserve">
     <value>Message deleted by {0}</value>
   </data>
+  <data name="DeletedByAt" xml:space="preserve">
+    <value>Message deleted {0} by {1}</value>
+  </data>
   <data name="Edit" xml:space="preserve">
     <value>Edit</value>
   </data>

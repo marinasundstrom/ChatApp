@@ -36,6 +36,9 @@
 	<data name="DeletedBy" xml:space="preserve">
 		<value>Meddelande borttaget av {0}</value>
 	</data>
+	<data name="DeletedByAt" xml:space="preserve">
+		<value>Meddelande borttaget {0} av {1}</value>
+	</data>
 	<data name="Edit" xml:space="preserve">
 		<value>Redigera</value>
 	</data>
