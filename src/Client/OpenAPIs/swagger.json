@@ -40,8 +40,7 @@
             "name": "sortBy",
             "in": "query",
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             },
             "x-position": 3
           },
@@ -220,8 +219,7 @@
             "name": "sortBy",
             "in": "query",
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             },
             "x-position": 4
           },
@@ -480,8 +478,7 @@
             "name": "searchTerm",
             "in": "query",
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             },
             "x-position": 3
           },
@@ -489,8 +486,7 @@
             "name": "sortBy",
             "in": "query",
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             },
             "x-position": 4
           },
