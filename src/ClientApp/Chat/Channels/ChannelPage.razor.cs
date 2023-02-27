@@ -294,9 +294,18 @@ namespace ChatApp.Chat.Channels
 
         async void OnLocationChanged(object? sender, LocationChangedEventArgs eventArgs)
         {
+            ResetChannelWindow();
+
             await LoadChannel();
 
             StateHasChanged();
+        }
+
+        private void ResetChannelWindow()
+        {
+            Text = string.Empty;
+            replyToMessage = null;
+            editingMessageId = null;
         }
 
         void ColorSchemeChanged(object? sender, ColorSchemeChangedEventArgs arg)
