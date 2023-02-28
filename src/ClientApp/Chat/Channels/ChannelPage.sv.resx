@@ -19,7 +19,7 @@
 		<value>Skicka</value>
 	</data>
 	<data name="Required" xml:space="preserve">
-		<value>Required</value>
+		<value>Obligatorisk</value>
 	  </data>
 	<data name="Now" xml:space="preserve">
 		<value>Nu</value>

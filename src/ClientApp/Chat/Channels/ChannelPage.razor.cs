@@ -352,11 +352,19 @@ namespace ChatApp.Chat.Channels
             }
         }
 
-        [Required]
+        /*
+        [Required(
+            ErrorMessageResourceName = "Required", 
+            ErrorMessageResourceType = typeof(ChannelPage))] */
         public string Text { get; set; } = default !;
 
         async Task Send()
         {
+            if(string.IsNullOrWhiteSpace(Text))  
+            {
+                return;
+            }
+
             if(editingMessageId is not null) 
             {
                 await UpdateMessage();
