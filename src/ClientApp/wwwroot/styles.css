@@ -177,13 +177,13 @@
     margin-bottom: 5px;
 }
 
-.reply-bubble.right {
-    border-left-width: 5px;
+.reply-bubble.left {
+    border-left-width: 4px;
     border-left-color: white;
 }
 
-.reply-bubble.left {
-    border-left-width: 5px;
+.reply-bubble.right {
+    border-left-width: 4px;
     border-left-color: #157cdf;
 }
 

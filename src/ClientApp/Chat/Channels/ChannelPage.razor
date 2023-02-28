@@ -60,7 +60,7 @@
                 {
                     if (message.ReplyTo is not null)
                     {
-                        <div class="reply-bubble @(message.ReplyTo.Deleted is not null ? "deleted" : string.Empty)  @(message.PostedById == currentUserId ? "right" : "left")">
+                        <div class="reply-bubble @(message.ReplyTo.Deleted is not null ? "deleted" : string.Empty)  @(message.ReplyTo.PostedById == currentUserId ? "right" : "left")">
 
                         @if (message.ReplyTo.Deleted is not null)
                         {
