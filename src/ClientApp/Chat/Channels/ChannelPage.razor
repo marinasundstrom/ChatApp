@@ -83,7 +83,7 @@
                         }
                         else 
                         {
-                            <small><b>@message.ReplyTo.PostedByName</b></small>
+                            <small><b>@(message.ReplyTo.PostedById == currentUserId ? T["Me"] : message.ReplyTo.PostedByName)</b></small>
                             <p> @message.ReplyTo.Content</p>
                         }
                         </div>
@@ -201,7 +201,7 @@
                     {
                         <div class="reply-bubble @(replyToMessage.PostedById == currentUserId ? "right" : "left")" style="border-top-left-radius: 4px; border-top-right-radius: 4px;">
                             <div class="d-flex justify-space-between" style="padding-top: 4px">
-                                <small><b>@replyToMessage.PostedByName</b></small>
+                                <small><b>@(replyToMessage.PostedById == currentUserId ? T["Me"] : replyToMessage.PostedByName)</b></small>
                                 <MudIconButton Icon="@Icons.Filled.Cancel" Size="Size.Small" OnClick="AbortReplyToMessage" />
                             </div>
                             <div>

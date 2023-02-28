@@ -24,6 +24,9 @@
   <data name="Now" xml:space="preserve">
     <value>Now</value>
   </data>
+  <data name="Me" xml:space="preserve">
+    <value>Me</value>
+  </data>
   <data name="TimeDisplay" xml:space="preserve">
     <value>{0} ago</value>
   </data>

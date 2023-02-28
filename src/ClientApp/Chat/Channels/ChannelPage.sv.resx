@@ -23,7 +23,10 @@
 	  </data>
 	<data name="Now" xml:space="preserve">
 		<value>Nu</value>
-	  </data>
+	</data>
+	<data name="Me" xml:space="preserve">
+		<value>Jag</value>
+	</data>
 	<data name="TimeDisplay" xml:space="preserve">
 		<value>{0} sedan</value>
 	</data>
