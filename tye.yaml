@@ -74,6 +74,33 @@ services:
   bindings:
     - port: 9411
 
+- name: opensearch-node
+  image: opensearchproject/opensearch:latest
+  bindings:
+    - name: e
+      port: 9200
+      containerPort: 9200
+      protocol: http
+    - name: b
+      port: 9600
+      containerPort: 9600
+  env:
+  - name: discovery.type
+    value: single-node
+  volumes:
+  - source: .data/opensearch/data
+    target: /usr/share/opensearch/data
+
+- name: openserach-dashboard
+  image: opensearchproject/opensearch-dashboards:latest
+  bindings:
+  - protocol: http
+    port: 5601
+    containerPort: 5601
+  volumes:
+  - source: config/opensearch_dashboards.yml
+    target: /usr/share/opensearch-dashboards/config/opensearch_dashboards.yml
+
 - name: healthchecks
   project: other/HealthChecks/HealthChecks.csproj
   bindings:

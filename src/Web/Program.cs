@@ -6,6 +6,7 @@ using ChatApp.Infrastructure.Persistence;
 using ChatApp.Web.Extensions;
 using ChatApp.Web.Middleware;
 using ChatApp.Web.Services;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,9 @@ builder.Services
     .AddScoped<ICurrentUserService>(sp => sp.GetRequiredService<ICurrentUserServiceInternal>())
     .AddTransient<ExceptionHandlingMiddleware>();
 
+builder.Host.UseSerilog((context, configuration) =>
+    configuration.ReadFrom.Configuration(context.Configuration));
+
 var app = builder.Build();
 
 app.UseRouting();
@@ -47,6 +51,8 @@ if (app.Environment.IsDevelopment())
 app.UseCors(CorsExtensions.MyAllowSpecificOrigins);
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
 
