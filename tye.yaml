@@ -4,7 +4,7 @@
 # when you've given us a try, we'd love to know what you think:
 #    https://aka.ms/AA7q20u
 #
-name: chatapp
+name: web
 services:
 - name: web
   project: src/Web/Web.csproj
@@ -16,8 +16,8 @@ services:
     protocol: https
     port: 5001
 
-- name: clientapp
-  project: src/ClientApp/ClientApp.csproj
+- name: webapp
+  project: src/ClientApp/WebApp/WebApp.csproj
   bindings:
   - name: http
     protocol: http

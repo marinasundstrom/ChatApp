@@ -1,0 +1,26 @@
+﻿@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ChatApp.Auth0
+
+<AuthorizeView>
+    <Authorized>
+        Hello, @context.User.Identity.Name!
+        <a href="#" @onclick="Logout">Log out</a>
+    </Authorized>
+    <NotAuthorized>
+        <a href="#" @onclick="Login">Log in</a>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code{
+    public async Task Login()
+    {
+        await ((Auth0AuthenticationStateProvider)AuthenticationStateProvider)
+            .LogInAsync();
+    }
+
+    public void Logout()
+    {
+        ((Auth0AuthenticationStateProvider)AuthenticationStateProvider)
+            .LogOut();
+    }
+}
