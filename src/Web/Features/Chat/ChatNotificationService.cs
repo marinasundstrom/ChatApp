@@ -11,6 +11,9 @@ public interface IChatNotificationService
     Task SendConfirmationToSender(Guid channelId, string senderId, Guid messageId, CancellationToken cancellationToken = default);
     Task NotifyMessageEdited(Guid channelId, MessageEditedData data, CancellationToken cancellationToken = default);
     Task NotifyMessageDeleted(Guid channelId, MessageDeletedData data, CancellationToken cancellationToken = default);
+
+    Task NotifyReaction(Guid channelId, Guid messageId, ReactionDto reaction, CancellationToken cancellationToken = default);
+    Task NotifyReactionRemoved(Guid channelId, Guid messageId, string reaction, CancellationToken cancellationToken = default);
 }
 
 public record MessageEditedData(Guid Id, DateTimeOffset LastEdited, UserData LastEditedBy, string Content);
@@ -61,5 +64,19 @@ public class ChatNotificationService : IChatNotificationService
         await hubsContext.Clients
             .Group($"channel-{channelId}")
             .MessageDeleted(channelId, data);
+    }
+
+    public async Task NotifyReaction(Guid channelId, Guid messageId, ReactionDto reaction, CancellationToken cancellationToken = default)
+    {
+        await hubsContext.Clients
+            .Group($"channel-{channelId}")
+            .Reaction(channelId, messageId, reaction);
+    }
+
+    public async Task NotifyReactionRemoved(Guid channelId, Guid messageId, string reaction, CancellationToken cancellationToken = default)
+    {
+        await hubsContext.Clients
+            .Group($"channel-{channelId}")
+            .ReactionRemoved(channelId, messageId, reaction);
     }
 }

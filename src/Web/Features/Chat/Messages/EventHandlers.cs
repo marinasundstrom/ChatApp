@@ -106,3 +106,37 @@ public sealed class MessageDeletedEventHandler : IDomainEventHandler<MessageDele
             notification.ChannelId, new MessageDeletedData(notification.MessageId, message!.Deleted.GetValueOrDefault(), new UserData(user!.Id, user.Name)), cancellationToken);
     }
 }
+
+public sealed class UserReactedToMessageEventHandler : IDomainEventHandler<UserReactedToMessage>
+{
+    private readonly IMessageRepository messagesRepository;
+    private readonly IUserRepository userRepository;
+    private readonly IDtoFactory dtoFactory;
+    private readonly IChatNotificationService chatNotificationService;
+
+    public UserReactedToMessageEventHandler(
+        IMessageRepository messagesRepository, 
+        IUserRepository userRepository,
+        IDtoFactory dtoFactory,
+        IChatNotificationService chatNotificationService)
+    {
+        this.messagesRepository = messagesRepository;
+        this.userRepository = userRepository;
+        this.dtoFactory = dtoFactory;
+        this.chatNotificationService = chatNotificationService;
+    }
+
+    public async Task Handle(UserReactedToMessage notification, CancellationToken cancellationToken)
+    {
+        var message = await messagesRepository.FindByIdAsync(notification.MessageId);
+
+        var reaction = message!.Reactions.Last();
+
+        var user = await userRepository.FindByIdAsync(reaction!.UserId);
+
+        var reactionDto = dtoFactory.CreateReactionDto(reaction, user!);
+
+        await chatNotificationService.NotifyReaction(
+            notification.ChannelId, message.Id, reactionDto, cancellationToken);
+    }
+}

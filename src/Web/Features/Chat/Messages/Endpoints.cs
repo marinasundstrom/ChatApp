@@ -56,6 +56,16 @@ public static class Endpoints
             .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound);
 
+        group.MapPost("/{id}/Reaction", React)
+            .WithName($"Messages_{nameof(React)}")
+            .Produces(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        group.MapDelete("/{id}/Reaction", RemoveReaction)
+            .WithName($"Messages_{nameof(RemoveReaction)}")
+            .Produces(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
   /*
         group.MapPut("/{id}/Description", UpdateDescription)
             .Produces(StatusCodes.Status200OK)
@@ -107,6 +117,18 @@ public static class Endpoints
     public static async Task<IResult> EditMessage(Guid id, [FromBody] string content, CancellationToken cancellationToken, IMediator mediator)
     {
         var result = await mediator.Send(new EditMessage(id, content), cancellationToken);
+        return HandleResult(result);
+    }
+
+    public static async Task<IResult> React(Guid id, [FromBody] string reaction, CancellationToken cancellationToken, IMediator mediator)
+    {
+        var result = await mediator.Send(new React(id, reaction), cancellationToken);
+        return HandleResult(result);
+    }
+
+    public static async Task<IResult> RemoveReaction(Guid id, [FromBody] string reaction, CancellationToken cancellationToken, IMediator mediator)
+    {
+        var result = await mediator.Send(new RemoveReaction(id, reaction), cancellationToken);
         return HandleResult(result);
     }
 

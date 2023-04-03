@@ -26,6 +26,8 @@ public sealed class Channel : AggregateRoot<ChannelId>, IAuditable
 
     public bool Rename(string newTitle) 
     {
+        var oldTitle = Title;
+
         if(newTitle == Title) 
             return false;
 
@@ -33,6 +35,8 @@ public sealed class Channel : AggregateRoot<ChannelId>, IAuditable
 
         // Todo: Emit Domain Event
 
+        AddDomainEvent(new ChannelRenamed(Id, newTitle, oldTitle))
+;
         return true;
     }
 
@@ -48,7 +52,7 @@ public sealed class Channel : AggregateRoot<ChannelId>, IAuditable
 
         _participants.Add(new ChannelParticipant(userId, DateTimeOffset.UtcNow));
 
-        // Todo: Emit Domain Event
+        AddDomainEvent(new ParticipantAddedToChannel(Id, userId));
 
         return true;
     }
@@ -60,9 +64,9 @@ public sealed class Channel : AggregateRoot<ChannelId>, IAuditable
         if(participant is null) return false;
 
         participant.Left = DateTimeOffset.UtcNow;
-        //_participants.Remove(participant);
+        _participants.Remove(participant);
 
-        // Todo: Emit Domain Event
+        AddDomainEvent(new ParticipantRemovedFromChannel(Id, userId));
 
         return true;
     }
@@ -88,7 +92,17 @@ public class ChannelParticipant
 
     public UserId UserId { get; set; }
 
+    public string? Nickname { get; set; }
+
     public DateTimeOffset Joined { get; set; }
 
     public DateTimeOffset? Left { get; set; }
+
+    public bool IsMuted { get; set; }
+
+    public DateTime? MutedUntil { get; set; }
+
+    public DateTimeOffset? Removed { get; set; }
+
+    public UserId? RemovedById { get; set; }
 }

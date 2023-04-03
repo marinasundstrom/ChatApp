@@ -9,7 +9,7 @@
 
 <MudLayout>
     <AppBar DrawerToggleCallback="DrawerToggle" />
-    <MudDrawer Open="_drawerOpen" OpenChanged="OpenChanged" ClipMode="DrawerClipMode.Always" DisableOverlay="_disableOverlay" Elevation="25"
+    <MudDrawer Open="_drawerOpen" OpenChanged="OpenChanged" ClipMode="DrawerClipMode.Docked" DisableOverlay="_disableOverlay" Elevation="25"
         Variant="DrawerVariant.Responsive">
         <NavMenu />
     </MudDrawer>
@@ -49,7 +49,7 @@
 
     bool _drawerOpen = false;
     ColorScheme? _currentColorScheme;
-    bool _disableOverlay = true;
+    bool _disableOverlay = false;
 
     protected override async Task OnInitializedAsync()
     {

@@ -4,19 +4,19 @@ using ChatApp.Domain;
 
 namespace ChatApp.Features.Chat.Messages;
 
-public sealed record EditMessage(Guid MessageId, string Content) : IRequest<Result>
+public sealed record React(Guid MessageId, string Reaction) : IRequest<Result>
 {
-    public sealed class Validator : AbstractValidator<EditMessage>
+    public sealed class Validator : AbstractValidator<React>
     {
         public Validator()
         {
             RuleFor(x => x.MessageId).NotEmpty();
 
-            RuleFor(x => x.Content).MaximumLength(1024);
+            RuleFor(x => x.Reaction).MaximumLength(1024);
         }
     }
 
-    public sealed class Handler : IRequestHandler<EditMessage, Result>
+    public sealed class Handler : IRequestHandler<React, Result>
     {
         private readonly IMessageRepository messageRepository;
         private readonly IUnitOfWork unitOfWork;
@@ -29,7 +29,7 @@ public sealed record EditMessage(Guid MessageId, string Content) : IRequest<Resu
             this.currentUserService = currentUserService;
         }
 
-        public async Task<Result> Handle(EditMessage request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(React request, CancellationToken cancellationToken)
         {
             var message = await messageRepository.FindByIdAsync(request.MessageId, cancellationToken);
 
@@ -38,14 +38,9 @@ public sealed record EditMessage(Guid MessageId, string Content) : IRequest<Resu
                 return Result.Failure(Errors.Messages.MessageNotFound);
             }
 
-            var userId = currentUserService.UserId;
+            var userId = currentUserService.UserId!;
 
-            if(message.CreatedById != userId) 
-            {
-                return Result.Failure(Errors.Messages.NotAllowedToEdit);
-            }
-
-            message.UpdateContent(request.Content);
+            message.React(userId, request.Reaction);
             
             await unitOfWork.SaveChangesAsync(cancellationToken);
 

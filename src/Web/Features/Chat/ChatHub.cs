@@ -79,4 +79,8 @@ public interface IChatHubClient
     Task MessageEdited(Guid channelId, MessageEditedData data);
 
     Task MessageDeleted(Guid channelId, MessageDeletedData data);
+
+    Task Reaction(Guid channelId, Guid messageId, ReactionDto reaction);
+
+    Task ReactionRemoved(Guid channelId, Guid messageId, string reaction);
 }

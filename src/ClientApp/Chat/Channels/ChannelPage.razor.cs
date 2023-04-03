@@ -18,6 +18,8 @@ namespace ChatApp.Chat.Channels
 
         List<MessageViewModel> messagesCache = new List<MessageViewModel>();
         List<MessageViewModel> loadedMessages = new List<MessageViewModel>();
+
+        bool loaded = false;
        
         [Parameter]
         public string? Id { get; set; }
@@ -57,6 +59,8 @@ namespace ChatApp.Chat.Channels
 
             await LoadMessages();
 
+            loaded = true;
+
             StateHasChanged();
 
             await JSRuntime.InvokeVoidAsyncIgnoreErrors("helpers.scrollToBottom");
@@ -79,7 +83,8 @@ namespace ChatApp.Chat.Channels
                 hubConnection.On<ChatApp.Message>("MessagePosted", OnMessagePosted);
                 hubConnection.On<string>("MessagePostedConfirmed", OnMessagePostedConfirmed);
                 hubConnection.On<Guid, MessageEditedData>("MessageEdited", OnMessageEdited);
-                hubConnection.On<Guid, MessageDeletedData>("MessageDeleted", OnMessageDeleted);
+                hubConnection.On<Guid, Guid, Reaction>("Reaction", OnReaction);
+                hubConnection.On<Guid, Guid, string>("ReactionRemoved", OnReactionRemoved);
 
                 hubConnection.Closed += (error) =>
                 {
@@ -147,6 +152,30 @@ namespace ChatApp.Chat.Channels
             StateHasChanged();
         }
 
+        private void OnReaction(Guid channelId, Guid messageId, Reaction reaction) 
+        {
+            var messageVm = loadedMessages.FirstOrDefault(x => x.Id == messageId);
+
+            if(messageVm is null) return;
+
+            Console.WriteLine(reaction.Content);
+
+            messageVm.Reactions.Add(reaction);
+
+            StateHasChanged();
+        }
+        
+        private void OnReactionRemoved(Guid channelId, Guid messageId, string reaction) 
+        {
+            var messageVm = loadedMessages.FirstOrDefault(x => x.Id == messageId);
+            
+            if(messageVm is null) return;
+
+            //messageVm.Reactions.Add(reaction);
+
+            StateHasChanged();
+        }
+
         private void AddOrUpdateMessage(ChatApp.Message message)
         {
             var messageVm = loadedMessages.FirstOrDefault(x => x.Id == message.Id);
@@ -163,9 +192,11 @@ namespace ChatApp.Chat.Channels
                 messageVm.DeletedByName = message.DeletedBy?.Name;
                 messageVm.IsFromCurrentUser = message.PublishedBy.Id == currentUserId;
 
+                messageVm.Reactions = message.Reactions.ToList();
+
                 // This is a new incoming message:
 
-                if(message.PublishedBy.Id != currentUserId) 
+                if (message.PublishedBy.Id != currentUserId) 
                 {
                     messageVm.Id = message.Id;
                     messageVm.PostedById = message.PublishedBy.Id;
@@ -195,7 +226,8 @@ namespace ChatApp.Chat.Channels
                 Deleted = message.Deleted,
                 DeletedById = message.DeletedBy?.Id,
                 DeletedByName = message.DeletedBy?.Name,
-                Confirmed = true
+                Confirmed = true,
+                Reactions = message.Reactions.ToList()
             };
 
             loadedMessages.Add(messageVm);
@@ -344,6 +376,10 @@ namespace ChatApp.Chat.Channels
             public bool IsFromCurrentUser { get; set; } = default !;
             public bool Confirmed { get; set; }
 
+            public bool IsReactionsVisible { get; set; } = false;
+
+            public List<Reaction> Reactions { get; set; } = new List<Reaction>();
+
             public int CompareTo(MessageViewModel? other)
             {
                 if(other is null) return 1;
@@ -441,17 +477,24 @@ namespace ChatApp.Chat.Channels
             Text = string.Empty;
         }
 
-        void ReplyToMessage(MessageViewModel messageVm) 
+        async Task ReplyToMessage(MessageViewModel messageVm) 
         {
             editingMessageId = null;
             replyToMessage = messageVm;
             Text = string.Empty;
+
+            await JSRuntime.InvokeVoidAsyncIgnoreErrors("helpers.scrollToBottom");
         }
 
         void AbortReplyToMessage() 
         {
             replyToMessage = null;
             Text = string.Empty;
+        }
+
+        async Task React(MessageViewModel messageVm, string reaction)
+        {
+            await MessagesClient.ReactAsync(messageVm.Id, reaction);
         }
 
         private bool IsFirst(MessageViewModel currentMessage)

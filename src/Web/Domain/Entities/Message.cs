@@ -4,6 +4,8 @@ namespace ChatApp.Domain.Entities;
 
 public sealed class Message : AggregateRoot<MessageId>, IAuditable, ISoftDelete
 {
+    private HashSet<MessageReaction> _reactions = new HashSet<MessageReaction>();
+
     private Message() : base(new MessageId())
     {
     }
@@ -44,7 +46,37 @@ public sealed class Message : AggregateRoot<MessageId>, IAuditable, ISoftDelete
         return true;
     }
 
-    public void DeleteMarkForDeletion()
+    public IReadOnlyCollection<MessageReaction> Reactions => _reactions;
+
+    public bool React(UserId userId, string reaction) 
+    {
+        var r = Reactions.FirstOrDefault(x => x.UserId == userId && x.Reaction == reaction);
+
+        if(r is not null)
+            return false;
+
+        _reactions.Add(new MessageReaction(userId, reaction));
+
+        AddDomainEvent(new UserReactedToMessage(ChannelId, Id, userId, reaction));
+
+        return true;
+    }
+
+    public bool RemoveReaction(UserId userId, string reaction) 
+    {
+        var r = Reactions.FirstOrDefault(x => x.UserId == userId && x.Reaction == reaction);
+
+        if(r is null)
+            return false;
+            
+        _reactions.Remove(r);
+
+        AddDomainEvent(new UserReactedToMessage(ChannelId, Id, userId, reaction));
+
+        return true;
+    }
+
+    public void MarkAsDeleted()
     {
         UpdateContent(string.Empty);
 
@@ -63,4 +95,18 @@ public sealed class Message : AggregateRoot<MessageId>, IAuditable, ISoftDelete
 
     public UserId? DeletedById { get; set; }
     public DateTimeOffset? Deleted { get; set; }
+}
+
+public class MessageReaction
+{
+    public MessageReaction(UserId userId, string reaction)
+    {
+        UserId = userId;
+        Reaction = reaction;
+        Date = DateTime.UtcNow;
+    }
+
+    public UserId UserId { get; private set; }
+    public string Reaction { get; private set; }
+    public DateTime Date { get; private set; }
 }

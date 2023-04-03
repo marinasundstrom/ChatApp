@@ -191,8 +191,105 @@
     border-left-color: #005fbb;
 }
 
-.dark .bottom {
-    background-color: #373741;
-    border-top: solid #363636 1px;
+.test {
+    background-color: #ffffff;
+    border: 1px solid #f2f2f2;
     box-shadow: 0 5px 5px -3px rgba(0,0,0,.06), 0 8px 10px 1px rgba(0,0,0,.042), 0 3px 14px 2px rgba(0,0,0,.036);
 }
+
+.test .mud-input.mud-input-filled.mud-input-underline:before {
+    all: initial;
+}
+
+.test .mud-input-slot.mud-input-root-filled {
+    margin-top: 10px !important;
+}
+
+.test .mud-input>textarea.mud-input-root {
+    color: black !important;
+}
+
+.dark .test {
+    background-color: #525261;
+    border-top: solid #363636 1px;
+}
+
+.dark .test .mud-input>textarea.mud-input-root {
+    color: white !important;
+}
+
+.test .mud-input.mud-input-outlined .mud-input-outlined-border {
+    border: 0;
+}
+
+.dark .test .mud-input.mud-input-filled {
+
+}
+
+.reply-bubble {
+    box-shadow: 0 5px 5px -3px rgba(0,0,0,.06), 0 8px 10px 1px rgba(0,0,0,.042), 0 3px 14px 2px rgba(0,0,0,.036);
+}
+
+.reactions-pane {
+    display: flex !important;
+    gap: 4px;
+}
+
+.message-right .reactions-pane {
+    justify-content: flex-end !important
+}
+
+.reactions-pane .reaction {
+    font-size: 21px; 
+    width: 30px;
+    height: 30px;
+    text-align: center; 
+    background-color: white; 
+    border-radius: 25px;
+
+    box-shadow: 5px 5px 15px #dee3e5;
+
+}
+
+.dark .reactions-pane .reaction {
+    background-color: #7e7e8a;
+    box-shadow: 5px 5px 15px #2b2b2b !important;
+}
+
+.reactions-pane .reaction.reaction-with-count {
+    width: auto;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.reactions-pane .reaction span {
+    line-height: 0;
+}
+
+.reactions-pane .reaction .reaction-count {
+    font-size: .875rem;
+    margin: 5px;
+    margin-bottom: 5px;
+}
+
+.dark .message .bubble.deleted {
+    color: white !important;
+    background-color: #525261 !important;
+    border: 0;
+}
+
+.bounce-in {
+    animation: bounce-in 1s ease;
+  }
+  @keyframes bounce-in {
+    0% {
+      opacity: 0;
+      transform: scale(.3);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+    70% { transform: scale(.9); }
+    100% { transform: scale(1); }
+  }

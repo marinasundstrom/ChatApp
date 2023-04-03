@@ -73,6 +73,11 @@ public sealed class DtoComposer : IDtoComposer
         {
             userIds.Add(message.DeletedById.GetValueOrDefault());
         }
+
+        foreach(var reaction in message.Reactions) 
+        {
+            userIds.Add(reaction.UserId);
+        }
     }
 
     public async Task<IEnumerable<MessageDto>> ComposeMessageDtos(Message[] messages, CancellationToken cancellationToken = default)
@@ -132,6 +137,8 @@ public sealed class DtoComposer : IDtoComposer
             replyMessageDto = dtoFactory.CreateReplyMessageDto(replyMessage, replyMessagePublishedBy!, replyMessageEditedBy, replyMessageDeletedBy);
         }
 
-        return dtoFactory.CreateMessageDto(message, publishedBy!, editedBy, deletedBy, replyMessageDto);
+        var reactions = message.Reactions.Select(x => dtoFactory.CreateReactionDto(x, users[x.UserId]));
+
+        return dtoFactory.CreateMessageDto(message, publishedBy!, editedBy, deletedBy, replyMessageDto, reactions);
     }
 }

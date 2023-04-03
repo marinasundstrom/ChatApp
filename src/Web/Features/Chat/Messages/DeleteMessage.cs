@@ -48,7 +48,7 @@ public sealed record DeleteMessage(Guid MessageId) : IRequest<Result>
                 return Result.Failure(Errors.Messages.NotAllowedToDelete);
             }
 
-            message.DeleteMarkForDeletion();
+            message.MarkAsDeleted();
 
             messageRepository.Remove(message);
 
