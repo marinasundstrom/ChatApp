@@ -159,8 +159,6 @@ namespace ChatApp.Chat.Channels
 
             if(messageVm is null) return;
 
-            Console.WriteLine(reaction.Content);
-
             messageVm.Reactions.Add(reaction);
 
             StateHasChanged();

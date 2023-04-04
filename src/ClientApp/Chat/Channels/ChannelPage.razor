@@ -136,7 +136,7 @@
                             <ul>
                             @foreach (var reaction in reactionGroup)
                             {
-                                <li>@reaction.User.Name</li>
+                                <li>@((reaction.User.Id == currentUserId) ? T["Me"] : reaction.User.Name)</li>
                             }
                             </ul>
                         </TooltipContent>
