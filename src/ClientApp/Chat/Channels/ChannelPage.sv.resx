@@ -15,6 +15,9 @@
 	<data name="Message" xml:space="preserve">
 		<value>Meddelande</value>
 	</data>
+	<data name="WriteMessage" xml:space="preserve">
+		<value>Skriv ditt meddelande</value>
+	</data>
 	<data name="Send" xml:space="preserve">
 		<value>Skicka</value>
 	</data>

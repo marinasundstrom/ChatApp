@@ -83,6 +83,7 @@ namespace ChatApp.Chat.Channels
                 hubConnection.On<ChatApp.Message>("MessagePosted", OnMessagePosted);
                 hubConnection.On<string>("MessagePostedConfirmed", OnMessagePostedConfirmed);
                 hubConnection.On<Guid, MessageEditedData>("MessageEdited", OnMessageEdited);
+                hubConnection.On<Guid, MessageDeletedData>("MessageDeleted", OnMessageDeleted);
                 hubConnection.On<Guid, Guid, Reaction>("Reaction", OnReaction);
                 hubConnection.On<Guid, Guid, string>("ReactionRemoved", OnReactionRemoved);
 

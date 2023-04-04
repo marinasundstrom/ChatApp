@@ -76,6 +76,11 @@ public sealed class Message : AggregateRoot<MessageId>, IAuditable, ISoftDelete
         return true;
     }
 
+    public void RemoveAllReactions() 
+    {
+        _reactions.Clear();
+    }
+
     public void MarkAsDeleted()
     {
         UpdateContent(string.Empty);

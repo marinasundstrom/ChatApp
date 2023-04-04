@@ -48,6 +48,8 @@ public sealed record DeleteMessage(Guid MessageId) : IRequest<Result>
                 return Result.Failure(Errors.Messages.NotAllowedToDelete);
             }
 
+            message.RemoveAllReactions();
+
             message.MarkAsDeleted();
 
             messageRepository.Remove(message);

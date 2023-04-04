@@ -115,21 +115,35 @@
             }
             </Bubble>
 
-            <div class="reactions-pane" style="position: relative; bottom: 8px; right: 0;">
-            @foreach (var reactionGroup in message.Reactions.GroupBy(x => x.Content))
+            @if (message.Deleted is null)
             {
-                var r = reactionGroup.First();
+                <div class="reactions-pane" style="position: relative; bottom: 8px; right: 0;">
+                @foreach (var reactionGroup in message.Reactions.GroupBy(x => x.Content))
+                {
+                    var r = reactionGroup.First();
 
-                if(reactionGroup.Count() > 1) 
-                {
-                    <div class="reaction reaction-with-count bounce-in"><span>@r.Content </span><span class="reaction-count"> @reactionGroup.Count()</span></div>
+                    <MudTooltip ShowOnClick="true" ShowOnFocus="false" ShowOnHover="true" Arrow="true">
+                        <ChildContent>
+                            @if(reactionGroup.Count() > 1) 
+                            {
+                                <div class="reaction reaction-with-count bounce-in grow"><span>@r.Content </span><span class="reaction-count"> @reactionGroup.Count()</span></div>
+                            }
+                            else 
+                            {
+                                <div class="reaction bounce-in grow"><span>@r.Content</span></div>
+                            }                    </ChildContent>
+                        <TooltipContent>
+                            <ul>
+                            @foreach (var reaction in reactionGroup)
+                            {
+                                <li>@reaction.User.Name</li>
+                            }
+                            </ul>
+                        </TooltipContent>
+                    </MudTooltip>
                 }
-                else 
-                {
-                    <div class="reaction bounce-in"><span>@r.Content</span></div>
-                }
+                </div>
             }
-            </div>
         </ChildContent>
         
         <FooterTemplate>
@@ -252,7 +266,7 @@
 
                      <div class="d-flex flex-grow-1 gap-3">
                         <div class="flex-auto d-flex" style="width: 100%">
-                            <MudTextField @bind-Value="Text" For="() => Text" aria-label="@T["Message"]" Variant="Variant.Outlined" Class="rounded-lg test" Lines="2" Placeholder="Write here"></MudTextField>
+                            <MudTextField @bind-Value="Text" For="() => Text" aria-label="@T["Message"]" Variant="Variant.Outlined" Class="rounded-lg test" Lines="2" Placeholder="@T["WriteMessage"]"></MudTextField>
                         </div>
                         <div class="flex-auto d-flex" style="width: 81px">
                             <MudIconButton ButtonType="ButtonType.Submit" aria-label="@T["Send"]" Variant="Variant.Filled" Color="Color.Primary" Icon="@Icons.Material.Filled.Send" Class="mt-2" Style="border-radius: 50%; padding: 15px; height: 70px; width: 70px;" />

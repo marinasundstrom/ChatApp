@@ -240,20 +240,24 @@
 }
 
 .reactions-pane .reaction {
-    font-size: 21px; 
-    width: 30px;
-    height: 30px;
+    width: 25px;
+    height: 25px;
     text-align: center; 
     background-color: white; 
     border-radius: 25px;
-
+    border: 1px solid #e5e5e5;
     box-shadow: 5px 5px 15px #dee3e5;
+    cursor: pointer;
 
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .dark .reactions-pane .reaction {
     background-color: #7e7e8a;
     box-shadow: 5px 5px 15px #2b2b2b !important;
+    border: 1px solid #363333;
 }
 
 .reactions-pane .reaction.reaction-with-count {
@@ -262,14 +266,9 @@
     padding-right: 5px;
 }
 
-.reactions-pane .reaction span {
-    line-height: 0;
-}
-
 .reactions-pane .reaction .reaction-count {
     font-size: .875rem;
     margin: 5px;
-    margin-bottom: 5px;
 }
 
 .dark .message .bubble.deleted {
@@ -293,3 +292,47 @@
     70% { transform: scale(.9); }
     100% { transform: scale(1); }
   }
+
+.pulse {
+	transform: scale(1);
+	animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+	0% {
+		transform: scale(0.95);
+		box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+	}
+
+	70% {
+		transform: scale(1);
+		box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+	}
+
+	100% {
+		transform: scale(0.95);
+		box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+	}
+}
+
+.grow {
+	transition: all 0.2s ease-in-out;
+}
+
+.grow:hover { 
+    transform: scale(1.3);
+    font-size: 13px !important;
+}
+
+@keyframes grow {
+	0% {
+		transform: scale(1);
+		box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+	}
+
+	100% {
+		transform: scale(1.3);
+		box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);     
+        font-size: 13px !important;
+	}
+}

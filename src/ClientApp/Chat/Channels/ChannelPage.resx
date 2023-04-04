@@ -15,6 +15,9 @@
   <data name="Message" xml:space="preserve">
     <value>Message</value>
   </data>
+  <data name="WriteMessage" xml:space="preserve">
+		<value>Write your message</value>
+	</data>
   <data name="Send" xml:space="preserve">
     <value>Send</value>
   </data>
