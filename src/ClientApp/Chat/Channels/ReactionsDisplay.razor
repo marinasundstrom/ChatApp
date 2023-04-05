@@ -1,0 +1,41 @@
+@inject IStringLocalizer<ChannelPage> T
+
+<div class="reactions-pane" style="position: relative; bottom: 8px; right: 0;">
+    @foreach (var reactionGroup in Message.Reactions.GroupBy(x => x.Content))
+    {
+        var r = reactionGroup.First();
+
+        <MudTooltip ShowOnClick="true" ShowOnFocus="false" ShowOnHover="true" Arrow="true">
+            <ChildContent>
+                @if (reactionGroup.Count() > 1)
+                {
+                    <div class="reaction reaction-with-count bounce-in grow"><span>@r.Content </span><span
+                            class="reaction-count"> @reactionGroup.Count()</span></div>
+                }
+                else
+                {
+                    <div class="reaction bounce-in grow"><span>@r.Content</span></div>
+                }
+            </ChildContent>
+            <TooltipContent>
+                <ul>
+                    @foreach (var reaction in reactionGroup)
+                    {
+                        <li>@((reaction.User.Id == CurrentUserId) ? T["Me"] : reaction.User.Name)</li>
+                    }
+                </ul>
+            </TooltipContent>
+        </MudTooltip>
+    }
+</div>
+
+@code 
+{
+    [Parameter]
+    [EditorRequired]
+    public MessageViewModel Message { get; set;} = default!;
+
+    [Parameter]
+    [EditorRequired]
+    public string CurrentUserId { get; set;} = default!;
+}

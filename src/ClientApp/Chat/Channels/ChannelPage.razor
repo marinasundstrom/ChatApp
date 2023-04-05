@@ -39,20 +39,18 @@
              <Bubble Class="@(message.Deleted is not null ? "deleted" : string.Empty)">
                 @if (message.Deleted is not null)
                 {
-                    <p>@if(message.DeletedById != message.PostedById) 
+                    <p class="me-2">
+                        <MudTooltip Text="@($"{T["DeletedByAt", message.Deleted.Humanize()!, message.DeletedByName!]}")">
+                            <MudIcon Icon="@Icons.Filled.Delete" Size="Size.Small" Class="me-1" Style="height: 0.8em; top: 3px; position: relative;" />
+                        </MudTooltip>
+
+                        @if(message.DeletedById != message.PostedById) 
                         { 
                             <text>@($"{T["DeletedBy", message.DeletedByName!]}")</text> 
                         }
                         else 
                         {
                             <text>@($"{T["Deleted"]}")</text> 
-                        }
-
-                        @if (message.Deleted is not null)
-                        {
-                            <MudTooltip Text="@($"{T["DeletedByAt", message.Deleted.Humanize()!, message.DeletedByName!]}")">
-                                <MudIcon Icon="@Icons.Filled.Delete" Size="Size.Small" Style="height: 0.8em; top: 3px; position: relative;" />
-                            </MudTooltip>
                         }
                     </p>
                 }
@@ -64,20 +62,18 @@
 
                         @if (message.ReplyTo.Deleted is not null)
                         {
-                            <p>@if(message.ReplyTo.DeletedById != message.ReplyTo.PostedById) 
+                            <p class="me-2">
+                                <MudTooltip Text="@($"{T["DeletedByAt", message.ReplyTo.Deleted.Humanize()!, message.ReplyTo.DeletedByName!]}")">
+                                    <MudIcon Icon="@Icons.Filled.Delete" Size="Size.Small" Class="me-1" Style="height: 0.8em; top: 3px; position: relative;" />
+                                </MudTooltip>
+
+                                @if(message.ReplyTo.DeletedById != message.ReplyTo.PostedById) 
                                 { 
                                     <text>@($"{T["DeletedBy", message.ReplyTo.DeletedByName!]}")</text> 
                                 }
                                 else 
                                 {
                                     <text>@($"{T["Deleted"]}")</text> 
-                                }
-
-                                @if (message.ReplyTo.Deleted is not null)
-                                {
-                                    <MudTooltip Text="@($"{T["DeletedByAt", message.ReplyTo.Deleted.Humanize()!, message.ReplyTo.DeletedByName!]}")">
-                                        <MudIcon Icon="@Icons.Filled.Delete" Size="Size.Small" Style="height: 0.8em; top: 3px; position: relative;" />
-                                    </MudTooltip>
                                 }
                             </p>
                         }
@@ -117,63 +113,14 @@
 
             @if (message.Deleted is null)
             {
-                <div class="reactions-pane" style="position: relative; bottom: 8px; right: 0;">
-                @foreach (var reactionGroup in message.Reactions.GroupBy(x => x.Content))
-                {
-                    var r = reactionGroup.First();
-
-                    <MudTooltip ShowOnClick="true" ShowOnFocus="false" ShowOnHover="true" Arrow="true">
-                        <ChildContent>
-                            @if(reactionGroup.Count() > 1) 
-                            {
-                                <div class="reaction reaction-with-count bounce-in grow"><span>@r.Content </span><span class="reaction-count"> @reactionGroup.Count()</span></div>
-                            }
-                            else 
-                            {
-                                <div class="reaction bounce-in grow"><span>@r.Content</span></div>
-                            }                    </ChildContent>
-                        <TooltipContent>
-                            <ul>
-                            @foreach (var reaction in reactionGroup)
-                            {
-                                <li>@((reaction.User.Id == currentUserId) ? T["Me"] : reaction.User.Name)</li>
-                            }
-                            </ul>
-                        </TooltipContent>
-                    </MudTooltip>
-                }
-                </div>
+                <ReactionsDisplay Message="@message" CurrentUserId="@currentUserId" />
             }
         </ChildContent>
         
         <FooterTemplate>
             @if(last) 
             {
-                <div>
-                    <TimeView Context="now">
-                    @{
-                        var published = message.Published;
-                        var timeSince = now - published;
-                    }
-                    @if (timeSince.TotalMinutes < 30)
-                    {
-                        <small class="time">
-                            @if (timeSince.TotalMinutes >= 1)
-                            {
-                                <text>@T["TimeDisplay", timeSince.Humanize(minUnit: Humanizer.Localisation.TimeUnit.Minute)]</text>
-                            }
-                            else
-                            {
-                                <text>@T["Now"]</text>
-                            }
-                        </small>
-                    }
-                    else 
-                    {
-                        <small>@published.ToString("HH:mm")</small>
-                    }
-                    </TimeView>
-                </div>
+                <TimeDisplay Message="@message" />
             }
         </FooterTemplate>
 

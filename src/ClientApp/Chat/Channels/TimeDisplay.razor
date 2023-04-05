@@ -1,0 +1,35 @@
+@inject IStringLocalizer<ChannelPage> T
+@using ChatApp.Chat.Messages
+
+<div>
+    <TimeView Context="now">
+        @{
+            var published = Message.Published;
+            var timeSince = now - published;
+        }
+        @if (timeSince.TotalMinutes < 30)
+        {
+            <small class="time">
+                @if (timeSince.TotalMinutes >= 1)
+                {
+                    <text>@T["TimeDisplay", timeSince.Humanize(minUnit: Humanizer.Localisation.TimeUnit.Minute)]</text>
+                }
+                else
+                {
+                    <text>@T["Now"]</text>
+                }
+            </small>
+        }
+        else
+        {
+            <small>@published.ToString("HH:mm")</small>
+        }
+    </TimeView>
+</div>
+
+@code 
+{
+    [Parameter]
+    [EditorRequired]
+    public MessageViewModel Message { get; set;} = default!;
+}
