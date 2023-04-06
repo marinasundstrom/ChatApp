@@ -134,10 +134,12 @@
                         <MudIconButton Icon="@Icons.Filled.InsertEmoticon" Style="margin-top: -5px; padding: 10px;" Size="Size.Medium" />
                     </ChildContent>
                     <TooltipContent>
-                        <div class="d-flex gap-3 ma-2" @onclick="() => { message.IsReactionsVisible = false; }">
+                        <div class="d-flex gap-3 gap-3 mt-2 mb-1" @onclick="() => { message.IsReactionsVisible = false; }">
                             @foreach(var emoji in reactionEmojis)
                             {
-                                <span style="font-size: 21px; cursor: pointer;" @onclick="async () => await React(message, emoji)">@emoji</span>
+                                <div style="z-index: 99999;" class="grow2" >
+                                    <span style="font-size: 21px; cursor: pointer;" @onclick="async () => await React(message, emoji)">@emoji</span>
+                                </div>
                             }
                         </div>
                     </TooltipContent>
@@ -224,3 +226,13 @@
 }
 </div>
 
+<style>
+.grow2 {
+	transition: all 0.2s ease-in-out;
+}
+
+.grow2:hover { 
+    transform: scale(2.3);
+    font-size: 13px !important;
+}
+</style>
