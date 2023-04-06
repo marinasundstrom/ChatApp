@@ -1,4 +1,5 @@
 @inject IStringLocalizer<ChannelPage> T
+@inject IMessagesClient MessagesClient
 
 <div class="reactions-pane" style="position: relative; bottom: 8px; right: 0;">
     @foreach (var reactionGroup in Message.Reactions.GroupBy(x => x.Content))
@@ -7,15 +8,17 @@
 
         <MudTooltip ShowOnClick="true" ShowOnFocus="false" ShowOnHover="true" Arrow="true">
             <ChildContent>
-                @if (reactionGroup.Count() > 1)
-                {
-                    <div class="reaction reaction-with-count bounce-in grow"><span>@r.Content </span><span
-                            class="reaction-count"> @reactionGroup.Count()</span></div>
-                }
-                else
-                {
-                    <div class="reaction bounce-in grow"><span>@r.Content</span></div>
-                }
+                <div @key="@reactionGroup.Key">
+                    @if (reactionGroup.Count() > 1)
+                    {
+                        <div class="reaction reaction-with-count bounce-in grow" @onclick="async () => await OnReactionClicked(reactionGroup)"><span>@r.Content </span><span
+                                class="reaction-count"> @reactionGroup.Count()</span></div>
+                    }
+                    else
+                    {
+                        <div class="reaction bounce-in grow" @onclick="async () => await OnReactionClicked(reactionGroup)"><span>@r.Content</span></div>
+                    }                   
+                </div>
             </ChildContent>
             <TooltipContent>
                 <ul>
@@ -38,4 +41,16 @@
     [Parameter]
     [EditorRequired]
     public string CurrentUserId { get; set;} = default!;
+
+    public async Task OnReactionClicked(IGrouping<string, Reaction> reactions) 
+    {
+        if(!reactions.Any(x => x.User.Id == CurrentUserId)) 
+        {
+             await MessagesClient.ReactAsync(Message.Id, reactions.Key);
+
+             return;
+        };
+
+        await MessagesClient.RemoveReactionAsync(Message.Id, reactions.Key);
+    }
 }

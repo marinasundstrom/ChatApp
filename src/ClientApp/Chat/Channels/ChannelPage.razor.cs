@@ -170,7 +170,11 @@ namespace ChatApp.Chat.Channels
             
             if(messageVm is null) return;
 
-            //messageVm.Reactions.Add(reaction);
+            var reaction2 = messageVm.Reactions.FirstOrDefault(x => x.Content == reaction && x.User.Id == currentUserId);
+
+            if(reaction2 is null) return;
+
+            messageVm.Reactions.Remove(reaction2);
 
             StateHasChanged();
         }

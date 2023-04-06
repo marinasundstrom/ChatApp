@@ -71,7 +71,7 @@ public sealed class Message : AggregateRoot<MessageId>, IAuditable, ISoftDelete
             
         _reactions.Remove(r);
 
-        AddDomainEvent(new UserReactedToMessage(ChannelId, Id, userId, reaction));
+        AddDomainEvent(new UserRemovedReactionFromMessage(ChannelId, Id, userId, r.Reaction));
 
         return true;
     }
