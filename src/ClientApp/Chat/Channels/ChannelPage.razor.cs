@@ -85,7 +85,7 @@ namespace ChatApp.Chat.Channels
                 hubConnection.On<Guid, MessageEditedData>("MessageEdited", OnMessageEdited);
                 hubConnection.On<Guid, MessageDeletedData>("MessageDeleted", OnMessageDeleted);
                 hubConnection.On<Guid, Guid, Reaction>("Reaction", OnReaction);
-                hubConnection.On<Guid, Guid, string>("ReactionRemoved", OnReactionRemoved);
+                hubConnection.On<Guid, Guid, string, string>("ReactionRemoved", OnReactionRemoved);
 
                 hubConnection.Closed += (error) =>
                 {
@@ -164,13 +164,14 @@ namespace ChatApp.Chat.Channels
             StateHasChanged();
         }
         
-        private void OnReactionRemoved(Guid channelId, Guid messageId, string reaction) 
+        private void OnReactionRemoved(Guid channelId, Guid messageId, string reaction, string userId) 
         {
             var messageVm = loadedMessages.FirstOrDefault(x => x.Id == messageId);
             
             if(messageVm is null) return;
 
-            var reaction2 = messageVm.Reactions.FirstOrDefault(x => x.Content == reaction && x.User.Id == currentUserId);
+            // TODO: Pass the person removing the reaction
+            var reaction2 = messageVm.Reactions.FirstOrDefault(x => x.Content == reaction && x.User.Id == userId);
 
             if(reaction2 is null) return;
 

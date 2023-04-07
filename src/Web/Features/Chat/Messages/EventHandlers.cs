@@ -161,6 +161,6 @@ public sealed class UserRemovedReactionFromMessageEventHandler : IDomainEventHan
         var reaction2 = notification.Reaction;
 
         await chatNotificationService.NotifyReactionRemoved(
-            notification.ChannelId, notification.MessageId, reaction2, cancellationToken);
+            notification.ChannelId, notification.MessageId, reaction2, notification.CurrentUserId.ToString()!, cancellationToken);
     }
 }

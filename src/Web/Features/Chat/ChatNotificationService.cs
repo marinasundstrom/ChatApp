@@ -13,7 +13,7 @@ public interface IChatNotificationService
     Task NotifyMessageDeleted(Guid channelId, MessageDeletedData data, CancellationToken cancellationToken = default);
 
     Task NotifyReaction(Guid channelId, Guid messageId, ReactionDto reaction, CancellationToken cancellationToken = default);
-    Task NotifyReactionRemoved(Guid channelId, Guid messageId, string reaction, CancellationToken cancellationToken = default);
+    Task NotifyReactionRemoved(Guid channelId, Guid messageId, string reaction, string userId, CancellationToken cancellationToken = default);
 }
 
 public record MessageEditedData(Guid Id, DateTimeOffset LastEdited, UserData LastEditedBy, string Content);
@@ -73,10 +73,10 @@ public class ChatNotificationService : IChatNotificationService
             .Reaction(channelId, messageId, reaction);
     }
 
-    public async Task NotifyReactionRemoved(Guid channelId, Guid messageId, string reaction, CancellationToken cancellationToken = default)
+    public async Task NotifyReactionRemoved(Guid channelId, Guid messageId, string reaction, string userId, CancellationToken cancellationToken = default)
     {
         await hubsContext.Clients
             .Group($"channel-{channelId}")
-            .ReactionRemoved(channelId, messageId, reaction);
+            .ReactionRemoved(channelId, messageId, reaction, userId);
     }
 }

@@ -82,5 +82,5 @@ public interface IChatHubClient
 
     Task Reaction(Guid channelId, Guid messageId, ReactionDto reaction);
 
-    Task ReactionRemoved(Guid channelId, Guid messageId, string reaction);
+    Task ReactionRemoved(Guid channelId, Guid messageId, string reaction, string userId);
 }
