@@ -7,6 +7,7 @@
 @inject Services.IAccessTokenProvider AccessTokenProvider
 @inject Services.ICurrentUserService CurrentUserService
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
 @inject IMessagesClient MessagesClient
 @inject IUsersClient UsersClient
 @inject IJSRuntime JSRuntime
@@ -14,6 +15,7 @@
 @using ChatApp.Chat.Messages
 @using Microsoft.AspNetCore.Authorization;
 @using System.ComponentModel.DataAnnotations
+@using MudEmojiPicker.Shared
 
 <div class="@(isDarkMode ? "dark" : null)">
 
@@ -127,7 +129,7 @@
         <ActionsTemplate>
             @if (message.Deleted is null)
             {
-                string[] reactionEmojis = { "👍", "👎", "🙏", "❤️", "😊", "😂", "🤣", "🙁", "😕", "😢", "😡" };
+                string[] reactionEmojis = { "👍", "👎", "🙏", "❤️", "😊", "😂", "🤣", "🙁", "😢", "😡" };
 
                 <MudTooltip @bind-IsVisible="message.IsReactionsVisible" ShowOnClick="true" ShowOnFocus="false" ShowOnHover="false" Arrow="true">
                     <ChildContent>
@@ -141,6 +143,7 @@
                                     <span style="font-size: 21px; cursor: pointer;" @onclick="async () => await React(message, emoji)">@emoji</span>
                                 </div>
                             }
+                            <MudIconButton Color="Color.Primary" Icon="@Icons.Filled.InsertEmoticon" OnClick="async () => await InsertReaction(message)" Size="Size.Small" />
                         </div>
                     </TooltipContent>
                 </MudTooltip>
@@ -215,6 +218,7 @@
 
                      <div class="d-flex flex-grow-1 gap-3">
                         <div class="flex-auto d-flex" style="width: 100%">
+                            <MudIconButton Icon="@Icons.Filled.InsertEmoticon" OnClick="InsertEmoticon" Style="margin-top: -5px; padding: 10px;" Size="Size.Medium" />
                             <MudTextField @bind-Value="Text" For="() => Text" aria-label="@T["Message"]" Variant="Variant.Outlined" Class="rounded-lg test" Lines="2" Placeholder="@T["WriteMessage"]"></MudTextField>
                         </div>
                         <div class="flex-auto d-flex" style="width: 81px">
@@ -236,3 +240,30 @@
     font-size: 13px !important;
 }
 </style>
+
+@code 
+{
+    async Task InsertEmoticon() 
+    {
+        var dialogRef = await DialogService.ShowAsync<MudEmojiInput>("Emoji Picker");
+        var result = await dialogRef.Result;
+
+        if(result.Canceled) return;
+
+        var str = (string)result.Data;
+
+        Text += str;
+    }
+
+    async Task InsertReaction(MessageViewModel message) 
+    {
+        var dialogRef = await DialogService.ShowAsync<MudEmojiInput>("Emoji Picker");
+        var result = await dialogRef.Result;
+
+        if(result.Canceled) return;
+
+        var emoji = (string)result.Data;
+
+        await React(message, emoji);
+    }
+}

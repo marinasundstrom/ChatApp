@@ -38,6 +38,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityService", "other\Id
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "other", "other", "{681B7E4D-8679-4B27-A52A-D67D179CBD69}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MudEmojiPicker", "src\MudEmojiPicker\MudEmojiPicker.csproj", "{487E9225-0ACB-4BCC-A616-FB0A9220E84F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -96,6 +98,10 @@ Global
 		{855EC777-26EF-451D-8B9D-3220250BDA26}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{855EC777-26EF-451D-8B9D-3220250BDA26}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{855EC777-26EF-451D-8B9D-3220250BDA26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{487E9225-0ACB-4BCC-A616-FB0A9220E84F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{487E9225-0ACB-4BCC-A616-FB0A9220E84F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{487E9225-0ACB-4BCC-A616-FB0A9220E84F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{487E9225-0ACB-4BCC-A616-FB0A9220E84F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -112,6 +118,7 @@ Global
 		{7F0E756F-48EC-4273-9858-DC4C7E9FC179} = {07C55352-242E-4C75-AFF6-1B68E79FC0C7}
 		{F3B1D79F-B13A-458D-9B77-9DF7C41AB317} = {681B7E4D-8679-4B27-A52A-D67D179CBD69}
 		{855EC777-26EF-451D-8B9D-3220250BDA26} = {681B7E4D-8679-4B27-A52A-D67D179CBD69}
+		{487E9225-0ACB-4BCC-A616-FB0A9220E84F} = {CC4DF350-195A-4AE8-986B-33BCE8451AAF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {09A01B16-723F-4210-98B4-080307916EC3}

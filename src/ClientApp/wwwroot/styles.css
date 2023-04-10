@@ -232,7 +232,7 @@
 
 .reactions-pane {
     display: flex !important;
-    gap: 4px;
+    gap: 2px;
 }
 
 .message-right .reactions-pane {

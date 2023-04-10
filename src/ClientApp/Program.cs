@@ -52,6 +52,12 @@ builder.Services.AddHttpClient<IUsersClient>(nameof(UsersClient), (sp, http) =>
 //.SetHandlerLifetime(TimeSpan.FromMinutes(5))  //Set lifetime to five minutes
 //.AddPolicyHandler(GetRetryPolicy());
 
+builder.Services.AddHttpClient<MudEmojiPicker.Data.EmojiService>(nameof(MudEmojiPicker.Data.EmojiService), (sp, http) =>
+{
+    http.BaseAddress = new Uri("https://localhost:5021/");
+})
+.AddTypedClient<MudEmojiPicker.Data.EmojiService>((http, sp) => new MudEmojiPicker.Data.EmojiService(http));
+
 builder.Services.AddOidcAuthentication(options =>
 {
     builder.Configuration.Bind("Local", options.ProviderOptions);
@@ -62,6 +68,8 @@ builder.Services.AddScoped<ChatApp.Services.IAccessTokenProvider, ChatApp.Servic
 builder.Services.AddScoped<ChatApp.Services.ICurrentUserService, ChatApp.Services.CurrentUserService>();
 
 builder.Services.AddMudServices();
+
+//builder.Services.AddScoped<MudEmojiPicker.Data.EmojiService>();
 
 builder.Services.AddBlazoredLocalStorage();
 
