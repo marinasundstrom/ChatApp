@@ -2,7 +2,7 @@
 
 Chat app based on the [TodoApp](https://github.com/marinasundstrom/todo-app) project.
 
-Watch the [video](https://youtu.be/q6N_O9YRs1U)
+Here is a [video](https://youtu.be/q6N_O9YRs1U). And another newer [video](https://www.youtube.com/watch?v=eOEqPFWu-Os) showcasing "reactions".
 
 ## Screenshot
 
