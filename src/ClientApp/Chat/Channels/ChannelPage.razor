@@ -139,11 +139,11 @@
                         <div class="d-flex gap-3 gap-3 mt-2 mb-1" @onclick="() => { message.IsReactionsVisible = false; }">
                             @foreach(var emoji in reactionEmojis)
                             {
-                                <div style="z-index: 99999;" class="grow2" >
+                                <div style="z-index: 99999; padding-top: 2px; display: block;" class="grow2">
                                     <span style="font-size: 21px; cursor: pointer;" @onclick="async () => await React(message, emoji)">@emoji</span>
                                 </div>
                             }
-                            <MudIconButton Color="Color.Primary" Icon="@Icons.Filled.InsertEmoticon" OnClick="async () => await InsertReaction(message)" Size="Size.Small" />
+                            <MudIconButton Color="Color.Primary" Style="margin: 0; padding: 0; margin-top: -5px;" Icon="@Icons.Filled.InsertEmoticon" OnClick="async () => await InsertReaction(message)" Size="Size.Small" />
                         </div>
                     </TooltipContent>
                 </MudTooltip>
