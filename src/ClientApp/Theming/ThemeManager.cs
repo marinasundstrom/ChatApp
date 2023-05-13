@@ -1,21 +1,34 @@
 ﻿using Blazored.LocalStorage;
 
+using MudBlazor;
+
 namespace ChatApp.Theming;
 
-public interface IThemeManager : IDisposable
+public interface IThemeManager : IDisposable 
 {
-    ColorScheme CurrentColorScheme { get; }
-    ColorScheme? PreferredColorScheme { get; set; }
-
-    event EventHandler<ColorSchemeChangedEventArgs> ColorSchemeChanged;
-
-    void Dispose();
     void Initialize();
+
+    MudTheme Theme { get; }
+
+    void SetTheme(MudTheme theme);
+
+    event EventHandler<EventArgs>? ThemeChanged;
+
+    ColorScheme CurrentColorScheme { get; }
+
+    ColorScheme? PreferredColorScheme { get; set;}
+
+    bool IsAutoColorScheme => PreferredColorScheme is null;
+
+    void UseSystemColorScheme();
+
     void SetPreferredColorScheme(ColorScheme colorScheme);
-    void UseSystemScheme();
+
+    event EventHandler<ColorSchemeChangedEventArgs>? ColorSchemeChanged;
+
 }
 
-public class ThemeManager : IThemeManager
+public sealed class ThemeManager : IThemeManager
 {
     private const string PreferredColorSchemeKey = "preferredColorScheme";
     private readonly SystemColorSchemeDetector _systemColorSchemeDetector;
@@ -33,6 +46,25 @@ public class ThemeManager : IThemeManager
     {
         CurrentColorScheme = PreferredColorScheme ?? _systemColorSchemeDetector.CurrentColorScheme;
     }
+
+    public MudTheme Theme { get; private set; } = new MudTheme();
+
+    public void SetTheme(MudTheme theme) 
+    {
+        if(theme != Theme) 
+        {
+            Theme = theme;
+            
+            RaiseThemeChanged();
+        }
+    }
+
+    private void RaiseThemeChanged()
+    {
+        ThemeChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    public event EventHandler<EventArgs>? ThemeChanged;
 
     private void _systemColorSchemeDetector_ColorSchemeChanged(object? sender, SystemColorSchemeChangedEventArgs e)
     {
@@ -58,7 +90,7 @@ public class ThemeManager : IThemeManager
         set => _localStorage.SetItem(PreferredColorSchemeKey, value);
     }
 
-    public void UseSystemScheme()
+    public void UseSystemColorScheme()
     {
         PreferredColorScheme = null;
         CurrentColorScheme = _systemColorSchemeDetector.CurrentColorScheme;
@@ -75,13 +107,12 @@ public class ThemeManager : IThemeManager
             CurrentColorScheme = colorScheme;
 
             RaiseCurrentColorSchemeChanged();
-
         }
 
         _localStorage.SetItem<ColorScheme?>(PreferredColorSchemeKey, colorScheme);
     }
 
-    public event EventHandler<ColorSchemeChangedEventArgs> ColorSchemeChanged = null!;
+    public event EventHandler<ColorSchemeChangedEventArgs>? ColorSchemeChanged;
 
     public void Dispose()
     {
