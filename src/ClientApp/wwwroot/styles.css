@@ -167,6 +167,14 @@
     border-bottom-left-radius: 4px;
 }
 
+.message.message-left:not(.first) .reply-bubble {
+    border-top-left-radius: 4px;
+}
+
+.message.message-right:not(.first) .reply-bubble {
+    border-top-right-radius: 4px;
+}
+
 .reply-bubble {
     background-color: #c5c0ff;
     color: black;
