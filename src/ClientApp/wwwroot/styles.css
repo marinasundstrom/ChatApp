@@ -337,3 +337,11 @@
         font-size: 13px !important;
 	}
 }
+
+.message .reaction.marked {
+    border: 1px solid #157ddf7d !important;
+}
+
+.dark .message .reaction.marked {
+    border: 2px solid #8cb0d3 !important;
+}

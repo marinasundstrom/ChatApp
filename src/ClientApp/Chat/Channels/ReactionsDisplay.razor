@@ -11,12 +11,12 @@
                 <div @key="@reactionGroup.Key">
                     @if (reactionGroup.Count() > 1)
                     {
-                        <div class="reaction reaction-with-count bounce-in grow" @onclick="async () => await OnReactionClicked(reactionGroup)"><span>@r.Content </span><span
+                        <div class="reaction reaction-with-count bounce-in grow @(IsInReactions(reactionGroup) ? "marked" : null)" @onclick="async () => await OnReactionClicked(reactionGroup)"><span>@r.Content </span><span
                                 class="reaction-count"> @reactionGroup.Count()</span></div>
                     }
                     else
                     {
-                        <div class="reaction bounce-in grow" @onclick="async () => await OnReactionClicked(reactionGroup)"><span>@r.Content</span></div>
+                        <div class="reaction bounce-in grow @(IsInReactions(reactionGroup) ? "marked" : null)" @onclick="async () => await OnReactionClicked(reactionGroup)"><span>@r.Content</span></div>
                     }                   
                 </div>
             </ChildContent>
@@ -52,5 +52,10 @@
         };
 
         await MessagesClient.RemoveReactionAsync(Message.Id, reactions.Key);
+    }
+
+    private bool IsInReactions(IEnumerable<Reaction> reactions) 
+    {
+        return reactions.Any(x => x.User.Id == CurrentUserId);
     }
 }
