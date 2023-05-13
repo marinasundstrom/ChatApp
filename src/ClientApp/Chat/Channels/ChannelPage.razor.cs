@@ -5,10 +5,11 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.SignalR.Client;
 using MudBlazor;
 using Microsoft.AspNetCore.Components.Authorization;
+using ChatApp.Features.Chat;
 
 namespace ChatApp.Chat.Channels
 {
-    public partial class ChannelPage
+    public partial class ChannelPage : IChatHubClient
     {
         bool isDarkMode = false;
         string currentUserId = "BS";
@@ -28,6 +29,7 @@ namespace ChatApp.Chat.Channels
         public Task<AuthenticationState> AuthenticationStateTask { get; set; }  = default!;
 
         HubConnection hubConnection = null!;
+        IChatHub hubProxy = default!;
 
         UserInfo userInfo = default!;
 
@@ -46,12 +48,6 @@ namespace ChatApp.Chat.Channels
 
             await LoadChannel();
         }
-
-        public record MessageEditedData(Guid Id, DateTimeOffset LastEdited, UserData LastEditedBy, string Content);
-
-        public record MessageDeletedData(Guid Id, DateTimeOffset Deleted, UserData DeletedBy);
-
-        public record UserData(string Id, string Name);
 
         private async Task LoadChannel()
         {
@@ -80,12 +76,9 @@ namespace ChatApp.Chat.Channels
                     };
                 }).WithAutomaticReconnect().Build();
 
-                hubConnection.On<ChatApp.Message>("MessagePosted", OnMessagePosted);
-                hubConnection.On<string>("MessagePostedConfirmed", OnMessagePostedConfirmed);
-                hubConnection.On<Guid, MessageEditedData>("MessageEdited", OnMessageEdited);
-                hubConnection.On<Guid, MessageDeletedData>("MessageDeleted", OnMessageDeleted);
-                hubConnection.On<Guid, Guid, Reaction>("Reaction", OnReaction);
-                hubConnection.On<Guid, Guid, string, string>("ReactionRemoved", OnReactionRemoved);
+
+                hubProxy = hubConnection.ServerProxy<IChatHub>();
+                _ = hubConnection.ClientRegistration<IChatHubClient>(this);
 
                 hubConnection.Closed += (error) =>
                 {
@@ -143,41 +136,6 @@ namespace ChatApp.Chat.Channels
             {
                 AddOrUpdateMessage(item);
             }
-        }
-
-        private void OnMessagePostedConfirmed(string messageId)
-        {
-            var messageVm = loadedMessages.First(x => x.Id == Guid.Parse(messageId));
-            messageVm.Confirmed = true;
-
-            StateHasChanged();
-        }
-
-        private void OnReaction(Guid channelId, Guid messageId, Reaction reaction) 
-        {
-            var messageVm = loadedMessages.FirstOrDefault(x => x.Id == messageId);
-
-            if(messageVm is null) return;
-
-            messageVm.Reactions.Add(reaction);
-
-            StateHasChanged();
-        }
-        
-        private void OnReactionRemoved(Guid channelId, Guid messageId, string reaction, string userId) 
-        {
-            var messageVm = loadedMessages.FirstOrDefault(x => x.Id == messageId);
-            
-            if(messageVm is null) return;
-
-            // TODO: Pass the person removing the reaction
-            var reaction2 = messageVm.Reactions.FirstOrDefault(x => x.Content == reaction && x.User.Id == userId);
-
-            if(reaction2 is null) return;
-
-            messageVm.Reactions.Remove(reaction2);
-
-            StateHasChanged();
         }
 
         private void AddOrUpdateMessage(ChatApp.Message message)
@@ -262,17 +220,6 @@ namespace ChatApp.Chat.Channels
             return messageVm;
         }
 
-        private async void OnMessagePosted(ChatApp.Message message)
-        {
-            AddOrUpdateMessage(message);
-
-            loadedMessages.Sort();
-
-            StateHasChanged();
-
-            await NotifyParticipants(message);
-        }
-
         private async Task NotifyParticipants(Message message)
         {
             if (message.ReplyTo is null)
@@ -293,38 +240,6 @@ namespace ChatApp.Chat.Channels
                         };
                     });
                 }
-            }
-        }
-
-        private void OnMessageEdited(Guid channelId, MessageEditedData data) 
-        {
-            var messageVm = messagesCache.FirstOrDefault(x => x.Id == data.Id);
-
-            if(messageVm is not null) 
-            {
-                messageVm.Content = data.Content;
-                messageVm.Edited = data.LastEdited;
-                messageVm.EditedById = data.LastEditedBy.Id;
-                messageVm.EditedByName = data.LastEditedBy.Name;
-
-                StateHasChanged();
-            }
-        }
-
-        private void OnMessageDeleted(Guid channelId, MessageDeletedData data) 
-        {
-            var messageVm = messagesCache.FirstOrDefault(x => x.Id == data.Id);
-
-            if(messageVm is not null) 
-            {
-                //messages.Remove(messageVm);
-
-                messageVm.Content = string.Empty;
-                messageVm.Deleted = data.Deleted;
-                messageVm.DeletedById = data.DeletedBy.Id;
-                messageVm.DeletedByName = data.DeletedBy.Name;
-
-                StateHasChanged();
             }
         }
 
@@ -525,6 +440,101 @@ namespace ChatApp.Chat.Channels
             }
 
             return initials;           
+        }
+
+        public async Task OnMessagePosted(MessageData message)
+        {
+            var message1 = message.Map();
+
+            AddOrUpdateMessage(message1);
+
+            loadedMessages.Sort();
+
+            StateHasChanged();
+
+            await NotifyParticipants(message1);
+        }
+
+        public Task OnMessagePostedConfirmed(Guid messageId)
+        {
+            var messageVm = loadedMessages.First(x => x.Id == messageId);
+            messageVm.Confirmed = true;
+
+            StateHasChanged();
+
+            return Task.CompletedTask;
+        }
+
+        public Task OnMessageEdited(Guid channelId, MessageEditedData data)
+        {
+            var messageVm = messagesCache.FirstOrDefault(x => x.Id == data.Id);
+
+            if(messageVm is not null) 
+            {
+                messageVm.Content = data.Content;
+                messageVm.Edited = data.LastEdited;
+                messageVm.EditedById = data.LastEditedBy.Id;
+                messageVm.EditedByName = data.LastEditedBy.Name;
+
+                StateHasChanged();
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public Task OnMessageDeleted(Guid channelId, MessageDeletedData data)
+        {
+            var messageVm = messagesCache.FirstOrDefault(x => x.Id == data.Id);
+
+            if(messageVm is not null) 
+            {
+                //messages.Remove(messageVm);
+
+                messageVm.Content = string.Empty;
+                messageVm.Deleted = data.Deleted;
+                messageVm.DeletedById = data.DeletedBy.Id;
+                messageVm.DeletedByName = data.DeletedBy.Name;
+
+                StateHasChanged();
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public async Task OnMessageReaction(Guid channelId, Guid messageId, MessageReactionData reaction)
+        {
+            var messageVm = loadedMessages.FirstOrDefault(x => x.Id == messageId);
+
+            if(messageVm is null) return;
+
+            messageVm.Reactions.Add(new Reaction() 
+            {
+                Content = reaction.Content,
+                Date = reaction.Date,
+                User = new User 
+                {
+                    Id = reaction.User.Id,
+                    Name = reaction.User.Name
+                }
+            });
+
+            StateHasChanged();
+        }
+
+        public async Task OnMessageReactionRemoved(Guid channelId, Guid messageId, string reaction, string userId)
+        {
+            var messageVm = loadedMessages.FirstOrDefault(x => x.Id == messageId);
+            
+            if(messageVm is null) return;
+
+            // TODO: Pass the person removing the reaction
+            var reaction2 = messageVm.Reactions.FirstOrDefault(x => x.Content == reaction && x.User.Id == userId);
+
+            if(reaction2 is null) return;
+
+            messageVm.Reactions.Remove(reaction2);
+
+            StateHasChanged();
         }
     }
 }

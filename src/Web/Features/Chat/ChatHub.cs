@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.SignalR;
 namespace ChatApp.Features.Chat;
 
 [Authorize]
-public sealed class ChatHub : Hub<IChatHubClient>
+public sealed class ChatHub : Hub<IChatHubClient>, IChatHub
 {
     private readonly IMediator mediator;
     private readonly ICurrentUserServiceInternal currentUserService;
@@ -32,7 +32,7 @@ public sealed class ChatHub : Hub<IChatHubClient>
         return base.OnConnectedAsync();
     }
 
-    public async Task<Guid> PostMessage(Guid channelId, Guid? replyTo, string content) 
+    public async Task<Guid> PostMessage(Guid channelId, Guid? replyTo, string content)
     {
         currentUserService.SetUser(Context.User!);
         currentUserService.SetConnectionId(Context.ConnectionId);
@@ -68,19 +68,4 @@ public sealed class ChatHub : Hub<IChatHubClient>
     }
 
     */
-}
-
-public interface IChatHubClient
-{
-    Task MessagePosted(MessageDto message);
-
-    Task MessagePostedConfirmed(Guid messageId);
-
-    Task MessageEdited(Guid channelId, MessageEditedData data);
-
-    Task MessageDeleted(Guid channelId, MessageDeletedData data);
-
-    Task Reaction(Guid channelId, Guid messageId, ReactionDto reaction);
-
-    Task ReactionRemoved(Guid channelId, Guid messageId, string reaction, string userId);
 }
