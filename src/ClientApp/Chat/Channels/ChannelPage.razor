@@ -17,6 +17,12 @@
 @using System.ComponentModel.DataAnnotations
 @using MudEmojiPicker.Shared
 
+<style>
+    .message-content {
+        position: relative;
+    }
+</style>
+
 <div class="@(isDarkMode ? "dark" : null)">
 
 @foreach (var message in loadedMessages.OrderBy(x => x.Published))
@@ -28,7 +34,7 @@
     var isAuthorizedToEdit = message.PostedById == currentUserId;
 
     <Message @key="message.GetHashCode()" Direction="@(message.IsFromCurrentUser ? MessageDirection.Right : MessageDirection.Left)"
-        First=@first Last=@last IsFooterVisible=@last IsSideAreaVisible=@(message.PostedById != currentUserId)>
+        First=@first Last=@last IsFooterVisible=@(last || message.Reactions.Any()) IsSideAreaVisible=@(message.PostedById != currentUserId)>
         <SideAreaTemplate>
             @if(first) 
             {   
@@ -89,6 +95,8 @@
 
                     @(new MarkupString(message.Content.Replace(Environment.NewLine, "<br />")))
 
+                    <TimeDisplay Message="@message" class="ms-1" />
+
                     @if(message.PostedById == currentUserId || message.Edited is not null) 
                     {
                         <div class="d-inline-flex">
@@ -119,12 +127,14 @@
             }
         </ChildContent>
         
+        @*
         <FooterTemplate>
             @if(last) 
             {
                 <TimeDisplay Message="@message" />
             }
         </FooterTemplate>
+        *@
 
         <ActionsTemplate>
             @if (message.Deleted is null)

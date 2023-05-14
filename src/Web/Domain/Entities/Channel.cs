@@ -35,10 +35,13 @@ public sealed class Channel : AggregateRoot<ChannelId>, IAuditable
 
         // Todo: Emit Domain Event
 
-        AddDomainEvent(new ChannelRenamed(Id, newTitle, oldTitle))
-;
+        AddDomainEvent(new ChannelRenamed(Id, newTitle, oldTitle));
         return true;
     }
+
+    public bool BlockPosting { get; set; }
+
+    public bool DisallowNicknames { get; set; } 
 
     HashSet<ChannelParticipant> _participants = new HashSet<ChannelParticipant>();
 
@@ -98,11 +101,21 @@ public class ChannelParticipant
 
     public DateTimeOffset? Left { get; set; }
 
+    public int? UnreadMessages { get; set; }
+
     public bool IsMuted { get; set; }
 
     public DateTime? MutedUntil { get; set; }
 
+    public DateTimeOffset? Added { get; set; }
+
+    public UserId? AddedById { get; set; }
+
     public DateTimeOffset? Removed { get; set; }
 
     public UserId? RemovedById { get; set; }
+
+    public DateTimeOffset? Blocked { get; set; }
+
+    public UserId? BlockedById { get; set; }
 }

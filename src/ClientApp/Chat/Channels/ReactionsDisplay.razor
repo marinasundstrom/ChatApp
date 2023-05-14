@@ -1,7 +1,7 @@
 @inject IStringLocalizer<ChannelPage> T
 @inject IMessagesClient MessagesClient
 
-<div class="reactions-pane" style="position: relative; bottom: 8px; right: 0;">
+<div class="reactions-pane" style="position: absolute; bottom: -12px; right: 0; z-index: 9999;">
     @foreach (var reactionGroup in Message.Reactions.GroupBy(x => x.Content))
     {
         var r = reactionGroup.First();
