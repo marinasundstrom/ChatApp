@@ -250,10 +250,21 @@
 .reactions-pane {
     display: flex !important;
     gap: 2px;
+    position: absolute; 
+    bottom: -12px; 
+    z-index: 1000;
 }
 
 .message-right .reactions-pane {
     justify-content: flex-end !important
+}
+
+.message-right .reactions-pane {
+    right: 0;
+}
+
+.message-left .reactions-pane {
+    
 }
 
 .reactions-pane .reaction {
