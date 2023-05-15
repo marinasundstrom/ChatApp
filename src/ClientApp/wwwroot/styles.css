@@ -90,6 +90,15 @@
     box-shadow: 5px 5px 15px #dee3e5;
 }
 
+.bubble > h1:first-child, .bubble > h2:first-child, .bubble > h3:first-child, .bubble > h4:first-child, .bubble > h5:first-child {
+    margin-top: 0;
+}
+
+.bubble h1, .bubble h2, .bubble h3, .bubble h4, .bubble h5 {
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
 .dark .message .bubble{
     box-shadow: 5px 5px 15px #2b2b2b !important;
 }
@@ -248,8 +257,8 @@
 }
 
 .reactions-pane .reaction {
-    width: 21px;
-    height: 21px;
+    width: 23px;
+    height: 23px;
     text-align: center; 
     background-color: white; 
     border-radius: 25px;

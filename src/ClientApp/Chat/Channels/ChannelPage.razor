@@ -95,29 +95,31 @@
 
                     <ChatApp.Markdown.MarkdownView Content="@message.Content" />
 
-                    <TimeDisplay Message="@message" class="ms-1" />
+                    <div style="float: right" class="mt-2">
+                        <TimeDisplay Message="@message" class="ms-1" />
 
-                    @if(message.PostedById == currentUserId || message.Edited is not null) 
-                    {
-                        <div class="d-inline-flex">
+                        @if(message.PostedById == currentUserId || message.Edited is not null) 
+                        {
+                            <div class="d-inline-flex">
 
-                            @if(message.PostedById == currentUserId) 
-                            {
-                                if(message.Confirmed) 
+                                @if(message.PostedById == currentUserId) 
                                 {
-                                    <MudIcon Icon="@Icons.Filled.CheckCircle" Size="Size.Small" Class="ms-1" Style="height: 0.8em; top: 3px; position: relative;" />
+                                    if(message.Confirmed) 
+                                    {
+                                        <MudIcon Icon="@Icons.Filled.CheckCircle" Size="Size.Small" Class="ms-1" Style="height: 0.8em; top: 3px; position: relative;" />
+                                    }
                                 }
-                            }
 
-                            @if (message.Edited is not null)
-                            {
-                                <MudTooltip Text="@($"{T["EditedBy", message.Edited.Humanize()!, message.EditedByName!]}")">
-                                    <MudIcon Icon="@Icons.Filled.Edit" Size="Size.Small" Style="height: 0.8em; top: 3px; position: relative;" />
-                                </MudTooltip>
-                            }
+                                @if (message.Edited is not null)
+                                {
+                                    <MudTooltip Text="@($"{T["EditedBy", message.Edited.Humanize()!, message.EditedByName!]}")">
+                                        <MudIcon Icon="@Icons.Filled.Edit" Size="Size.Small" Style="height: 0.8em; top: 3px; position: relative;" />
+                                    </MudTooltip>
+                                }
 
-                        </div>
-                    }
+                            </div>
+                        }
+                    </div>
             }
             </Bubble>
 
