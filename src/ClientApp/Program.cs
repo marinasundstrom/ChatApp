@@ -8,9 +8,9 @@ using Polly.Contrib.WaitAndRetry;
 using Polly.Extensions.Http;
 using ChatApp;
 using ChatApp.Theming;
-using ChatApp.Chat;
 using ChatApp.Chat.Messages;
 using MudBlazor;
+using ChatApp.Markdown;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -19,6 +19,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddFeatureManagement();
 
 builder.Services.AddTransient<CustomAuthorizationMessageHandler>();
+
+builder.Services.AddMarkdownServices();
 
 builder.Services.AddHttpClient("WebAPI",
         client => client.BaseAddress = new Uri("https://localhost:5001/"));
