@@ -2,7 +2,6 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ChatApp.Domain;
-using FastEndpoints;
 using ChatApp.Domain.ValueObjects;
 
 using Microsoft.Extensions.Caching.Distributed;
