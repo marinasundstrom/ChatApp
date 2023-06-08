@@ -20,7 +20,7 @@ public static class OpenApiExtensions
                 config.DocumentName = $"v{GetApiVersion(description)}";
                 config.PostProcess = document =>
                 {
-                    document.Info.Title = "Todo API";
+                    document.Info.Title = "Chat API";
                     document.Info.Version = $"v{GetApiVersion(description)}";
                 };
                 config.ApiGroupNames = new[] { GetApiVersion(description) };
