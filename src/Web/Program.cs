@@ -68,7 +68,7 @@ app.MapApplicationHubs();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseOpenApi();
+    app.UseOpenApi(p => p.Path = "/swagger/{documentName}/swagger.yaml");
 
     app.UseSwaggerUi3(options =>
     {
@@ -78,7 +78,7 @@ if (app.Environment.IsDevelopment())
         foreach (var description in descriptions)
         {
             var name = $"v{description.ApiVersion}";
-            var url = $"/swagger/v{GetApiVersion(description)}/swagger.json";
+            var url = $"/swagger/v{GetApiVersion(description)}/swagger.yaml";
 
             options.SwaggerRoutes.Add(new SwaggerUi3Route(name, url));
         }
