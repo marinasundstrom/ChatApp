@@ -1,3 +1,5 @@
+Merged into [YourBrand](https://github.com/marinasundstrom/YourBrand).
+
 # Chat App
 
 Chat app based on the [TodoApp](https://github.com/marinasundstrom/todo-app) project.
